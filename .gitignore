@@ -1,0 +1,9 @@
+node_modules/
+.env
+uploads/pending/*
+uploads/approved/*
+!uploads/pending/.gitkeep
+!uploads/approved/.gitkeep
+data/*.json
+.DS_Store
+*.log
