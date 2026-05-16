@@ -1,0 +1,85 @@
+<%- include('partials/head', { pageTitle: 'Our Story', config }) %>
+<% const activePage = 'story'; %>
+<%- include('partials/nav', { config, activePage }) %>
+
+<main>
+  <section class="page-hero">
+    <div class="container">
+      <h1>Our Story</h1>
+      <p class="page-hero-sub">A love story worth telling</p>
+    </div>
+  </section>
+
+  <section class="story-section">
+    <div class="container container--narrow">
+
+      <div class="timeline">
+
+        <div class="timeline-item">
+          <div class="timeline-marker" aria-hidden="true">♡</div>
+          <div class="timeline-content">
+            <h2>How We Met</h2>
+            <p class="timeline-date">[Your story here]</p>
+            <p>
+              Share the story of how you first met. Tell your guests the moment you knew this
+              person was special, the place, the feeling — all the wonderful details that made
+              it uniquely yours.
+            </p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-marker" aria-hidden="true">★</div>
+          <div class="timeline-content">
+            <h2>Our First Date</h2>
+            <p class="timeline-date">[Date]</p>
+            <p>
+              Describe your first date here — where you went, what you talked about,
+              and the moment you knew this was going to be something special.
+            </p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-marker" aria-hidden="true">✈</div>
+          <div class="timeline-content">
+            <h2>Adventures Together</h2>
+            <p class="timeline-date">[Year range]</p>
+            <p>
+              Share some of your favourite memories together — travels, milestones, ordinary
+              moments that became extraordinary, and everything in between.
+            </p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-marker" aria-hidden="true">💍</div>
+          <div class="timeline-content">
+            <h2>The Proposal</h2>
+            <p class="timeline-date">[Date of proposal]</p>
+            <p>
+              Tell the proposal story — where it happened, how it happened, and of course,
+              what was said. This is the moment your guests have been waiting to hear about.
+            </p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-marker" aria-hidden="true">♡</div>
+          <div class="timeline-content">
+            <h2>Now</h2>
+            <p class="timeline-date"><%= config.weddingDate %></p>
+            <p>
+              And now, we can't wait to celebrate the next chapter of our story with all of
+              you — the people we love most in the world.
+            </p>
+            <a href="/rsvp" class="btn btn-primary" style="margin-top:1rem;">Join Our Celebration</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+</main>
+
+<%- include('partials/footer', { config }) %>

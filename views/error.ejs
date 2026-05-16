@@ -1,0 +1,15 @@
+<%- include('partials/head', { pageTitle: status + ' Error', config }) %>
+<%- include('partials/nav', { config, activePage: '' }) %>
+
+<main>
+  <section class="error-page">
+    <div class="container container--narrow" style="text-align:center;padding:4rem 1rem;">
+      <p class="error-code" aria-hidden="true"><%= status %></p>
+      <h1><%= title %></h1>
+      <p><%= message %></p>
+      <a href="/" class="btn btn-primary" style="margin-top:2rem;">Return Home</a>
+    </div>
+  </section>
+</main>
+
+<%- include('partials/footer', { config }) %>

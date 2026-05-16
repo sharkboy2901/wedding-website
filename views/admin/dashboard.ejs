@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="admin-body">
+
+<header class="admin-header">
+  <div class="admin-header-inner">
+    <h1 class="admin-header-title">Admin Dashboard</h1>
+    <nav class="admin-nav" aria-label="Admin navigation">
+      <a href="/admin/dashboard" class="admin-nav-link admin-nav-link--active">Photos</a>
+      <a href="/admin/rsvps" class="admin-nav-link">RSVPs</a>
+      <a href="/" class="admin-nav-link" target="_blank" rel="noopener noreferrer">View Site ↗</a>
+      <a href="/admin/logout" class="admin-nav-link admin-nav-link--logout">Sign Out</a>
+    </nav>
+  </div>
+</header>
+
+<main class="admin-main">
+  <div class="admin-container">
+
+    <% if (flash) { %>
+      <div class="alert alert--<%= flash.type %>" role="alert"><%= flash.message %></div>
+    <% } %>
+
+    <!-- Stats summary -->
+    <div class="admin-stats">
+      <div class="admin-stat">
+        <span class="admin-stat-num"><%= photoStats.pending %></span>
+        <span class="admin-stat-label">Pending Photos</span>
+      </div>
+      <div class="admin-stat">
+        <span class="admin-stat-num"><%= photoStats.approved %></span>
+        <span class="admin-stat-label">Approved</span>
+      </div>
+      <div class="admin-stat">
+        <span class="admin-stat-num"><%= photoStats.rejected %></span>
+        <span class="admin-stat-label">Rejected</span>
+      </div>
+      <div class="admin-stat admin-stat--yes">
+        <span class="admin-stat-num"><%= rsvpStats.yes_count %></span>
+        <span class="admin-stat-label">Yes RSVPs</span>
+      </div>
+      <div class="admin-stat">
+        <span class="admin-stat-num"><%= rsvpStats.total_guests %></span>
+        <span class="admin-stat-label">Total Guests</span>
+      </div>
+    </div>
+
+    <!-- ── Pending Photos ───────────────────────────────────────────────── -->
+    <section class="admin-section" aria-labelledby="pending-heading">
+      <h2 class="admin-section-title" id="pending-heading">
+        Pending Photos
+        <% if (pendingPhotos.length > 0) { %>
+          <span class="badge badge--warning"><%= pendingPhotos.length %></span>
+        <% } %>
+      </h2>
+
+      <% if (pendingPhotos.length === 0) { %>
+        <div class="admin-empty">
+          <p>✓ No pending photos — you're all caught up!</p>
+        </div>
+      <% } else { %>
+        <p class="admin-section-note">
+          Review each photo before it appears in the public gallery. Photos remain hidden until approved.
+        </p>
+        <div class="admin-photo-grid">
+          <% pendingPhotos.forEach(function(photo) { %>
+            <div class="admin-photo-card">
+              <div class="admin-photo-thumb">
+                <img
+                  src="/admin/photo/<%= photo.id %>/image"
+                  alt="Pending upload<% if (photo.uploader_name) { %> from <%= photo.uploader_name %><% } %>"
+                  loading="lazy"
+                  class="admin-photo-img"
+                >
+              </div>
+              <div class="admin-photo-info">
+                <p class="admin-photo-meta">
+                  <% if (photo.uploader_name) { %>
+                    <strong><%= photo.uploader_name %></strong><br>
+                  <% } %>
+                  <span class="admin-photo-date"><%= new Date(photo.uploaded_at).toLocaleString() %></span><br>
+                  <span class="admin-photo-size">
+                    <%= (photo.file_size / 1024).toFixed(0) %> KB &bull; <%= photo.mime_type %>
+                  </span>
+                </p>
+                <% if (photo.uploader_message) { %>
+                  <p class="admin-photo-msg">&ldquo;<%= photo.uploader_message %>&rdquo;</p>
+                <% } %>
+                <div class="admin-photo-actions">
+                  <form action="/admin/photo/<%= photo.id %>/approve" method="post">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button
+                      type="submit"
+                      class="btn-approve"
+                      aria-label="Appr

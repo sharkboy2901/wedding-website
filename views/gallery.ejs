@@ -1,0 +1,64 @@
+<%- include('partials/head', { pageTitle: 'Gallery', config }) %>
+<% const activePage = 'gallery'; %>
+<%- include('partials/nav', { config, activePage }) %>
+
+<main>
+  <section class="page-hero">
+    <div class="container">
+      <h1>Gallery</h1>
+      <p class="page-hero-sub">Memories shared by friends &amp; family</p>
+    </div>
+  </section>
+
+  <section class="gallery-section">
+    <div class="container">
+      <% if (photos.length === 0) { %>
+        <div class="gallery-empty">
+          <p class="gallery-empty-icon" aria-hidden="true">&#128247;</p>
+          <p>No photos yet &mdash; be the first to share a memory!</p>
+          <a href="/upload" class="btn btn-primary" style="margin-top:1rem;">Share a Photo</a>
+        </div>
+      <% } else { %>
+        <div class="gallery-grid" role="list">
+          <% photos.forEach(function(photo) { %>
+            <div class="gallery-item" role="listitem">
+              <button class="gallery-thumb-btn" aria-label="View photo<% if (photo.uploader_name) { %> by <%= photo.uploader_name %><% } %>">
+                <img
+                  src="/uploads/approved/<%= photo.filename %>"
+                  alt="<% if (photo.uploader_name) { %>Photo shared by <%= photo.uploader_name %><% } else { %>Wedding photo<% } %>"
+                  class="gallery-thumb"
+                  loading="lazy"
+                >
+              </button>
+              <% if (photo.uploader_name || photo.uploader_message) { %>
+                <div class="gallery-caption">
+                  <% if (photo.uploader_name) { %><span class="gallery-name"><%= photo.uploader_name %></span><% } %>
+                  <% if (photo.uploader_message) { %><p class="gallery-msg"><%= photo.uploader_message %></p><% } %>
+                </div>
+              <% } %>
+            </div>
+          <% }); %>
+        </div>
+
+        <!-- Lightbox overlay -->
+        <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" hidden>
+          <button class="lightbox-close" aria-label="Close">&times;</button>
+          <button class="lightbox-prev" aria-label="Previous photo">&#8249;</button>
+          <button class="lightbox-next" aria-label="Next photo">&#8250;</button>
+          <div class="lightbox-inner">
+            <img id="lightbox-img" src="" alt="" class="lightbox-img">
+            <div id="lightbox-caption" class="lightbox-caption"></div>
+          </div>
+        </div>
+      <% } %>
+
+      <div class="gallery-upload-cta">
+        <p>Have photos to share?</p>
+        <a href="/upload" class="btn btn-secondary">Upload Your Photos</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="/js/gallery.js"></script>
+<%- include('partials/footer', { config }) %>

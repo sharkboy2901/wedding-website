@@ -1,0 +1,17 @@
+<header class="site-header">
+  <div class="header-inner">
+    <a href="/" class="site-logo"><%= config.coupleNames %></a>
+    <button class="nav-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="main-nav">
+      <span></span><span></span><span></span>
+    </button>
+    <nav id="main-nav" class="main-nav" role="navigation" aria-label="Main navigation">
+      <ul>
+        <li><a href="/"<%= typeof activePage !== 'undefined' && activePage === 'home'    ? ' aria-current="page"' : '' %>>Home</a></li>
+        <li><a href="/our-story"<%= typeof activePage !== 'undefined' && activePage === 'story'   ? ' aria-current="page"' : '' %>>Our Story</a></li>
+        <li><a href="/rsvp"<%= typeof activePage !== 'undefined' && activePage === 'rsvp'    ? ' aria-current="page"' : '' %>>RSVP</a></li>
+        <li><a href="/gallery"<%= typeof activePage !== 'undefined' && activePage === 'gallery'  ? ' aria-current="page"' : '' %>>Gallery</a></li>
+        <li><a href="/upload"<%= typeof activePage !== 'undefined' && activePage === 'upload'   ? ' aria-current="page"' : '' %>>Share a Photo</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>

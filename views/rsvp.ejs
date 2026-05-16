@@ -1,0 +1,147 @@
+<%- include('partials/head', { pageTitle: 'RSVP', config }) %>
+<% const activePage = 'rsvp'; %>
+<%- include('partials/nav', { config, activePage }) %>
+
+<main>
+  <section class="page-hero">
+    <div class="container">
+      <h1>RSVP</h1>
+      <p class="page-hero-sub">Please reply by <%= config.rsvpDeadline %></p>
+    </div>
+  </section>
+
+  <section class="form-section">
+    <div class="container container--narrow">
+
+      <% if (flash) { %>
+        <div class="alert alert--<%= flash.type %>" role="alert">
+          <%= flash.message %>
+        </div>
+      <% } %>
+
+      <% if (errors && errors.length > 0) { %>
+        <div class="alert alert--error" role="alert">
+          <ul class="error-list">
+            <% errors.forEach(function(e) { %><li><%= e %></li><% }); %>
+          </ul>
+        </div>
+      <% } %>
+
+      <% if (!flash || flash.type !== 'success') { %>
+      <form action="/rsvp" method="post" class="wedding-form" novalidate>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+        <div class="form-group">
+          <label for="name" class="form-label">Full Name <span class="required" aria-hidden="true">*</span></label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            class="form-input"
+            required
+            autocomplete="name"
+            maxlength="100"
+            value="<%= typeof formData !== 'undefined' && formData ? formData.name || '' : '' %>"
+            placeholder="Your full name"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="email" class="form-label">Email Address <span class="optional">(optional)</span></label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            class="form-input"
+            autocomplete="email"
+            maxlength="200"
+            value="<%= typeof formData !== 'undefined' && formData ? formData.email || '' : '' %>"
+            placeholder="your@email.com"
+          >
+          <p class="form-hint">We'll only use this to send you any updates about the day.</p>
+        </div>
+
+        <div class="form-group">
+          <fieldset>
+            <legend class="form-label">Will you be joining us? <span class="required" aria-hidden="true">*</span></legend>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="attending" value="yes"
+                  <%= typeof formData !== 'undefined' && formData && formData.attending === 'yes' ? 'checked' : '' %>>
+                <span class="radio-text">Yes, I'll be there! &#127881;</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="attending" value="maybe"
+                  <%= typeof formData !== 'undefined' && formData && formData.attending === 'maybe' ? 'checked' : '' %>>
+                <span class="radio-text">I'm not sure yet</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="attending" value="no"
+                  <%= typeof formData !== 'undefined' && formData && formData.attending === 'no' ? 'checked' : '' %>>
+                <span class="radio-text">Sadly I can't make it</span>
+              </label>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="form-group" id="guest-count-group">
+          <label for="guest_count" class="form-label">Number of Guests (including yourself)</label>
+          <input
+            type="number"
+            id="guest_count"
+            name="guest_count"
+            class="form-input form-input--narrow"
+            min="1"
+            max="10"
+            value="<%= typeof formData !== 'undefined' && formData && formData.guest_count ? formData.guest_count : '1' %>"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="dietary" class="form-label">Dietary Requirements <span class="optional">(optional)</span></label>
+          <input
+            type="text"
+            id="dietary"
+            name="dietary"
+            class="form-input"
+            maxlength="500"
+            value="<%= typeof formData !== 'undefined' && formData ? formData.dietary || '' : '' %>"
+            placeholder="Vegetarian, gluten-free, allergies, etc."
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="song" class="form-label">Song Request <span class="optional">(optional)</span></label>
+          <input
+            type="text"
+            id="song"
+            name="song"
+            class="form-input"
+            maxlength="200"
+            value="<%= typeof formData !== 'undefined' && formData ? formData.song || '' : '' %>"
+            placeholder="What song will get you on the dance floor?"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="message" class="form-label">A Message for the Couple <span class="optional">(optional)</span></label>
+          <textarea
+            id="message"
+            name="message"
+            class="form-textarea"
+            maxlength="1000"
+            rows="4"
+            placeholder="Share your wishes, memories, or anything you'd like to say..."
+          ><%= typeof formData !== 'undefined' && formData ? formData.message || '' : '' %></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn--full">Send My RSVP</button>
+      </form>
+      <% } %>
+
+    </div>
+  </section>
+</main>
+
+<script src="/js/rsvp.js"></script>
+<%- include('partials/footer', { config }) %>

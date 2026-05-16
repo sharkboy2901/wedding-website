@@ -1,0 +1,100 @@
+<%- include('partials/head', { pageTitle: 'Share a Photo', config }) %>
+<% const activePage = 'upload'; %>
+<%- include('partials/nav', { config, activePage }) %>
+
+<main>
+  <section class="page-hero">
+    <div class="container">
+      <h1>Share a Photo</h1>
+      <p class="page-hero-sub">Upload a memory from our celebration</p>
+    </div>
+  </section>
+
+  <section class="form-section">
+    <div class="container container--narrow">
+
+      <% if (flash) { %>
+        <div class="alert alert--<%= flash.type %>" role="alert">
+          <%= flash.message %>
+        </div>
+      <% } %>
+
+      <% if (!flash || flash.type !== 'success') { %>
+
+      <div class="upload-info">
+        <p>Share your photos from our wedding day! All uploads are reviewed before appearing
+        in the public gallery.</p>
+        <ul class="upload-rules">
+          <li>JPEG, PNG, or WebP images only</li>
+          <li>Maximum file size: <%= MAX_SIZE_MB %> MB</li>
+          <li>Photos are moderated before appearing publicly</li>
+        </ul>
+      </div>
+
+      <form action="/upload" method="post" enctype="multipart/form-data" class="wedding-form" id="upload-form" novalidate data-max-mb="<%= MAX_SIZE_MB %>">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+        <div class="form-group">
+          <label for="photo" class="form-label">
+            Choose Photo <span class="required" aria-hidden="true">*</span>
+          </label>
+          <div class="file-drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Click to choose a photo or drag and drop">
+            <div class="drop-zone-content" id="drop-zone-content">
+              <span class="drop-icon" aria-hidden="true">📷</span>
+              <span class="drop-text">Click to choose a photo or drag &amp; drop here</span>
+              <span class="drop-sub">JPEG, PNG, or WebP &bull; Max <%= MAX_SIZE_MB %> MB</span>
+            </div>
+            <div class="drop-preview" id="drop-preview" hidden>
+              <img id="preview-img" src="" alt="Preview of selected photo" class="preview-img">
+              <span id="preview-name" class="preview-name"></span>
+              <button type="button" class="preview-remove" id="preview-remove" aria-label="Remove selected photo">&times;</button>
+            </div>
+          </div>
+          <input
+            type="file"
+            id="photo"
+            name="photo"
+            accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+            required
+            class="file-input-hidden"
+            aria-describedby="file-hint"
+          >
+          <p id="file-hint" class="form-hint">Only image files are accepted. The photo will be reviewed before appearing publicly.</p>
+        </div>
+
+        <div class="form-group">
+          <label for="uploader_name" class="form-label">Your Name <span class="optional">(optional)</span></label>
+          <input
+            type="text"
+            id="uploader_name"
+            name="uploader_name"
+            class="form-input"
+            maxlength="100"
+            placeholder="How should we credit this photo?"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="uploader_message" class="form-label">Caption or Message <span class="optional">(optional)</span></label>
+          <textarea
+            id="uploader_message"
+            name="uploader_message"
+            class="form-textarea"
+            maxlength="500"
+            rows="3"
+            placeholder="Add a caption or message for this photo..."
+          ></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn--full" id="submit-btn">
+          Upload Photo
+        </button>
+      </form>
+      <% } %>
+
+    </div>
+  </section>
+</main>
+
+<script src="/js/upload.js"></script>
+<%- include('partials/footer', { config }) %>

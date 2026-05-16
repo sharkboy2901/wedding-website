@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RSVP List — Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="admin-body">
+
+<header class="admin-header">
+  <div class="admin-header-inner">
+    <h1 class="admin-header-title">RSVP List</h1>
+    <nav class="admin-nav" aria-label="Admin navigation">
+      <a href="/admin/dashboard" class="admin-nav-link">Photos</a>
+      <a href="/admin/rsvps" class="admin-nav-link admin-nav-link--active">RSVPs</a>
+      <a href="/" class="admin-nav-link" target="_blank" rel="noopener noreferrer">View Site ↗</a>
+      <a href="/admin/logout" class="admin-nav-link admin-nav-link--logout">Sign Out</a>
+    </nav>
+  </div>
+</header>
+
+<main class="admin-main">
+  <div class="admin-container">
+
+    <% if (flash) { %>
+      <div class="alert alert--<%= flash.type %>" role="alert"><%= flash.message %></div>
+    <% } %>
+
+    <!-- Stats -->
+    <div class="admin-stats">
+      <div class="admin-stat admin-stat--yes">
+        <span class="admin-stat-num"><%= rsvpStats.yes_count %></span>
+        <span class="admin-stat-label">Attending</span>
+      </div>
+      <div class="admin-stat admin-stat--maybe">
+        <span class="admin-stat-num"><%= rsvpStats.maybe_count %></span>
+        <span class="admin-stat-label">Maybe</span>
+      </div>
+      <div class="admin-stat admin-stat--no">
+        <span class="admin-stat-num"><%= rsvpStats.no_count %></span>
+        <span class="admin-stat-label">Not Attending</span>
+      </div>
+      <div class="admin-stat">
+        <span class="admin-stat-num"><%= rsvpStats.total_guests %></span>
+        <span class="admin-stat-label">Total Guests</span>
+      </div>
+      <div class="admin-stat">
+        <span class="admin-stat-num"><%= rsvps.length %></span>
+        <span class="admin-stat-label">Total Responses</span>
+      </div>
+    </div>
+
+    <section class="admin-section">
+      <div class="admin-section-header">
+        <h2 class="admin-section-title">All RSVPs</h2>
+        <% if (rsvps.length > 0) { %>
+          <a href="/admin/rsvps/export.csv" class="btn-export" aria-label="Download all RSVPs as a CSV spreadsheet">
+            ↓ Export CSV
+          </a>
+        <% } %>
+      </div>
+
+      <% if (rsvps.length === 0) { %>
+        <div class="admin-empty"><p>No RSVPs yet.</p></div>
+      <% } else { %>
+        <div class="rsvp-table-wrap">
+          <table class="rsvp-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Attending</th>
+                <th>Guests</th>
+                <th>Email</th>
+                <th>Dietary</th>
+                <th>Song</th>
+                <th>Message</th>
+                <th>Submitted</th>
+                <th><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% rsvps.forEach(function(r) { %>
+                <tr class="rsvp-row rsvp-row--<%= r.attending %>">
+                  <td data-label="Name"><strong><%= r.name %></strong></td>
+                  <td data-label="Attending">
+                    <span class="rsvp-badge rsvp-badge--<%= r.attending %>">
+                      <%= r.attending === 'yes' ? '✓ Yes' : r.attending === 'no' ? '✗ No' : '? Maybe' %>
+                    </span>
+                  </td>
+                  <td data-label="Guests"><%= r.attending === 'yes' ? r.guest_count : '—' %></td>
+                  <td data-label="Email"><%= r.email || '—' %></td>
+                  <td data-label="Dietary"><%= r.dietary_requirements || '—' %></td>
+                  <td data-label="Song"><%= r.song_request || '—' %></td>
+                  <td data-label="Message" class="rsvp-message"><%= r.message || '—' %></td>
+                  <td data-label="Submitted" class="rsvp-date"><%= new Date(r.created_at).toLocaleDateString() %></td>
+                  <td data-label="Delete">
+                    <form action="/admin/rsvp/<%= r._id %>/delete" method="post" class="rsvp-delete-form">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <button type="submit" class="btn-rsvp-delete" aria-label="Delete RSVP from <%= r.name %>">
+                        Delete
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </section>
+
+  </div>
+</main>
+
+<script src="/js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<%- include('partials/head', { pageTitle: 'Welcome', config }) %>
+<% const activePage = 'home'; %>
+<%- include('partials/nav', { config, activePage }) %>
+
+<main>
+  <!-- Hero -->
+  <section class="hero" aria-label="Welcome">
+    <div class="hero-content">
+      <p class="hero-eyebrow">We're getting married</p>
+      <h1 class="hero-names"><%= config.coupleNames %></h1>
+      <p class="hero-date"><%= config.weddingDate %></p>
+      <p class="hero-venue"><%= config.venueName %><% if (config.venueLocation) { %>, <%= config.venueLocation %><% } %></p>
+      <a href="/rsvp" class="btn btn-primary hero-cta">RSVP Now</a>
+    </div>
+    <div class="hero-flourish" aria-hidden="true">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3"/>
+        <circle cx="100" cy="100" r="65" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.2"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- Countdown — data-wedding-date passes date to main.js without inline script -->
+  <section class="countdown-section" aria-label="Countdown to the wedding" data-wedding-date="<%= config.weddingDate %>">
+    <div class="container">
+      <h2 class="section-title">Counting Down</h2>
+      <div class="countdown" id="countdown" aria-live="polite">
+        <div class="countdown-unit">
+          <span class="countdown-num" id="cd-days">--</span>
+          <span class="countdown-label">Days</span>
+        </div>
+        <div class="countdown-sep" aria-hidden="true">:</div>
+        <div class="countdown-unit">
+          <span class="countdown-num" id="cd-hours">--</span>
+          <span class="countdown-label">Hours</span>
+        </div>
+        <div class="countdown-sep" aria-hidden="true">:</div>
+        <div class="countdown-unit">
+          <span class="countdown-num" id="cd-mins">--</span>
+          <span class="countdown-label">Minutes</span>
+        </div>
+        <div class="countdown-sep" aria-hidden="true">:</div>
+        <div class="countdown-unit">
+          <span class="countdown-num" id="cd-secs">--</span>
+          <span class="countdown-label">Seconds</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Wedding details -->
+  <section class="details-section" aria-label="Wedding details">
+    <div class="container">
+      <h2 class="section-title">The Details</h2>
+      <div class="details-grid">
+        <div class="detail-card">
+          <div class="detail-icon" aria-hidden="true">♡</div>
+          <h3>Ceremony</h3>
+          <p><%= config.weddingDate %></p>
+          <p><%= config.ceremonyTime %></p>
+          <p><%= config.venueName %></p>
+        </div>
+        <div class="detail-card">
+          <div class="detail-icon" aria-hidden="true">♪</div>
+          <h3>Reception</h3>
+          <p>Following the ceremony</p>
+          <p><%= config.receptionTime %></p>
+          <p><%= config.venueName %></p>
+        </div>
+        <div class="detail-card">
+          <div class="detail-icon" aria-hidden="true">✦</div>
+          <h3>Dress Code</h3>
+          <p><%= config.dressCode %></p>
+        </div>
+        <div class="detail-card">
+          <div class="detail-icon" aria-hidden="true">✉</div>
+          <h3>RSVP Deadline</h3>
+          <p>Please reply by</p>
+          <p><%= config.rsvpDeadline %></p>
+          <a href="/rsvp" class="detail-link">RSVP now &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Navigation tiles -->
+  <section class="nav-tiles-section" aria-label="Explore">
+    <div class="container">
+      <div class="nav-tiles">
+        <a href="/our-story" class="nav-tile">
+          <span class="nav-tile-icon" aria-hidden="true">💌</span>
+          <span class="nav-tile-title">Our Story</span>
+          <span class="nav-tile-sub">How it all began</span>
+        </a>
+        <a href="/gallery" class="nav-tile">
+          <span class="nav-tile-icon" aria-hidden="true">📷</span>
+          <span class="nav-tile-title">Gallery</span>
+          <span class="nav-tile-sub">Photos & memories</span>
+        </a>
+        <a href="/upload" class="nav-tile">
+          <span class="nav-tile-icon" aria-hidden="true">🌸</span>
+          <span class="nav-tile-title">Share a Photo</span>
+          <span class="nav-tile-sub">Upload your memory</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<%- include('partials/footer', { config }) %>
