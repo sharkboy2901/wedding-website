@@ -1,11 +1,5 @@
 'use strict';
 
-/**
- * Database layer using NeDB (pure-JS embedded datastore).
- * All data is persisted to flat JSON files in the data/ directory.
- * No native compilation required -- works on any platform.
- */
-
 const Datastore = require('nedb-promises');
 const path = require('path');
 const bcrypt = require('bcryptjs');
@@ -16,20 +10,9 @@ if (!fs.existsSync(DB_DIR)) fs.mkdirSync(DB_DIR, { recursive: true });
 
 // -- Datastores --
 
-const photosDb = Datastore.create({
-  filename: path.join(DB_DIR, 'photos.db'),
-  autoload: true,
-});
-
-const rsvpsDb = Datastore.create({
-  filename: path.join(DB_DIR, 'rsvps.db'),
-  autoload: true,
-});
-
-const adminDb = Datastore.create({
-  filename: path.join(DB_DIR, 'admin.db'),
-  autoload: true,
-});
+const photosDb = Datastore.create({ filename: path.join(DB_DIR, 'photos.db'), autoload: true });
+const rsvpsDb  = Datastore.create({ filename: path.join(DB_DIR, 'rsvps.db'),  autoload: true });
+const adminDb  = Datastore.create({ filename: path.join(DB_DIR, 'admin.db'),  autoload: true });
 
 photosDb.ensureIndex({ fieldName: 'filename', unique: true });
 adminDb.ensureIndex({ fieldName: 'username', unique: true });
@@ -39,14 +22,14 @@ adminDb.ensureIndex({ fieldName: 'username', unique: true });
 async function insertPhoto({ filename, originalName, mimeType, fileSize, uploaderName, uploaderMessage }) {
   return photosDb.insert({
     filename,
-    originalName: originalName || null,
+    originalName:    originalName    || null,
     mimeType,
     fileSize,
-    status: 'pending',
+    status:          'pending',
     uploaderName:    uploaderName    || null,
     uploaderMessage: uploaderMessage || null,
-    uploadedAt: new Date().toISOString(),
-    reviewedAt: null,
+    uploadedAt:      new Date().toISOString(),
+    reviewedAt:      null,
   });
 }
 
@@ -81,18 +64,29 @@ async function getPhotoStats() {
   return { pending, approved, rejected };
 }
 
+/**
+ * Count non-rejected photos submitted by a guest (case-insensitive name match).
+ * Used to enforce the per-guest upload limit.
+ */
+async function getPhotoCountByGuest(uploaderName) {
+  if (!uploaderName || !uploaderName.trim()) return 0;
+  const escaped = uploaderName.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const nameRe  = new RegExp('^' + escaped + '$', 'i');
+  return photosDb.count({ uploaderName: nameRe, status: { $ne: 'rejected' } });
+}
+
 function normalisePhoto(doc) {
   return {
-    id:              doc._id,
-    filename:        doc.filename,
-    original_name:   doc.originalName,
-    mime_type:       doc.mimeType,
-    file_size:       doc.fileSize,
-    status:          doc.status,
-    uploader_name:   doc.uploaderName,
-    uploader_message:doc.uploaderMessage,
-    uploaded_at:     doc.uploadedAt,
-    reviewed_at:     doc.reviewedAt,
+    id:               doc._id,
+    filename:         doc.filename,
+    original_name:    doc.originalName,
+    mime_type:        doc.mimeType,
+    file_size:        doc.fileSize,
+    status:           doc.status,
+    uploader_name:    doc.uploaderName,
+    uploader_message: doc.uploaderMessage,
+    uploaded_at:      doc.uploadedAt,
+    reviewed_at:      doc.reviewedAt,
   };
 }
 
@@ -121,12 +115,12 @@ async function deleteRsvp(id) {
 
 async function getRsvpStats() {
   const all = await rsvpsDb.find({});
-  const yes = all.filter(r => r.attending === 'yes');
+  const yes = all.filter(function(r) { return r.attending === 'yes'; });
   return {
     yes_count:    yes.length,
-    no_count:     all.filter(r => r.attending === 'no').length,
-    maybe_count:  all.filter(r => r.attending === 'maybe').length,
-    total_guests: yes.reduce((sum, r) => sum + (r.guest_count || 0), 0),
+    no_count:     all.filter(function(r) { return r.attending === 'no'; }).length,
+    maybe_count:  all.filter(function(r) { return r.attending === 'maybe'; }).length,
+    total_guests: yes.reduce(function(sum, r) { return sum + (r.guest_count || 0); }, 0),
   };
 }
 
@@ -160,6 +154,7 @@ module.exports = {
   getPhotoById,
   updatePhotoStatus,
   getPhotoStats,
+  getPhotoCountByGuest,
   insertRsvp,
   getAllRsvps,
   deleteRsvp,

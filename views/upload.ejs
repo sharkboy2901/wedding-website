@@ -1,6 +1,6 @@
 <%- include('partials/head', { pageTitle: 'Share a Photo', config }) %>
-<% const activePage = 'upload'; %>
-<%- include('partials/nav', { config, activePage }) %>
+<% var activePage = 'upload'; %>
+<%- include('partials/nav', { config: config, activePage: activePage }) %>
 
 <main>
   <section class="page-hero">
@@ -21,13 +21,25 @@
 
       <% if (!flash || flash.type !== 'success') { %>
 
+      <% var limitReached = (typeof photoCount === 'number' && typeof photoLimit === 'number' && photoCount >= photoLimit); %>
+      <% var remaining    = (typeof photoCount === 'number' && typeof photoLimit === 'number') ? (photoLimit - photoCount) : null; %>
+
+      <% if (limitReached) { %>
+        <div class="upload-limit-reached" role="alert">
+          <p class="upload-limit-icon" aria-hidden="true">📷</p>
+          <p class="upload-limit-title">Photo limit reached</p>
+          <p>You've uploaded all <%= photoLimit %> photos allowed per guest — thank you for sharing so many memories with us!</p>
+          <a href="/gallery" class="btn btn-secondary" style="margin-top:1rem;">View the Gallery</a>
+        </div>
+      <% } else { %>
+
       <div class="upload-info">
-        <p>Share your photos from our wedding day! All uploads are reviewed before appearing
-        in the public gallery.</p>
+        <p>Share your photos from our wedding day! All uploads are reviewed before appearing in the public gallery.</p>
         <ul class="upload-rules">
           <li>JPEG, PNG, or WebP images only</li>
           <li>Maximum file size: <%= MAX_SIZE_MB %> MB</li>
           <li>Photos are moderated before appearing publicly</li>
+          <li>Up to <%= photoLimit %> photos per guest name<% if (remaining !== null) { %> &mdash; <strong><%= remaining %> remaining</strong><% } %></li>
         </ul>
       </div>
 
@@ -90,11 +102,33 @@
           Upload Photo
         </button>
       </form>
+
+      <% } %>
+
       <% } %>
 
     </div>
   </section>
 </main>
 
+<style>
+  .upload-limit-reached {
+    text-align: center;
+    padding: 3rem 1rem;
+    background: var(--warm-white, #faf6f0);
+    border: 1px solid rgba(184,148,90,0.2);
+    border-radius: 10px;
+    margin-bottom: 2rem;
+  }
+  .upload-limit-icon  { font-size: 3rem; margin-bottom: 0.8rem; }
+  .upload-limit-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--brown, #3d2b1f);
+    margin-bottom: 0.6rem;
+  }
+</style>
+
 <script src="/js/upload.js"></script>
-<%- include('partials/footer', { config }) %>
+<%- include('partials/footer', { config: config }) %>
