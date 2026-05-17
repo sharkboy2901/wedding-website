@@ -20,104 +20,324 @@
     }
     html { scroll-behavior: smooth; }
     body { font-family: 'Montserrat', sans-serif; background: var(--cream); color: var(--brown); overflow-x: hidden; }
-    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 18px 48px; background: rgba(245,237,224,0.93); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(184,148,90,0.18); }
-    .nav-brand { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.3rem; color: var(--gold); letter-spacing: 0.02em; }
+
+    /* ─── NAV ─────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 48px;
+      background: rgba(245,237,224,0.93);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(184,148,90,0.18);
+    }
+    .nav-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-size: 1.3rem; color: var(--gold); letter-spacing: 0.02em;
+    }
     .nav-links { display: flex; gap: 36px; list-style: none; }
-    .nav-links a { font-size: 0.7rem; letter-spacing: 0.16em; font-weight: 600; color: var(--brown); text-decoration: none; text-transform: uppercase; transition: color 0.2s; }
+    .nav-links a {
+      font-size: 0.7rem; letter-spacing: 0.16em; font-weight: 600;
+      color: var(--brown); text-decoration: none; text-transform: uppercase; transition: color 0.2s;
+    }
     .nav-links a:hover { color: var(--gold); }
-    #hero { position: relative; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+
+    /* ─── HERO ────────────────────────────────── */
+    #hero {
+      position: relative; height: 100vh; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
     .hero-slides { position: absolute; inset: 0; }
-    .hero-slide { position: absolute; inset: 0; background-size: cover; background-position: center center; opacity: 0; transition: opacity 1.4s ease-in-out; }
+    .hero-slide {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center center;
+      opacity: 0; transition: opacity 1.4s ease-in-out;
+    }
     .hero-slide.active { opacity: 1; }
-    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.20) 0%, rgba(0,0,0,0.38) 55%, rgba(0,0,0,0.58) 100%); }
-    .leaf-left, .leaf-right { position: absolute; bottom: 140px; z-index: 2; opacity: 0.5; pointer-events: none; }
-    .leaf-left { left: 30px; }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom,
+        rgba(0,0,0,0.20) 0%,
+        rgba(0,0,0,0.38) 55%,
+        rgba(0,0,0,0.58) 100%);
+    }
+
+    /* Decorative leaves SVG */
+    .leaf-left, .leaf-right {
+      position: absolute; bottom: 140px; z-index: 2;
+      opacity: 0.5; pointer-events: none;
+    }
+    .leaf-left  { left: 30px; }
     .leaf-right { right: 30px; transform: scaleX(-1); }
-    .hero-content { position: relative; z-index: 3; text-align: center; color: #fff; padding: 0 20px; }
-    .hero-eyebrow { font-size: 0.72rem; letter-spacing: 0.28em; font-weight: 500; text-transform: uppercase; margin-bottom: 20px; opacity: 0.88; }
-    .hero-names { font-family: 'Cormorant Garamond', serif; font-size: clamp(4rem, 10vw, 8rem); font-weight: 300; line-height: 0.9; text-shadow: 0 3px 24px rgba(0,0,0,0.28); letter-spacing: -0.01em; }
-    .hero-amp { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: clamp(2rem, 5vw, 3.8rem); color: rgba(255,255,255,0.75); display: block; margin: 6px 0; }
-    .hero-divider { display: flex; align-items: center; gap: 18px; justify-content: center; margin: 20px 0 16px; opacity: 0.6; }
-    .hero-divider::before, .hero-divider::after { content: ''; flex: 0 0 60px; height: 1px; background: #fff; }
-    .hero-date { font-size: 0.8rem; letter-spacing: 0.22em; font-weight: 400; margin-top: 4px; opacity: 0.9; text-transform: uppercase; }
-    .countdown { display: inline-flex; margin-top: 30px; background: rgba(20,12,5,0.50); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.18); border-radius: 3px; overflow: hidden; }
-    .cd-unit { padding: 18px 30px; text-align: center; border-right: 1px solid rgba(255,255,255,0.12); }
+
+    .hero-content {
+      position: relative; z-index: 3;
+      text-align: center; color: #fff; padding: 0 20px;
+    }
+    .hero-eyebrow {
+      font-size: 0.72rem; letter-spacing: 0.28em; font-weight: 500;
+      text-transform: uppercase; margin-bottom: 20px; opacity: 0.88;
+    }
+    .hero-names {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(4rem, 10vw, 8rem);
+      font-weight: 300; line-height: 0.9;
+      text-shadow: 0 3px 24px rgba(0,0,0,0.28);
+      letter-spacing: -0.01em;
+    }
+    .hero-amp {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-size: clamp(2rem, 5vw, 3.8rem);
+      color: rgba(255,255,255,0.75);
+      display: block; margin: 6px 0;
+    }
+    .hero-divider {
+      display: flex; align-items: center; gap: 18px;
+      justify-content: center; margin: 20px 0 16px;
+      opacity: 0.6;
+    }
+    .hero-divider::before, .hero-divider::after {
+      content: ''; flex: 0 0 60px; height: 1px; background: #fff;
+    }
+    .hero-date {
+      font-size: 0.8rem; letter-spacing: 0.22em; font-weight: 400;
+      margin-top: 4px; opacity: 0.9; text-transform: uppercase;
+    }
+
+    /* Countdown */
+    .countdown {
+      display: inline-flex; margin-top: 30px;
+      background: rgba(20,12,5,0.50);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 3px; overflow: hidden;
+    }
+    .cd-unit {
+      padding: 18px 30px; text-align: center;
+      border-right: 1px solid rgba(255,255,255,0.12);
+    }
     .cd-unit:last-child { border-right: none; }
-    .cd-num { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 300; line-height: 1; color: var(--gold); }
+    .cd-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 3rem; font-weight: 300; line-height: 1; color: var(--gold);
+    }
     .cd-lbl { font-size: 0.58rem; letter-spacing: 0.2em; font-weight: 600; margin-top: 5px; opacity: 0.65; }
-    .hero-dots { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 4; }
-    .hero-dot { width: 30px; height: 4px; border-radius: 2px; border: none; cursor: pointer; background: rgba(255,255,255,0.35); transition: background 0.3s, width 0.3s; }
+
+    /* Slide dots */
+    .hero-dots {
+      position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 8px; z-index: 4;
+    }
+    .hero-dot {
+      width: 30px; height: 4px; border-radius: 2px; border: none; cursor: pointer;
+      background: rgba(255,255,255,0.35); transition: background 0.3s, width 0.3s;
+    }
     .hero-dot.active { background: #fff; width: 48px; }
-    .hero-arrow { position: absolute; top: 50%; transform: translateY(-50%); z-index: 4; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.28); color: #fff; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.3rem; backdrop-filter: blur(6px); transition: background 0.2s; user-select: none; }
+
+    /* Prev / Next arrows */
+    .hero-arrow {
+      position: absolute; top: 50%; transform: translateY(-50%); z-index: 4;
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.28);
+      color: #fff; width: 46px; height: 46px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 1.3rem; backdrop-filter: blur(6px);
+      transition: background 0.2s; user-select: none;
+    }
     .hero-arrow:hover { background: rgba(255,255,255,0.24); }
-    .hero-arrow.left { left: 28px; }
+    .hero-arrow.left  { left: 28px; }
     .hero-arrow.right { right: 28px; }
+
+    /* ─── SECTION BASE ────────────────────────── */
     section { padding: 100px 40px; }
-    .section-title { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: clamp(2.4rem, 5vw, 3.8rem); font-weight: 300; color: var(--brown); text-align: center; margin-bottom: 16px; }
-    .section-rule { width: 50px; height: 1px; background: var(--gold); margin: 0 auto 48px; }
-    .section-sub { text-align: center; font-size: 0.8rem; letter-spacing: 0.09em; color: var(--brown-light); margin-top: -30px; margin-bottom: 56px; }
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-size: clamp(2.4rem, 5vw, 3.8rem);
+      font-weight: 300; color: var(--brown); text-align: center; margin-bottom: 16px;
+    }
+    .section-rule {
+      width: 50px; height: 1px; background: var(--gold); margin: 0 auto 48px;
+    }
+    .section-sub {
+      text-align: center; font-size: 0.8rem; letter-spacing: 0.09em;
+      color: var(--brown-light); margin-top: -30px; margin-bottom: 56px;
+    }
+
+    /* ─── OUR STORY ───────────────────────────── */
     #story { background: var(--warm-white); position: relative; overflow: hidden; }
-    .story-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 70px; align-items: center; }
+    .story-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 70px; align-items: center;
+    }
     .story-photos { position: relative; min-height: 480px; }
-    .story-photo-a { width: 76%; aspect-ratio: 3/4; object-fit: cover; border-radius: 2px; display: block; box-shadow: 0 10px 40px rgba(61,43,31,0.18); }
-    .story-photo-b { position: absolute; bottom: -28px; right: 0; width: 52%; aspect-ratio: 3/4; object-fit: cover; border-radius: 2px; border: 6px solid var(--warm-white); box-shadow: 0 8px 28px rgba(61,43,31,0.22); }
-    .dots-deco { position: absolute; top: -20px; left: 310px; display: grid; grid-template-columns: repeat(6,8px); gap: 6px; opacity: 0.25; pointer-events: none; }
-    .dots-deco span { width: 4px; height: 4px; border-radius: 50%; background: var(--gold); display: block; }
+    .story-photo-a {
+      width: 76%; aspect-ratio: 3/4; object-fit: cover;
+      border-radius: 2px; display: block;
+      box-shadow: 0 10px 40px rgba(61,43,31,0.18);
+    }
+    .story-photo-b {
+      position: absolute; bottom: -28px; right: 0;
+      width: 52%; aspect-ratio: 3/4; object-fit: cover;
+      border-radius: 2px; border: 6px solid var(--warm-white);
+      box-shadow: 0 8px 28px rgba(61,43,31,0.22);
+    }
+    /* Dot pattern decoration */
+    .dots-deco {
+      position: absolute; top: -20px; left: 310px;
+      display: grid; grid-template-columns: repeat(6,8px); gap: 6px;
+      opacity: 0.25; pointer-events: none;
+    }
+    .dots-deco span {
+      width: 4px; height: 4px; border-radius: 50%; background: var(--gold);
+      display: block;
+    }
     .story-text { padding: 10px 0 50px; }
     .story-text .section-title { text-align: left; }
-    .story-text .section-rule { margin: 0 0 36px; }
-    .story-quote { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.28rem; font-weight: 300; line-height: 1.8; color: var(--brown-light); }
-    .heart-divider { display: flex; align-items: center; gap: 14px; margin-top: 34px; color: var(--gold); }
-    .heart-divider::before, .heart-divider::after { content: ''; flex: 0 0 44px; height: 1px; background: var(--gold); }
+    .story-text .section-rule  { margin: 0 0 36px; }
+    .story-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-size: 1.28rem; font-weight: 300;
+      line-height: 1.8; color: var(--brown-light);
+    }
+    .heart-divider {
+      display: flex; align-items: center; gap: 14px; margin-top: 34px;
+      color: var(--gold);
+    }
+    .heart-divider::before, .heart-divider::after {
+      content: ''; flex: 0 0 44px; height: 1px; background: var(--gold);
+    }
+
+    /* ─── DETAILS ─────────────────────────────── */
     #details { background: var(--cream); }
-    .details-grid { max-width: 960px; margin: 0 auto; display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; }
-    .detail-card { background: var(--warm-white); border: 1px solid rgba(184,148,90,0.22); border-radius: 2px; padding: 38px 22px; text-align: center; transition: transform 0.3s, box-shadow 0.3s; }
+    .details-grid {
+      max-width: 960px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 20px;
+    }
+    .detail-card {
+      background: var(--warm-white);
+      border: 1px solid rgba(184,148,90,0.22);
+      border-radius: 2px; padding: 38px 22px; text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
     .detail-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(61,43,31,0.1); }
-    .detail-label { font-size: 0.62rem; letter-spacing: 0.22em; font-weight: 600; text-transform: uppercase; color: var(--gold); margin-bottom: 18px; }
-    .detail-main { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.45rem; font-weight: 400; color: var(--brown); margin-bottom: 8px; line-height: 1.25; }
+    .detail-label {
+      font-size: 0.62rem; letter-spacing: 0.22em; font-weight: 600;
+      text-transform: uppercase; color: var(--gold); margin-bottom: 18px;
+    }
+    .detail-main {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-size: 1.45rem; font-weight: 400;
+      color: var(--brown); margin-bottom: 8px; line-height: 1.25;
+    }
     .detail-sub { font-size: 0.76rem; color: var(--brown-light); line-height: 1.55; }
+
+    /* ─── SCHEDULE ────────────────────────────── */
     #schedule { background: var(--cream-dark); }
     .schedule-inner { max-width: 560px; margin: 0 auto; position: relative; }
-    .timeline-axis { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: rgba(184,148,90,0.28); transform: translateX(-50%); }
-    .t-event { display: grid; grid-template-columns: 1fr 64px 1fr; align-items: center; margin-bottom: 52px; }
+    .timeline-axis {
+      position: absolute; left: 50%; top: 0; bottom: 0;
+      width: 1px; background: rgba(184,148,90,0.28); transform: translateX(-50%);
+    }
+    .t-event {
+      display: grid; grid-template-columns: 1fr 64px 1fr;
+      align-items: center; margin-bottom: 52px;
+    }
     .t-event:last-child { margin-bottom: 0; }
-    .t-left { text-align: right; padding-right: 26px; }
-    .t-right { text-align: left; padding-left: 26px; }
-    .t-time { font-size: 0.66rem; letter-spacing: 0.18em; color: var(--gold); font-weight: 600; }
-    .t-name { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.2rem; color: var(--brown); }
-    .t-desc { font-size: 0.72rem; color: var(--brown-light); margin-top: 2px; line-height: 1.4; }
-    .t-icon { width: 50px; height: 50px; border-radius: 50%; background: var(--cream); border: 2px solid rgba(184,148,90,0.35); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin: 0 auto; position: relative; z-index: 1; }
-    #photos { background: var(--brown); padding: 90px 0; overflow: hidden; }
+    .t-left  { text-align: right; padding-right: 26px; }
+    .t-right { text-align: left;  padding-left:  26px; }
+    .t-time  { font-size: 0.66rem; letter-spacing: 0.18em; color: var(--gold); font-weight: 600; }
+    .t-name  {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-size: 1.2rem; color: var(--brown);
+    }
+    .t-desc  { font-size: 0.72rem; color: var(--brown-light); margin-top: 2px; line-height: 1.4; }
+    .t-icon  {
+      width: 50px; height: 50px; border-radius: 50%;
+      background: var(--cream); border: 2px solid rgba(184,148,90,0.35);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; margin: 0 auto; position: relative; z-index: 1;
+    }
+
+    /* ─── PHOTO AUTO-SCROLL ───────────────────── */
+    #photos {
+      background: var(--brown); padding: 90px 0; overflow: hidden;
+    }
     #photos .section-title { color: var(--cream); }
-    #photos .section-rule { background: var(--gold); }
-    .strip-wrap { position: relative; overflow: hidden; mask-image: linear-gradient(to right, transparent, black 80px, black calc(100% - 80px), transparent); -webkit-mask-image: linear-gradient(to right, transparent, black 80px, black calc(100% - 80px), transparent); }
-    .strip { display: flex; gap: 18px; padding: 8px 0; animation: drift 32s linear infinite; width: max-content; }
+    #photos .section-rule  { background: var(--gold); }
+    .strip-wrap {
+      position: relative; overflow: hidden;
+      mask-image: linear-gradient(to right, transparent, black 80px, black calc(100% - 80px), transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, black 80px, black calc(100% - 80px), transparent);
+    }
+    .strip {
+      display: flex; gap: 18px; padding: 8px 0;
+      animation: drift 32s linear infinite;
+      width: max-content;
+    }
     .strip:hover { animation-play-state: paused; }
-    .strip-photo { height: 360px; width: auto; flex-shrink: 0; object-fit: cover; border-radius: 3px; transition: transform 0.4s, opacity 0.4s; cursor: pointer; opacity: 0.9; }
+    .strip-photo {
+      height: 360px; width: auto; flex-shrink: 0;
+      object-fit: cover; border-radius: 3px;
+      transition: transform 0.4s, opacity 0.4s;
+      cursor: pointer; opacity: 0.9;
+    }
     .strip-photo:hover { transform: scale(1.04); opacity: 1; }
-    @keyframes drift { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-    .lightbox { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.92); align-items: center; justify-content: center; }
+    @keyframes drift {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* Lightbox */
+    .lightbox {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.92); align-items: center; justify-content: center;
+    }
     .lightbox.open { display: flex; }
-    .lightbox img { max-height: 90vh; max-width: 90vw; border-radius: 2px; }
-    .lightbox-close { position: absolute; top: 20px; right: 28px; color: #fff; font-size: 2rem; cursor: pointer; background: none; border: none; opacity: 0.7; transition: opacity 0.2s; line-height: 1; }
+    .lightbox img  { max-height: 90vh; max-width: 90vw; border-radius: 2px; }
+    .lightbox-close {
+      position: absolute; top: 20px; right: 28px;
+      color: #fff; font-size: 2rem; cursor: pointer; background: none; border: none;
+      opacity: 0.7; transition: opacity 0.2s; line-height: 1;
+    }
     .lightbox-close:hover { opacity: 1; }
-    footer { background: var(--brown); border-top: 1px solid rgba(184,148,90,0.2); padding: 56px 40px; text-align: center; }
-    .footer-names { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 2rem; color: var(--cream); margin-bottom: 8px; }
-    .footer-date { font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(245,237,224,0.55); margin-bottom: 24px; }
+
+    /* ─── FOOTER ──────────────────────────────── */
+    footer {
+      background: var(--brown);
+      border-top: 1px solid rgba(184,148,90,0.2);
+      padding: 56px 40px; text-align: center;
+    }
+    .footer-names {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-size: 2rem; color: var(--cream); margin-bottom: 8px;
+    }
+    .footer-date {
+      font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase;
+      color: rgba(245,237,224,0.55); margin-bottom: 24px;
+    }
     .footer-tagline { font-size: 0.7rem; color: rgba(245,237,224,0.35); }
+
+    /* ─── RESPONSIVE ──────────────────────────── */
     @media (max-width: 860px) {
-      nav { padding: 14px 20px; } .nav-links { gap: 20px; } section { padding: 70px 24px; }
-      .story-inner { grid-template-columns: 1fr; gap: 70px; } .story-photos { min-height: 420px; }
-      .story-photo-b { right: -10px; } .details-grid { grid-template-columns: repeat(2,1fr); }
-      .cd-unit { padding: 14px 20px; } .cd-num { font-size: 2.2rem; }
+      nav { padding: 14px 20px; }
+      .nav-links { gap: 20px; }
+      section { padding: 70px 24px; }
+      .story-inner { grid-template-columns: 1fr; gap: 70px; }
+      .story-photos { min-height: 420px; }
+      .story-photo-b { right: -10px; }
+      .details-grid { grid-template-columns: repeat(2,1fr); }
+      .cd-unit { padding: 14px 20px; }
+      .cd-num { font-size: 2.2rem; }
     }
     @media (max-width: 500px) {
       .details-grid { grid-template-columns: 1fr; max-width: 300px; margin: 0 auto; }
-      .t-event { grid-template-columns: 1fr 50px 1fr; } .nav-links { gap: 12px; } .nav-links a { font-size: 0.6rem; }
+      .t-event { grid-template-columns: 1fr 50px 1fr; }
+      .nav-links { gap: 12px; }
+      .nav-links a { font-size: 0.6rem; }
     }
   </style>
 </head>
 <body>
+
+<!-- ── NAV ──────────────────────────────────────── -->
 <nav>
   <div class="nav-brand">Matthew &amp; Kristine</div>
   <ul class="nav-links">
@@ -127,9 +347,13 @@
     <li><a href="#photos">Photos</a></li>
   </ul>
 </nav>
+
+<!-- ── HERO ─────────────────────────────────────── -->
 <section id="hero">
   <div class="hero-slides" id="heroSlides"></div>
   <div class="hero-overlay"></div>
+
+  <!-- Leaf decorations -->
   <svg class="leaf-left" width="40" height="160" viewBox="0 0 40 160" fill="none">
     <path d="M20 160 C20 100 5 80 20 0 C35 80 20 100 20 160Z" fill="white" opacity="0.6"/>
     <line x1="20" y1="160" x2="20" y2="0" stroke="white" stroke-width="0.8" opacity="0.4"/>
@@ -146,12 +370,15 @@
     <ellipse cx="12" cy="100" rx="10" ry="14" fill="white" opacity="0.4" transform="rotate(-30 12 100)"/>
     <ellipse cx="28" cy="130" rx="10" ry="14" fill="white" opacity="0.4" transform="rotate(30 28 130)"/>
   </svg>
+
   <div class="hero-content">
     <p class="hero-eyebrow">Together with their families</p>
     <div class="hero-names">
-      <span>Matthew</span><span class="hero-amp">&amp;</span><span>Kristine</span>
+      <span>Matthew</span>
+      <span class="hero-amp">&amp;</span>
+      <span>Kristine</span>
     </div>
-    <div class="hero-divider"><span>&#10022;</span></div>
+    <div class="hero-divider"><span>✦</span></div>
     <p class="hero-date">6th June, 2026 &nbsp;&middot;&nbsp; Malta</p>
     <div class="countdown">
       <div class="cd-unit"><div class="cd-num" id="cd-days">--</div><div class="cd-lbl">Days</div></div>
@@ -160,13 +387,17 @@
       <div class="cd-unit"><div class="cd-num" id="cd-sec">--</div><div class="cd-lbl">Sec</div></div>
     </div>
   </div>
-  <button class="hero-arrow left" id="heroPrev">&#8249;</button>
+
+  <button class="hero-arrow left"  id="heroPrev">&#8249;</button>
   <button class="hero-arrow right" id="heroNext">&#8250;</button>
   <div class="hero-dots" id="heroDots"></div>
 </section>
+
+<!-- ── OUR STORY ──────────────────────────────── -->
 <section id="story">
   <div class="story-inner">
     <div class="story-photos">
+      <!-- Dot pattern deco -->
       <div class="dots-deco" id="dotsDeco"></div>
       <img id="storyPhotoA" class="story-photo-a" alt="Matthew and Kristine" />
       <img id="storyPhotoB" class="story-photo-b" alt="Matthew and Kristine" />
@@ -174,21 +405,46 @@
     <div class="story-text">
       <h2 class="section-title">Our Story</h2>
       <div class="section-rule"></div>
-      <p class="story-quote">&ldquo;From the moment we met, the world felt a little brighter. Through golden sunsets, quiet moments and every adventure in between, our love has grown into something beautiful and true &mdash; and now we cannot wait to make it official, surrounded by the people we love most.&rdquo;</p>
+      <p class="story-quote">
+        &ldquo;From the moment we met, the world felt a little brighter.
+        Through golden sunsets, quiet moments and every adventure in between,
+        our love has grown into something beautiful and true &mdash; and now
+        we cannot wait to make it official, surrounded by the people we love most.&rdquo;
+      </p>
       <div class="heart-divider">&#9829;</div>
     </div>
   </div>
 </section>
+
+<!-- ── WEDDING DETAILS ────────────────────────── -->
 <section id="details">
   <h2 class="section-title">Wedding Details</h2>
   <div class="section-rule"></div>
   <div class="details-grid">
-    <div class="detail-card"><div class="detail-label">Date</div><div class="detail-main">6th June,<br>2026</div><div class="detail-sub">Saturday</div></div>
-    <div class="detail-card"><div class="detail-label">Civil Ceremony</div><div class="detail-main">3:00 PM</div><div class="detail-sub">Registry Office</div></div>
-    <div class="detail-card"><div class="detail-label">Church Photos</div><div class="detail-main">M&#289;arr Church</div><div class="detail-sub">5:00 PM &middot; With guests</div></div>
-    <div class="detail-card"><div class="detail-label">Reception</div><div class="detail-main">Trattoria<br>Da Manuele</div><div class="detail-sub">6:00 PM &middot; Intimate dinner</div></div>
+    <div class="detail-card">
+      <div class="detail-label">Date</div>
+      <div class="detail-main">6th June,<br>2026</div>
+      <div class="detail-sub">Saturday</div>
+    </div>
+    <div class="detail-card">
+      <div class="detail-label">Civil Ceremony</div>
+      <div class="detail-main">3:00 PM</div>
+      <div class="detail-sub">Registry Office</div>
+    </div>
+    <div class="detail-card">
+      <div class="detail-label">Church Photos</div>
+      <div class="detail-main">Mġarr Church</div>
+      <div class="detail-sub">5:00 PM &middot; With guests</div>
+    </div>
+    <div class="detail-card">
+      <div class="detail-label">Reception</div>
+      <div class="detail-main">Trattoria<br>Da Manuele</div>
+      <div class="detail-sub">6:00 PM &middot; Intimate dinner</div>
+    </div>
   </div>
 </section>
+
+<!-- ── THE DAY / SCHEDULE ─────────────────────── -->
 <section id="schedule">
   <h2 class="section-title">The Day</h2>
   <div class="section-rule"></div>
@@ -196,87 +452,161 @@
   <div class="schedule-inner">
     <div class="timeline-axis"></div>
     <div class="t-event">
-      <div class="t-left"><div class="t-time">3:00 PM</div><div class="t-name">Civil Wedding Ceremony</div><div class="t-desc">Our official I dos</div></div>
-      <div class="t-icon">&#128141;</div><div class="t-right"></div>
+      <div class="t-left">
+        <div class="t-time">3:00 PM</div>
+        <div class="t-name">Civil Wedding Ceremony</div>
+        <div class="t-desc">Our official I dos</div>
+      </div>
+      <div class="t-icon">&#128141;</div>
+      <div class="t-right"></div>
     </div>
     <div class="t-event">
-      <div class="t-left"></div><div class="t-icon">&#128247;</div>
-      <div class="t-right"><div class="t-time">5:00 PM</div><div class="t-name">M&#289;arr Church Photos</div><div class="t-desc">Meeting guests for photographs at the church</div></div>
+      <div class="t-left"></div>
+      <div class="t-icon">&#128247;</div>
+      <div class="t-right">
+        <div class="t-time">5:00 PM</div>
+        <div class="t-name">Mġarr Church Photos</div>
+        <div class="t-desc">Meeting guests for photographs at the church</div>
+      </div>
     </div>
     <div class="t-event">
-      <div class="t-left"><div class="t-time">6:00 PM</div><div class="t-name">Reception at Da&nbsp;Manuele</div><div class="t-desc">Trattoria Da Manuele &middot; intimate dinner &amp; drinks</div></div>
-      <div class="t-icon">&#127869;</div><div class="t-right"></div>
+      <div class="t-left">
+        <div class="t-time">6:00 PM</div>
+        <div class="t-name">Reception at Da&nbsp;Manuele</div>
+        <div class="t-desc">Trattoria Da Manuele &middot; intimate dinner &amp; drinks</div>
+      </div>
+      <div class="t-icon">&#127869;</div>
+      <div class="t-right"></div>
     </div>
     <div class="t-event">
-      <div class="t-left"></div><div class="t-icon">&#127874;</div>
-      <div class="t-right"><div class="t-time">8:30 PM</div><div class="t-name">Cake &amp; Celebrations</div><div class="t-desc">Cake cutting, music &amp; dancing</div></div>
+      <div class="t-left"></div>
+      <div class="t-icon">&#127874;</div>
+      <div class="t-right">
+        <div class="t-time">8:30 PM</div>
+        <div class="t-name">Cake &amp; Celebrations</div>
+        <div class="t-desc">Cake cutting, music &amp; dancing</div>
+      </div>
     </div>
   </div>
 </section>
+
+<!-- ── PHOTO AUTO-SCROLL ──────────────────────── -->
 <section id="photos">
   <h2 class="section-title">Our Photos</h2>
   <div class="section-rule" style="margin-bottom:56px;"></div>
-  <div class="strip-wrap"><div class="strip" id="photoStrip"></div></div>
+  <div class="strip-wrap">
+    <div class="strip" id="photoStrip"></div>
+  </div>
 </section>
+
+<!-- ── LIGHTBOX ───────────────────────────────── -->
 <div class="lightbox" id="lightbox">
   <button class="lightbox-close" id="lbClose">&times;</button>
   <img id="lbImg" src="" alt="" />
 </div>
+
+<!-- ── FOOTER ─────────────────────────────────── -->
 <footer>
   <div class="footer-names">Matthew &amp; Kristine</div>
   <div class="footer-date">6th June, 2026</div>
-  <div class="footer-tagline">Made with &#9829; for our special day</div>
+  <div class="footer-tagline">Made with ♥ for our special day</div>
 </footer>
+
 <script>
-  const PHOTOS=['/images/photo-1.jpeg','/images/photo-2.jpeg','/images/photo-3.jpeg','/images/photo-4.jpeg','/images/photo-5.jpeg','/images/photo-6.jpeg','/images/photo-7.jpeg'];
-  const dotsDeco=document.getElementById('dotsDeco');
-  for(let i=0;i<30;i++) dotsDeco.appendChild(document.createElement('span'));
-  const slidesEl=document.getElementById('heroSlides'),dotsEl=document.getElementById('heroDots');
-  let current=0,timer;
-  PHOTOS.forEach((src,i)=>{
-    const s=document.createElement('div');
-    s.className='hero-slide'+(i===0?' active':'');
-    s.style.backgroundImage='url('+src+')';
+  const PHOTOS = [
+    '/images/photo-1.jpeg',
+    '/images/photo-2.jpeg',
+    '/images/photo-3.jpeg',
+    '/images/photo-4.jpeg',
+    '/images/photo-5.jpeg',
+    '/images/photo-6.jpeg',
+    '/images/photo-7.jpeg',
+    '/images/photo-8.jpeg',
+    '/images/photo-9.jpeg'
+  ];
+
+  // ── Dot pattern decoration ──────────────────────────────────
+  const dotsDeco = document.getElementById('dotsDeco');
+  for (let i = 0; i < 30; i++) dotsDeco.appendChild(document.createElement('span'));
+
+  // ── Hero Slideshow ──────────────────────────────────────────
+  const slidesEl = document.getElementById('heroSlides');
+  const dotsEl   = document.getElementById('heroDots');
+  let current = 0, timer;
+
+  PHOTOS.forEach((src, i) => {
+    const s = document.createElement('div');
+    s.className = 'hero-slide' + (i === 0 ? ' active' : '');
+    s.style.backgroundImage = `url(${src})`;
     slidesEl.appendChild(s);
-    const d=document.createElement('button');
-    d.className='hero-dot'+(i===0?' active':'');
-    d.addEventListener('click',()=>go(i));
+
+    const d = document.createElement('button');
+    d.className = 'hero-dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => go(i));
     dotsEl.appendChild(d);
   });
-  function go(n){
-    const slides=slidesEl.querySelectorAll('.hero-slide'),dots=dotsEl.querySelectorAll('.hero-dot');
-    slides[current].classList.remove('active');dots[current].classList.remove('active');
-    current=(n+PHOTOS.length)%PHOTOS.length;
-    slides[current].classList.add('active');dots[current].classList.add('active');
-    clearTimeout(timer);timer=setTimeout(()=>go(current+1),5500);
+
+  function go(n) {
+    const slides = slidesEl.querySelectorAll('.hero-slide');
+    const dots   = dotsEl.querySelectorAll('.hero-dot');
+    slides[current].classList.remove('active');
+    dots[current].classList.remove('active');
+    current = (n + PHOTOS.length) % PHOTOS.length;
+    slides[current].classList.add('active');
+    dots[current].classList.add('active');
+    clearTimeout(timer);
+    timer = setTimeout(() => go(current + 1), 5500);
   }
-  document.getElementById('heroNext').addEventListener('click',()=>go(current+1));
-  document.getElementById('heroPrev').addEventListener('click',()=>go(current-1));
-  timer=setTimeout(()=>go(1),5500);
-  document.getElementById('storyPhotoA').src=PHOTOS[2];
-  document.getElementById('storyPhotoB').src=PHOTOS[5];
-  const strip=document.getElementById('photoStrip');
-  [...PHOTOS,...PHOTOS].forEach(src=>{
-    const img=document.createElement('img');
-    img.src=src;img.className='strip-photo';img.alt='Matthew and Kristine';
-    img.addEventListener('click',()=>openLightbox(src));
+
+  document.getElementById('heroNext').addEventListener('click', () => go(current + 1));
+  document.getElementById('heroPrev').addEventListener('click', () => go(current - 1));
+  timer = setTimeout(() => go(1), 5500);
+
+  // ── Story section photos ─────────────────────────────────────
+  document.getElementById('storyPhotoA').src = PHOTOS[2];
+  document.getElementById('storyPhotoB').src = PHOTOS[5];
+
+  // ── Photo auto-scroll strip ──────────────────────────────────
+  const strip = document.getElementById('photoStrip');
+  // Double photos for infinite loop
+  [...PHOTOS, ...PHOTOS].forEach(src => {
+    const img = document.createElement('img');
+    img.src = src;
+    img.className = 'strip-photo';
+    img.alt = 'Matthew and Kristine';
+    img.addEventListener('click', () => openLightbox(src));
     strip.appendChild(img);
   });
-  const lb=document.getElementById('lightbox'),lbImg=document.getElementById('lbImg'),lbClose=document.getElementById('lbClose');
-  function openLightbox(src){lbImg.src=src;lb.classList.add('open');}
-  lbClose.addEventListener('click',()=>lb.classList.remove('open'));
-  lb.addEventListener('click',e=>{if(e.target===lb)lb.classList.remove('open');});
-  document.addEventListener('keydown',e=>{if(e.key==='Escape')lb.classList.remove('open');});
-  const WEDDING=new Date('2026-06-06T15:00:00');
-  function tick(){
-    const diff=WEDDING-Date.now();
-    if(diff<=0){['days','hrs','min','sec'].forEach(id=>document.getElementById('cd-'+id).textContent='0');return;}
-    document.getElementById('cd-days').textContent=Math.floor(diff/86400000);
-    document.getElementById('cd-hrs').textContent=Math.floor((diff%86400000)/3600000);
-    document.getElementById('cd-min').textContent=Math.floor((diff%3600000)/60000);
-    document.getElementById('cd-sec').textContent=Math.floor((diff%60000)/1000);
+
+  // ── Lightbox ─────────────────────────────────────────────────
+  const lb     = document.getElementById('lightbox');
+  const lbImg  = document.getElementById('lbImg');
+  const lbClose = document.getElementById('lbClose');
+
+  function openLightbox(src) {
+    lbImg.src = src;
+    lb.classList.add('open');
   }
-  tick();setInterval(tick,1000);
+  lbClose.addEventListener('click', () => lb.classList.remove('open'));
+  lb.addEventListener('click', e => { if (e.target === lb) lb.classList.remove('open'); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') lb.classList.remove('open'); });
+
+  // ── Countdown ────────────────────────────────────────────────
+  const WEDDING = new Date('2026-06-06T15:00:00');
+
+  function tick() {
+    const diff = WEDDING - Date.now();
+    if (diff <= 0) {
+      ['days','hrs','min','sec'].forEach(id => document.getElementById('cd-' + id).textContent = '0');
+      return;
+    }
+    document.getElementById('cd-days').textContent = Math.floor(diff / 86400000);
+    document.getElementById('cd-hrs').textContent  = Math.floor((diff % 86400000) / 3600000);
+    document.getElementById('cd-min').textContent  = Math.floor((diff % 3600000)  / 60000);
+    document.getElementById('cd-sec').textContent  = Math.floor((diff % 60000)    / 1000);
+  }
+  tick();
+  setInterval(tick, 1000);
 </script>
 </body>
 </html>
