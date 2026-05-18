@@ -1,6 +1,7 @@
 <%- include('partials/head', { pageTitle: 'Welcome', config }) %>
 <% const activePage = 'home'; %>
-<%- include('partials/nav', { config, activePage }) %>
+<%- include('partials/nav', { config, activePage, livestreamVisible }) %>
+<%- include('partials/botanicals') %>
 
 <main>
   <!-- Hero -->
@@ -103,6 +104,47 @@
           <span class="nav-tile-sub">Upload your memory</span>
         </a>
       </div>
+    </div>
+  </section>
+
+  <!-- Livestream embed (home page) -->
+  <% if (livestreamHomepage && livestreamChannel) { %>
+  <section class="home-livestream-section">
+    <div class="container">
+      <h2 class="section-title">Watch Live</h2>
+      <p class="section-sub">Join us from wherever you are</p>
+      <div class="home-livestream-player">
+        <iframe
+          src="https://player.twitch.tv/?channel=<%= encodeURIComponent(livestreamChannel) %>&parent=wedding-website-production-f7cb.up.railway.app&autoplay=false"
+          height="480"
+          width="100%"
+          allowfullscreen
+          frameborder="0"
+          title="Wedding livestream"
+        ></iframe>
+      </div>
+    </div>
+  </section>
+  <% } %>
+
+  <!-- Guest Moments -->
+  <section class="home-moments-section" id="moments">
+    <div class="container">
+      <h2 class="section-title">Guest Moments</h2>
+      <p class="section-sub">Share your photos from our special day</p>
+      <a href="/upload" class="btn btn-primary" style="margin-bottom:2rem;">Share a Photo</a>
+      <% if (featuredPhotos && featuredPhotos.length > 0) { %>
+        <div class="moments-grid">
+          <% featuredPhotos.forEach(function(photo) { %>
+            <div class="moment-card">
+              <img src="/uploads/approved/<%= photo.filename %>" alt="Guest photo<%= photo.uploader_name ? ' by ' + photo.uploader_name : '' %>" loading="lazy">
+              <% if (photo.uploader_name) { %><p class="moment-name"><%= photo.uploader_name %></p><% } %>
+            </div>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <p class="moments-empty">Photos shared by guests will appear here.</p>
+      <% } %>
     </div>
   </section>
 </main>

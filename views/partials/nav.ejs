@@ -11,7 +11,9 @@
         <li><a href="/rsvp"<%= typeof activePage !== 'undefined' && activePage === 'rsvp'       ? ' aria-current="page"' : '' %>>RSVP</a></li>
         <li><a href="/gallery"<%= typeof activePage !== 'undefined' && activePage === 'gallery'    ? ' aria-current="page"' : '' %>>Gallery</a></li>
         <li><a href="/upload"<%= typeof activePage !== 'undefined' && activePage === 'upload'     ? ' aria-current="page"' : '' %>>Share a Photo</a></li>
+        <% if (typeof livestreamVisible === 'undefined' || livestreamVisible || (typeof activePage !== 'undefined' && activePage === 'livestream')) { %>
         <li><a href="/livestream"<%= typeof activePage !== 'undefined' && activePage === 'livestream' ? ' aria-current="page"' : '' %>>Watch Live</a></li>
+        <% } %>
       </ul>
     </nav>
   </div>

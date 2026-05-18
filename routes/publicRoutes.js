@@ -23,6 +23,14 @@ function siteConfig() {
   };
 }
 
+// Helper: fetch livestream-related settings from DB
+async function getNavConfig() {
+  var visibleSetting = await db.getSetting('livestream_visible');
+  // Default to visible (null = never set = show)
+  var livestreamVisible = (visibleSetting === null || visibleSetting === '1');
+  return { livestreamVisible: livestreamVisible };
+}
+
 function asyncHandler(fn) {
   return function(req, res, next) {
     Promise.resolve(fn(req, res, next)).catch(next);
@@ -31,32 +39,55 @@ function asyncHandler(fn) {
 
 // -- Home --
 
-router.get('/', function(req, res) {
+router.get('/', asyncHandler(async function(req, res) {
   var flash = req.session.flash || null;
   delete req.session.flash;
-  res.render('index', { config: siteConfig(), flash: flash });
-});
+
+  var [navConfig, featuredPhotos, channelSetting, homepageSetting] = await Promise.all([
+    getNavConfig(),
+    db.getFeaturedPhotos(),
+    db.getSetting('livestream_channel'),
+    db.getSetting('livestream_homepage'),
+  ]);
+
+  var livestreamChannel  = channelSetting || process.env.TWITCH_CHANNEL || null;
+  var livestreamHomepage = (homepageSetting === '1');
+
+  res.render('index', {
+    config: siteConfig(),
+    flash: flash,
+    livestreamVisible: navConfig.livestreamVisible,
+    featuredPhotos:    featuredPhotos,
+    livestreamChannel: livestreamChannel,
+    livestreamHomepage: livestreamHomepage,
+  });
+}));
 
 // -- Our Story --
 
-router.get('/our-story', function(req, res) {
-  res.render('story', { config: siteConfig() });
-});
+router.get('/our-story', asyncHandler(async function(req, res) {
+  var navConfig = await getNavConfig();
+  res.render('story', { config: siteConfig(), livestreamVisible: navConfig.livestreamVisible });
+}));
 
 // -- Gallery --
 
 router.get('/gallery', asyncHandler(async function(req, res) {
-  var photos = await db.getApprovedPhotos();
-  res.render('gallery', { config: siteConfig(), photos: photos });
+  var [photos, navConfig] = await Promise.all([
+    db.getApprovedPhotos(),
+    getNavConfig(),
+  ]);
+  res.render('gallery', { config: siteConfig(), photos: photos, livestreamVisible: navConfig.livestreamVisible });
 }));
 
 // -- RSVP --
 
-router.get('/rsvp', function(req, res) {
+router.get('/rsvp', asyncHandler(async function(req, res) {
   var flash = req.session.flash || null;
   delete req.session.flash;
-  res.render('rsvp', { config: siteConfig(), flash: flash, errors: [], formData: null });
-});
+  var navConfig = await getNavConfig();
+  res.render('rsvp', { config: siteConfig(), flash: flash, errors: [], formData: null, livestreamVisible: navConfig.livestreamVisible });
+}));
 
 router.post('/rsvp', asyncHandler(async function(req, res) {
   var name        = req.body.name;
@@ -84,11 +115,13 @@ router.post('/rsvp', asyncHandler(async function(req, res) {
   }
 
   if (errors.length > 0) {
+    var navConfigErr = await getNavConfig();
     return res.render('rsvp', {
       config: siteConfig(),
       flash: null,
       errors: errors,
       formData: { name: name, email: email, attending: attending, guest_count: guest_count, dietary: dietary, song: song, message: message },
+      livestreamVisible: navConfigErr.livestreamVisible,
     });
   }
 
@@ -115,21 +148,25 @@ router.post('/rsvp', asyncHandler(async function(req, res) {
 
 // -- Guest photo upload --
 
-router.get('/upload', function(req, res) {
+router.get('/upload', asyncHandler(async function(req, res) {
   var flash = req.session.flash || null;
   delete req.session.flash;
+  var navConfig = await getNavConfig();
   res.render('upload', {
     config:     siteConfig(),
     flash:      flash,
     MAX_SIZE_MB: MAX_SIZE_MB,
     photoCount: null,
     photoLimit: PHOTO_LIMIT_PER_GUEST,
+    livestreamVisible: navConfig.livestreamVisible,
   });
-});
+}));
 
 router.post('/upload', function(req, res, next) {
   uploadMiddleware(req, res, async function(err) {
     var config = siteConfig();
+    var navConfig = await getNavConfig();
+    var livestreamVisible = navConfig.livestreamVisible;
 
     // CSRF check (after multer has parsed the multipart body)
     if (!validateCsrfFromBody(req)) {
@@ -154,6 +191,7 @@ router.post('/upload', function(req, res, next) {
         MAX_SIZE_MB: MAX_SIZE_MB,
         photoCount: null,
         photoLimit: PHOTO_LIMIT_PER_GUEST,
+        livestreamVisible: livestreamVisible,
       });
     }
 
@@ -164,6 +202,7 @@ router.post('/upload', function(req, res, next) {
         MAX_SIZE_MB: MAX_SIZE_MB,
         photoCount: null,
         photoLimit: PHOTO_LIMIT_PER_GUEST,
+        livestreamVisible: livestreamVisible,
       });
     }
 
@@ -176,6 +215,7 @@ router.post('/upload', function(req, res, next) {
         MAX_SIZE_MB: MAX_SIZE_MB,
         photoCount: null,
         photoLimit: PHOTO_LIMIT_PER_GUEST,
+        livestreamVisible: livestreamVisible,
       });
     }
 
@@ -196,6 +236,7 @@ router.post('/upload', function(req, res, next) {
           MAX_SIZE_MB: MAX_SIZE_MB,
           photoCount:  existingCount,
           photoLimit:  PHOTO_LIMIT_PER_GUEST,
+          livestreamVisible: livestreamVisible,
         });
       }
     }
@@ -223,6 +264,7 @@ router.post('/upload', function(req, res, next) {
         MAX_SIZE_MB: MAX_SIZE_MB,
         photoCount: null,
         photoLimit: PHOTO_LIMIT_PER_GUEST,
+        livestreamVisible: livestreamVisible,
       });
     }
   });
@@ -230,9 +272,22 @@ router.post('/upload', function(req, res, next) {
 
 // -- Livestream --
 
-router.get('/livestream', function(req, res) {
-  var channel = process.env.TWITCH_CHANNEL || null;
-  res.render('livestream', { config: siteConfig(), channel: channel });
-});
+router.get('/livestream', asyncHandler(async function(req, res) {
+  var [visibleSetting, channelSetting] = await Promise.all([
+    db.getSetting('livestream_visible'),
+    db.getSetting('livestream_channel'),
+  ]);
+
+  var livestreamVisible = (visibleSetting === null || visibleSetting === '1');
+
+  // If hidden and not admin, redirect to home with flash
+  if (!livestreamVisible && !req.session.adminLoggedIn) {
+    req.session.flash = { type: 'warning', message: 'The livestream will be available soon.' };
+    return res.redirect('/');
+  }
+
+  var channel = channelSetting || process.env.TWITCH_CHANNEL || null;
+  res.render('livestream', { config: siteConfig(), channel: channel, livestreamVisible: livestreamVisible });
+}));
 
 module.exports = router;

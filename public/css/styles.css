@@ -1462,3 +1462,357 @@ p:last-child { margin-bottom: 0; }
   background: var(--color-error);
   color: #fff;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BOTANICAL DECORATIONS — fixed side panels
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.botanical-left,
+.botanical-right {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.55;
+}
+.botanical-left  { left: 0; }
+.botanical-right { right: 0; }
+
+@media (max-width: 1100px) {
+  .botanical-left,
+  .botanical-right { display: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HOME PAGE — Livestream section
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.home-livestream-section {
+  padding: 4rem 0;
+  background: var(--color-cream, #faf7f2);
+  border-top: 1px solid var(--color-border, #e8e0d0);
+  border-bottom: 1px solid var(--color-border, #e8e0d0);
+}
+
+.home-livestream-section .section-title {
+  text-align: center;
+  margin-bottom: 0.4rem;
+}
+
+.section-sub {
+  text-align: center;
+  color: var(--color-text-muted, #7a6e64);
+  font-size: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.home-livestream-player {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(61,43,31,0.13);
+  background: #000;
+}
+
+.home-livestream-player iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 10px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HOME PAGE — Guest Moments section
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.home-moments-section {
+  padding: 4rem 0 5rem;
+  text-align: center;
+}
+
+.home-moments-section .section-title {
+  margin-bottom: 0.4rem;
+}
+
+.moments-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-top: 2.5rem;
+  text-align: left;
+}
+
+@media (max-width: 768px) {
+  .moments-grid { grid-template-columns: repeat(2, 1fr); gap: 0.85rem; }
+}
+
+@media (max-width: 480px) {
+  .moments-grid { grid-template-columns: 1fr; }
+}
+
+.moment-card {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(61,43,31,0.10);
+  background: var(--color-surface, #fff);
+}
+
+.moment-card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+
+.moment-name {
+  font-size: 0.82rem;
+  color: var(--color-text-muted, #7a6e64);
+  padding: 0.5rem 0.75rem 0.6rem;
+  margin: 0;
+  font-style: italic;
+}
+
+.moments-empty {
+  color: var(--color-text-muted, #7a6e64);
+  font-style: italic;
+  margin-top: 1.5rem;
+  font-size: 1rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ADMIN — Settings card & form elements
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.admin-settings-card {
+  background: var(--color-admin-card, #1e1e2a);
+  border: 1px solid var(--color-admin-border, #2e2e3e);
+  border-radius: var(--radius, 8px);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.admin-settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.admin-settings-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1.25rem;
+}
+
+.admin-settings-row:last-child {
+  margin-bottom: 0;
+}
+
+.admin-settings-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #c8c4d8;
+  letter-spacing: 0.02em;
+}
+
+.admin-settings-input {
+  background: #13131c;
+  border: 1px solid #3a3a50;
+  border-radius: var(--radius, 6px);
+  color: #e8e4f4;
+  font-family: var(--font-sans, 'Lato', sans-serif);
+  font-size: 0.92rem;
+  padding: 0.55rem 0.85rem;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+
+.admin-settings-input:focus {
+  outline: none;
+  border-color: #7c6fa0;
+}
+
+.admin-settings-hint {
+  font-size: 0.78rem;
+  color: #6e6a82;
+  margin: 0;
+}
+
+.admin-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  color: #c8c4d8;
+  font-size: 0.9rem;
+}
+
+.admin-checkbox-label input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #7c6fa0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ADMIN — Buttons
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.25rem;
+  border-radius: var(--radius, 6px);
+  font-family: var(--font-sans, 'Lato', sans-serif);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  transition: opacity 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.admin-btn--primary {
+  background: #7c6fa0;
+  color: #fff;
+}
+.admin-btn--primary:hover { opacity: 0.85; color: #fff; }
+
+.admin-btn--secondary {
+  background: transparent;
+  color: #c8c4d8;
+  border: 1px solid #3a3a50;
+}
+.admin-btn--secondary:hover { background: #2a2a38; color: #e8e4f4; }
+
+.admin-btn--danger {
+  background: #8b2020;
+  color: #fff;
+}
+.admin-btn--danger:hover { opacity: 0.85; }
+
+.admin-btn--sm {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.78rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ADMIN — Site image grid
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.admin-site-image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-site-image-card {
+  background: var(--color-admin-card, #1e1e2a);
+  border: 1px solid var(--color-admin-border, #2e2e3e);
+  border-radius: var(--radius, 8px);
+  overflow: hidden;
+}
+
+.admin-site-image-thumb {
+  height: 140px;
+  overflow: hidden;
+  background: #13131c;
+}
+
+.admin-site-image-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.admin-site-image-info {
+  padding: 0.65rem 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.admin-site-image-name {
+  font-size: 0.72rem;
+  color: #6e6a82;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 110px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ADMIN — Feature / Unfeature buttons & badge
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.btn-feature {
+  padding: 0.3rem 0.75rem;
+  background: #b8945a;
+  color: #fff;
+  border: none;
+  border-radius: var(--radius, 6px);
+  font-family: var(--font-sans, 'Lato', sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+.btn-feature:hover { opacity: 0.82; }
+
+.btn-unfeature {
+  padding: 0.3rem 0.75rem;
+  background: transparent;
+  color: #b8945a;
+  border: 1px solid #b8945a;
+  border-radius: var(--radius, 6px);
+  font-family: var(--font-sans, 'Lato', sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.btn-unfeature:hover { background: #b8945a; color: #fff; }
+
+.admin-photo-card--featured {
+  border: 1.5px solid #b8945a;
+}
+
+.admin-featured-badge {
+  background: #b8945a;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.6rem;
+  text-align: center;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ADMIN — Section subtitle
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.admin-section-subtitle {
+  font-family: var(--font-sans, 'Lato', sans-serif);
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #6e6a82;
+  margin: 1.5rem 0 0.5rem;
+}

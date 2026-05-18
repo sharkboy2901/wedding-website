@@ -10,12 +10,14 @@ if (!fs.existsSync(DB_DIR)) fs.mkdirSync(DB_DIR, { recursive: true });
 
 // -- Datastores --
 
-const photosDb = Datastore.create({ filename: path.join(DB_DIR, 'photos.db'), autoload: true });
-const rsvpsDb  = Datastore.create({ filename: path.join(DB_DIR, 'rsvps.db'),  autoload: true });
-const adminDb  = Datastore.create({ filename: path.join(DB_DIR, 'admin.db'),  autoload: true });
+const photosDb   = Datastore.create({ filename: path.join(DB_DIR, 'photos.db'),   autoload: true });
+const rsvpsDb    = Datastore.create({ filename: path.join(DB_DIR, 'rsvps.db'),    autoload: true });
+const adminDb    = Datastore.create({ filename: path.join(DB_DIR, 'admin.db'),    autoload: true });
+const settingsDb = Datastore.create({ filename: path.join(DB_DIR, 'settings.db'), autoload: true });
 
 photosDb.ensureIndex({ fieldName: 'filename', unique: true });
 adminDb.ensureIndex({ fieldName: 'username', unique: true });
+settingsDb.ensureIndex({ fieldName: 'key', unique: true });
 
 // -- Photo operations --
 
@@ -36,6 +38,15 @@ async function insertPhoto({ filename, originalName, mimeType, fileSize, uploade
 async function getApprovedPhotos() {
   const photos = await photosDb.find({ status: 'approved' }).sort({ reviewedAt: -1 });
   return photos.map(normalisePhoto);
+}
+
+async function getFeaturedPhotos() {
+  const photos = await photosDb.find({ status: 'approved', featured: true }).sort({ reviewedAt: -1 });
+  return photos.map(normalisePhoto);
+}
+
+async function setPhotoFeatured(id, featured) {
+  return photosDb.update({ _id: id }, { $set: { featured: !!featured } });
 }
 
 async function getPendingPhotos() {
@@ -83,11 +94,34 @@ function normalisePhoto(doc) {
     mime_type:        doc.mimeType,
     file_size:        doc.fileSize,
     status:           doc.status,
+    featured:         !!doc.featured,
     uploader_name:    doc.uploaderName,
     uploader_message: doc.uploaderMessage,
     uploaded_at:      doc.uploadedAt,
     reviewed_at:      doc.reviewedAt,
   };
+}
+
+// -- Site Settings operations --
+
+async function getSetting(key) {
+  const doc = await settingsDb.findOne({ key });
+  return doc ? doc.value : null;
+}
+
+async function setSetting(key, value) {
+  const existing = await settingsDb.findOne({ key });
+  if (existing) {
+    return settingsDb.update({ key }, { $set: { value: String(value) } });
+  }
+  return settingsDb.insert({ key, value: String(value) });
+}
+
+async function getAllSettings() {
+  const docs = await settingsDb.find({});
+  const result = {};
+  docs.forEach(function(doc) { result[doc.key] = doc.value; });
+  return result;
 }
 
 // -- RSVP operations --
@@ -150,6 +184,8 @@ async function ensureAdminExists(username, plainPassword) {
 module.exports = {
   insertPhoto,
   getApprovedPhotos,
+  getFeaturedPhotos,
+  setPhotoFeatured,
   getPendingPhotos,
   getPhotoById,
   updatePhotoStatus,
@@ -162,4 +198,7 @@ module.exports = {
   getAdminByUsername,
   upsertAdmin,
   ensureAdminExists,
+  getSetting,
+  setSetting,
+  getAllSettings,
 };

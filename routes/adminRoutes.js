@@ -4,10 +4,39 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
+const multer = require('multer');
 const router = express.Router();
 
 const db = require('../db/database');
 const { requireAdmin, redirectIfLoggedIn } = require('../middleware/auth');
+
+const IMAGES_DIR = path.join(__dirname, '..', 'public', 'images');
+
+// Multer storage for site images
+const siteImageStorage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, IMAGES_DIR);
+  },
+  filename: function(req, file, cb) {
+    var ext = path.extname(file.originalname).toLowerCase() || '.jpg';
+    // Only allow image extensions
+    var allowed = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+    if (!allowed.includes(ext)) ext = '.jpg';
+    cb(null, 'site-' + Date.now() + ext);
+  },
+});
+const siteImageUpload = multer({
+  storage: siteImageStorage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: function(req, file, cb) {
+    var allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (allowed.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('INVALID_TYPE'));
+    }
+  },
+});
 
 const PENDING_DIR  = path.join(__dirname, '..', 'uploads', 'pending');
 const APPROVED_DIR = path.join(__dirname, '..', 'uploads', 'approved');
@@ -118,12 +147,28 @@ router.get('/logout', (req, res) => {
 router.get('/', requireAdmin, (req, res) => res.redirect('/admin/dashboard'));
 
 router.get('/dashboard', requireAdmin, asyncHandler(async (req, res) => {
-  const [pendingPhotos, approvedPhotos, photoStats, rsvpStats] = await Promise.all([
+  const [pendingPhotos, approvedPhotos, photoStats, rsvpStats, allSettings] = await Promise.all([
     db.getPendingPhotos(),
     db.getApprovedPhotos(),
     db.getPhotoStats(),
     db.getRsvpStats(),
+    db.getAllSettings(),
   ]);
+
+  // Enumerate site-*.* images from public/images/
+  var siteImages = [];
+  if (fs.existsSync(IMAGES_DIR)) {
+    siteImages = fs.readdirSync(IMAGES_DIR).filter(function(f) {
+      return /^site-.*\.(jpg|jpeg|png|webp|gif)$/i.test(f);
+    });
+  }
+
+  const siteSettings = {
+    livestream_visible:  allSettings.livestream_visible  || '1',
+    livestream_channel:  allSettings.livestream_channel  || (process.env.TWITCH_CHANNEL || ''),
+    livestream_homepage: allSettings.livestream_homepage || '0',
+  };
+
   const flash = req.session.flash || null;
   delete req.session.flash;
   res.render('admin/dashboard', {
@@ -131,6 +176,8 @@ router.get('/dashboard', requireAdmin, asyncHandler(async (req, res) => {
     approvedPhotos,
     photoStats,
     rsvpStats,
+    siteSettings,
+    siteImages,
     flash,
     adminUsername: req.session.adminUsername,
   });
@@ -203,6 +250,100 @@ router.post('/photo/:id/delete', requireAdmin, asyncHandler(async (req, res) => 
   safeDeleteFile(APPROVED_DIR, photo.filename);
   await db.updatePhotoStatus(photo.id, 'rejected');
   req.session.flash = { type: 'success', message: 'Photo removed from the public gallery.' };
+  res.redirect('/admin/dashboard');
+}));
+
+// -- PHOTO: FEATURE / UNFEATURE --
+
+router.post('/photo/:id/feature', requireAdmin, asyncHandler(async (req, res) => {
+  const photo = await db.getPhotoById(req.params.id);
+  if (!photo || photo.status !== 'approved') {
+    req.session.flash = { type: 'error', message: 'Photo not found or not approved.' };
+    return res.redirect('/admin/dashboard');
+  }
+  await db.setPhotoFeatured(photo.id, true);
+  req.session.flash = { type: 'success', message: 'Photo featured on the home page.' };
+  res.redirect('/admin/dashboard');
+}));
+
+router.post('/photo/:id/unfeature', requireAdmin, asyncHandler(async (req, res) => {
+  const photo = await db.getPhotoById(req.params.id);
+  if (!photo || photo.status !== 'approved') {
+    req.session.flash = { type: 'error', message: 'Photo not found or not approved.' };
+    return res.redirect('/admin/dashboard');
+  }
+  await db.setPhotoFeatured(photo.id, false);
+  req.session.flash = { type: 'success', message: 'Photo removed from home page feature.' };
+  res.redirect('/admin/dashboard');
+}));
+
+// -- SITE IMAGE UPLOAD --
+
+router.post('/site-image/upload', requireAdmin, function(req, res, next) {
+  siteImageUpload.single('site_image')(req, res, function(err) {
+    if (err) {
+      req.session.flash = { type: 'error', message: 'Image upload failed: ' + (err.message || 'Unknown error') };
+      return res.redirect('/admin/dashboard');
+    }
+    if (!req.file) {
+      req.session.flash = { type: 'error', message: 'No image file selected.' };
+      return res.redirect('/admin/dashboard');
+    }
+    req.session.flash = { type: 'success', message: 'Site image uploaded: ' + req.file.filename };
+    res.redirect('/admin/dashboard');
+  });
+});
+
+// -- SITE IMAGE DELETE --
+
+router.post('/site-image/:filename/delete', requireAdmin, asyncHandler(async (req, res) => {
+  const filename = req.params.filename;
+  // Safety: only allow deletion of site-*.* files
+  if (!/^site-[^/\\]+\.(jpg|jpeg|png|webp|gif)$/i.test(filename)) {
+    req.session.flash = { type: 'error', message: 'Invalid filename.' };
+    return res.redirect('/admin/dashboard');
+  }
+  const filePath = path.join(IMAGES_DIR, filename);
+  // Path traversal check
+  if (!filePath.startsWith(IMAGES_DIR + path.sep) && filePath !== IMAGES_DIR) {
+    req.session.flash = { type: 'error', message: 'Invalid file path.' };
+    return res.redirect('/admin/dashboard');
+  }
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+    req.session.flash = { type: 'success', message: 'Site image deleted.' };
+  } else {
+    req.session.flash = { type: 'error', message: 'File not found.' };
+  }
+  res.redirect('/admin/dashboard');
+}));
+
+// -- LIVESTREAM SETTINGS --
+
+router.get('/livestream', requireAdmin, asyncHandler(async (req, res) => {
+  const allSettings = await db.getAllSettings();
+  const siteSettings = {
+    livestream_visible:  allSettings.livestream_visible  || '1',
+    livestream_channel:  allSettings.livestream_channel  || (process.env.TWITCH_CHANNEL || ''),
+    livestream_homepage: allSettings.livestream_homepage || '0',
+  };
+  const flash = req.session.flash || null;
+  delete req.session.flash;
+  res.render('admin/livestream', { siteSettings, flash });
+}));
+
+router.post('/livestream', requireAdmin, asyncHandler(async (req, res) => {
+  const channel  = (req.body.livestream_channel  || '').trim().substring(0, 100);
+  const visible  = req.body.livestream_visible  === '1' ? '1' : '0';
+  const homepage = req.body.livestream_homepage === '1' ? '1' : '0';
+
+  await Promise.all([
+    db.setSetting('livestream_channel',  channel),
+    db.setSetting('livestream_visible',  visible),
+    db.setSetting('livestream_homepage', homepage),
+  ]);
+
+  req.session.flash = { type: 'success', message: 'Livestream settings saved.' };
   res.redirect('/admin/dashboard');
 }));
 
