@@ -93,9 +93,10 @@ router.get('/upload', asyncHandler(async function(req, res) {
   res.render('upload', {
     config:     siteConfig(),
     flash:      flash,
-    MAX_SIZE_MB: MAX_SIZE_MB,
-    photoCount: null,
-    photoLimit: PHOTO_LIMIT_PER_GUEST,
+    MAX_SIZE_MB:  MAX_SIZE_MB,
+    MAX_FILES:    MAX_FILES,
+    photoCount:   null,
+    photoLimit:   PHOTO_LIMIT_PER_GUEST,
     livestreamVisible: navConfig.livestreamVisible,
   });
 }));
