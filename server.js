@@ -43,6 +43,21 @@ app.use(helmet({
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// -- Static files (served before session/CSRF — no auth overhead for assets) --
+// Serve approved guest photos (pending dir is NOT public)
+app.use('/uploads/approved', express.static(path.join(__dirname, 'uploads', 'approved'), {
+  index:    false,
+  dotfiles: 'deny',
+  maxAge:   '1h',
+  etag:     true,
+}));
+
+// Site assets (CSS, JS, images)
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: '1h',
+  etag:   true,
+}));
+
 // -- Body parsing --
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -68,16 +83,6 @@ app.use(session({
 
 // -- CSRF protection --
 app.use(csrfMiddleware);
-
-// -- Static files --
-// Serve approved guest photos (pending dir is NOT public)
-app.use('/uploads/approved', express.static(path.join(__dirname, 'uploads', 'approved'), {
-  index: false,
-  dotfiles: 'deny',
-}));
-
-// Site assets (CSS, JS, images)
-app.use(express.static(path.join(__dirname, 'public')));
 
 // -- Routes --
 app.use('/admin', adminRouter);
