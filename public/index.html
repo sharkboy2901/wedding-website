@@ -352,13 +352,36 @@
     .moments-gallery-link:hover { text-decoration: underline; }
 
     /* ─── WATCH LIVE ──────────────────────────── */
-    #watch-live { display: none; background: var(--brown); text-align: center; }
+    #watch-live { display: block; background: var(--brown); text-align: center; }
     #watch-live .section-title { color: var(--cream); }
     #watch-live .section-rule  { background: var(--gold); }
     #watch-live .section-sub   { color: rgba(245,237,224,0.65); }
     #watch-live .live-cta-card { background: rgba(255,255,255,0.06); border-color: rgba(184,148,90,0.4); }
     #watch-live .live-cta-card p { color: rgba(245,237,224,0.75); }
-    #watch-live.is-live { display: block; }
+    .live-placeholder-card {
+      max-width: 600px; margin: 0 auto;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(184,148,90,0.30);
+      border-radius: 4px; padding: 52px 40px;
+    }
+    .live-placeholder-icon {
+      font-size: 3.2rem; color: var(--gold); margin-bottom: 22px; opacity: 0.65;
+    }
+    .live-placeholder-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-size: 1.6rem; font-weight: 300;
+      color: var(--cream); margin-bottom: 16px;
+    }
+    .live-placeholder-text {
+      font-size: 0.82rem; color: rgba(245,237,224,0.60);
+      line-height: 1.85; margin-bottom: 26px; letter-spacing: 0.02em;
+    }
+    .live-placeholder-badge {
+      display: inline-block;
+      font-size: 0.6rem; letter-spacing: 0.28em; text-transform: uppercase;
+      color: var(--gold); border: 1px solid rgba(184,148,90,0.45);
+      padding: 6px 18px; border-radius: 2px; opacity: 0.8;
+    }
     .live-embed-wrap {
       max-width: 900px; margin: 0 auto;
       position: relative; width: 100%; aspect-ratio: 16/9;
@@ -735,7 +758,18 @@
   <h2 class="section-title">Watch Live</h2>
   <div class="section-rule"></div>
   <p class="section-sub">Join us from wherever you are in the world</p>
-  <div id="liveEmbed"></div>
+  <div id="liveEmbed">
+    <div class="live-placeholder-card">
+      <div class="live-placeholder-icon">&#9654;</div>
+      <div class="live-placeholder-title">Livestream Coming Soon</div>
+      <p class="live-placeholder-text">
+        Can't make it in person? We'll be streaming the ceremony live so you
+        can celebrate with us from wherever you are in the world.<br>
+        Details and the link will be available closer to the date.
+      </p>
+      <span class="live-placeholder-badge">Coming Soon</span>
+    </div>
+  </div>
 </section>
 
 <!-- ── BOTANICAL BAND ─────────────────────────── -->
@@ -1132,16 +1166,14 @@
     .then(r => r.ok ? r.json() : null)
     .then(status => {
       if (!status) return;
-      const liveSection = document.getElementById('watch-live');
-      const liveEmbed   = document.getElementById('liveEmbed');
-      const navLink     = document.getElementById('navLiveLink');
+      const liveEmbed = document.getElementById('liveEmbed');
+      const navLink   = document.getElementById('navLiveLink');
 
       if (status.livestreamVisible && status.livestreamChannel) {
         navLink.style.display = 'list-item';
 
         if (status.livestreamHomepage) {
-          // Show embedded player
-          liveSection.classList.add('is-live');
+          // Replace placeholder with embedded player
           const wrap = document.createElement('div');
           wrap.className = 'live-embed-wrap';
           const iframe = document.createElement('iframe');
@@ -1151,10 +1183,10 @@
           iframe.allowFullscreen = true;
           iframe.title = 'Wedding livestream';
           wrap.appendChild(iframe);
+          liveEmbed.innerHTML = '';
           liveEmbed.appendChild(wrap);
         } else {
-          // Show CTA card pointing to the livestream page
-          liveSection.classList.add('is-live');
+          // Replace placeholder with CTA card linking to livestream page
           liveEmbed.innerHTML =
             '<div class="live-cta-card">' +
               '<p>We\'re streaming the ceremony live! Click below to join us from wherever you are.</p>' +
