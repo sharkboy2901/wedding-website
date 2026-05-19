@@ -3,7 +3,7 @@
 const express = require('express');
 const router  = express.Router();
 const db      = require('../db/database');
-const { uploadMiddleware, validateAndSave, MAX_SIZE_MB } = require('../middleware/upload');
+const { uploadMiddleware, validateFile, saveToDisk, MAX_SIZE_MB, MAX_FILES } = require('../middleware/upload');
 const { validateCsrfFromBody } = require('../middleware/csrf');
 
 const PHOTO_LIMIT_PER_GUEST = 10;
@@ -106,6 +106,18 @@ router.post('/upload', function(req, res, next) {
     var navConfig = await getNavConfig();
     var livestreamVisible = navConfig.livestreamVisible;
 
+    function renderUpload(flash, photoCount) {
+      return res.render('upload', {
+        config:    config,
+        flash:     flash,
+        MAX_SIZE_MB:  MAX_SIZE_MB,
+        MAX_FILES:    MAX_FILES,
+        photoCount:   photoCount != null ? photoCount : null,
+        photoLimit:   PHOTO_LIMIT_PER_GUEST,
+        livestreamVisible: livestreamVisible,
+      });
+    }
+
     // CSRF check (after multer has parsed the multipart body)
     if (!validateCsrfFromBody(req)) {
       return res.status(403).render('error', {
@@ -119,91 +131,94 @@ router.post('/upload', function(req, res, next) {
     if (err) {
       var errMsg = 'Upload failed. Please try again.';
       if (err.code === 'LIMIT_FILE_SIZE') {
-        errMsg = 'File too large. Maximum size is ' + MAX_SIZE_MB + ' MB.';
+        errMsg = 'One or more files exceeded the ' + MAX_SIZE_MB + ' MB size limit.';
+      } else if (err.code === 'LIMIT_FILE_COUNT') {
+        errMsg = 'Too many files selected. Maximum is ' + MAX_FILES + ' photos per submission.';
       } else if (err.message === 'INVALID_TYPE') {
         errMsg = 'Invalid file type. Only JPEG, PNG, and WebP images are accepted.';
       }
-      return res.render('upload', {
-        config: config,
-        flash: { type: 'error', message: errMsg },
-        MAX_SIZE_MB: MAX_SIZE_MB,
-        photoCount: null,
-        photoLimit: PHOTO_LIMIT_PER_GUEST,
-        livestreamVisible: livestreamVisible,
-      });
+      return renderUpload({ type: 'error', message: errMsg }, null);
     }
 
-    if (!req.file) {
-      return res.render('upload', {
-        config: config,
-        flash: { type: 'error', message: 'Please select a photo to upload.' },
-        MAX_SIZE_MB: MAX_SIZE_MB,
-        photoCount: null,
-        photoLimit: PHOTO_LIMIT_PER_GUEST,
-        livestreamVisible: livestreamVisible,
-      });
-    }
-
-    // Validate magic bytes
-    var result = validateAndSave(req.file);
-    if (!result.ok) {
-      return res.render('upload', {
-        config: config,
-        flash: { type: 'error', message: result.error },
-        MAX_SIZE_MB: MAX_SIZE_MB,
-        photoCount: null,
-        photoLimit: PHOTO_LIMIT_PER_GUEST,
-        livestreamVisible: livestreamVisible,
-      });
+    var files = req.files || [];
+    if (files.length === 0) {
+      return renderUpload({ type: 'error', message: 'Please select at least one photo to upload.' }, null);
     }
 
     var uploaderName    = req.body.uploader_name    ? req.body.uploader_name.trim().substring(0, 100)    : null;
     var uploaderMessage = req.body.uploader_message ? req.body.uploader_message.trim().substring(0, 500) : null;
 
-    // Enforce per-guest photo limit
-    if (uploaderName) {
-      var existingCount = await db.getPhotoCountByGuest(uploaderName);
-      if (existingCount >= PHOTO_LIMIT_PER_GUEST) {
-        return res.status(400).render('upload', {
-          config: config,
-          flash: {
-            type: 'error',
-            message: "You've already uploaded " + existingCount + " photo" + (existingCount !== 1 ? 's' : '') +
-              " — the maximum is " + PHOTO_LIMIT_PER_GUEST + " per guest. Thank you for sharing so many memories!",
-          },
-          MAX_SIZE_MB: MAX_SIZE_MB,
-          photoCount:  existingCount,
-          photoLimit:  PHOTO_LIMIT_PER_GUEST,
-          livestreamVisible: livestreamVisible,
-        });
+    // Check per-guest limit
+    var existingCount = uploaderName ? await db.getPhotoCountByGuest(uploaderName) : 0;
+    var remaining = PHOTO_LIMIT_PER_GUEST - existingCount;
+
+    if (remaining <= 0) {
+      return res.status(400).render('upload', {
+        config:   config,
+        flash: {
+          type:    'error',
+          message: "You've already uploaded " + existingCount + " photo" + (existingCount !== 1 ? 's' : '') +
+            " — the maximum is " + PHOTO_LIMIT_PER_GUEST + " per guest. Thank you for sharing so many memories!",
+        },
+        MAX_SIZE_MB:  MAX_SIZE_MB,
+        MAX_FILES:    MAX_FILES,
+        photoCount:   existingCount,
+        photoLimit:   PHOTO_LIMIT_PER_GUEST,
+        livestreamVisible: livestreamVisible,
+      });
+    }
+
+    if (files.length > remaining) {
+      return renderUpload({
+        type: 'error',
+        message: 'You can only upload ' + remaining + ' more photo' + (remaining !== 1 ? 's' : '') +
+          ' (limit: ' + PHOTO_LIMIT_PER_GUEST + ' per guest). You selected ' + files.length +
+          ' — please remove ' + (files.length - remaining) + '.',
+      }, existingCount);
+    }
+
+    // Validate all files via magic bytes before writing anything to disk
+    var validationErrors = [];
+    var validated = [];
+    for (var i = 0; i < files.length; i++) {
+      var v = validateFile(files[i]);
+      if (!v.ok) {
+        validationErrors.push('Photo ' + (i + 1) + ' (' + (files[i].originalname || 'unknown') + '): ' + v.error);
+      } else {
+        validated.push({ file: files[i], mimeType: v.mimeType });
       }
     }
 
-    try {
-      await db.insertPhoto({
-        filename:     result.filename,
-        originalName: req.file.originalname ? req.file.originalname.substring(0, 255) : null,
-        mimeType:     result.mimeType,
-        fileSize:     result.size,
-        uploaderName:    uploaderName,
-        uploaderMessage: uploaderMessage,
-      });
+    if (validationErrors.length > 0) {
+      return renderUpload({ type: 'error', message: validationErrors.join(' ') }, existingCount);
+    }
 
+    // All valid — save to disk then insert into DB
+    try {
+      for (var j = 0; j < validated.length; j++) {
+        var item     = validated[j];
+        var filename = saveToDisk(item.file.buffer, item.mimeType);
+        await db.insertPhoto({
+          filename:        filename,
+          originalName:    item.file.originalname ? item.file.originalname.substring(0, 255) : null,
+          mimeType:        item.mimeType,
+          fileSize:        item.file.size,
+          uploaderName:    uploaderName,
+          uploaderMessage: uploaderMessage,
+        });
+      }
+
+      var count = validated.length;
       req.session.flash = {
-        type: 'success',
-        message: 'Your photo has been uploaded! It will appear in the gallery once approved. Thank you!',
+        type:    'success',
+        message: count === 1
+          ? 'Your photo has been uploaded! It will appear in the gallery once approved. Thank you!'
+          : count + ' photos have been uploaded! They will appear in the gallery once approved. Thank you!',
       };
       res.redirect('/upload');
     } catch (dbErr) {
       console.error('[Upload] DB error:', dbErr.message);
-      res.render('upload', {
-        config: config,
-        flash: { type: 'error', message: 'Something went wrong saving your photo. Please try again.' },
-        MAX_SIZE_MB: MAX_SIZE_MB,
-        photoCount: null,
-        photoLimit: PHOTO_LIMIT_PER_GUEST,
-        livestreamVisible: livestreamVisible,
-      });
+      renderUpload({ type: 'error', message: 'Something went wrong saving your photos. Please try again.' }, existingCount);
     }
   });
 });

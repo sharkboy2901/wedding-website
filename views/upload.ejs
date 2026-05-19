@@ -1,12 +1,12 @@
-<%- include('partials/head', { pageTitle: 'Share a Photo', config }) %>
+<%- include('partials/head', { pageTitle: 'Share Your Photos', config }) %>
 <% var activePage = 'upload'; %>
 <%- include('partials/nav', { config: config, activePage: activePage }) %>
 
 <main>
   <section class="page-hero">
     <div class="container">
-      <h1>Share a Photo</h1>
-      <p class="page-hero-sub">Upload a memory from our celebration</p>
+      <h1>Share Your Photos</h1>
+      <p class="page-hero-sub">Upload your memories from our celebration</p>
     </div>
   </section>
 
@@ -34,44 +34,43 @@
       <% } else { %>
 
       <div class="upload-info">
-        <p>Share your photos from our wedding day! All uploads are reviewed before appearing in the public gallery.</p>
+        <p>Share your photos from our wedding day! You can upload up to <%= MAX_FILES %> photos at once. All uploads are reviewed before appearing in the public gallery.</p>
         <ul class="upload-rules">
           <li>JPEG, PNG, or WebP images only</li>
-          <li>Maximum file size: <%= MAX_SIZE_MB %> MB</li>
+          <li>Maximum file size: <%= MAX_SIZE_MB %> MB per photo</li>
+          <li>Up to <%= MAX_FILES %> photos per submission</li>
+          <li>Up to <%= photoLimit %> photos total per guest name<% if (remaining !== null) { %> &mdash; <strong><%= remaining %> remaining</strong><% } %></li>
           <li>Photos are moderated before appearing publicly</li>
-          <li>Up to <%= photoLimit %> photos per guest name<% if (remaining !== null) { %> &mdash; <strong><%= remaining %> remaining</strong><% } %></li>
         </ul>
       </div>
 
-      <form action="/upload" method="post" enctype="multipart/form-data" class="wedding-form" id="upload-form" novalidate data-max-mb="<%= MAX_SIZE_MB %>">
+      <form action="/upload" method="post" enctype="multipart/form-data" class="wedding-form" id="upload-form" novalidate
+            data-max-mb="<%= MAX_SIZE_MB %>" data-max-files="<%= MAX_FILES %>">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
         <div class="form-group">
-          <label for="photo" class="form-label">
-            Choose Photo <span class="required" aria-hidden="true">*</span>
+          <label for="photos" class="form-label">
+            Choose Photos <span class="required" aria-hidden="true">*</span>
           </label>
-          <div class="file-drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Click to choose a photo or drag and drop">
+          <div class="file-drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Click to choose photos or drag and drop">
             <div class="drop-zone-content" id="drop-zone-content">
               <span class="drop-icon" aria-hidden="true">📷</span>
-              <span class="drop-text">Click to choose a photo or drag &amp; drop here</span>
-              <span class="drop-sub">JPEG, PNG, or WebP &bull; Max <%= MAX_SIZE_MB %> MB</span>
+              <span class="drop-text">Click to choose photos or drag &amp; drop here</span>
+              <span class="drop-sub">JPEG, PNG, or WebP &bull; Max <%= MAX_SIZE_MB %> MB each &bull; Up to <%= MAX_FILES %> photos</span>
             </div>
-            <div class="drop-preview" id="drop-preview" hidden>
-              <img id="preview-img" src="" alt="Preview of selected photo" class="preview-img">
-              <span id="preview-name" class="preview-name"></span>
-              <button type="button" class="preview-remove" id="preview-remove" aria-label="Remove selected photo">&times;</button>
-            </div>
+            <div id="preview-grid" hidden></div>
           </div>
           <input
             type="file"
-            id="photo"
-            name="photo"
+            id="photos"
+            name="photos"
             accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+            multiple
             required
             class="file-input-hidden"
             aria-describedby="file-hint"
           >
-          <p id="file-hint" class="form-hint">Only image files are accepted. The photo will be reviewed before appearing publicly.</p>
+          <p id="file-hint" class="form-hint">Only image files are accepted. Photos will be reviewed before appearing publicly.</p>
         </div>
 
         <div class="form-group">
@@ -82,7 +81,7 @@
             name="uploader_name"
             class="form-input"
             maxlength="100"
-            placeholder="How should we credit this photo?"
+            placeholder="How should we credit these photos?"
           >
         </div>
 
@@ -94,12 +93,12 @@
             class="form-textarea"
             maxlength="500"
             rows="3"
-            placeholder="Add a caption or message for this photo..."
+            placeholder="Add a caption or message for your photos..."
           ></textarea>
         </div>
 
         <button type="submit" class="btn btn-primary btn--full" id="submit-btn">
-          Upload Photo
+          Upload Photos
         </button>
       </form>
 
@@ -128,6 +127,106 @@
     color: var(--brown, #3d2b1f);
     margin-bottom: 0.6rem;
   }
+
+  /* Multi-file preview grid */
+  #preview-grid {
+    padding: 0.75rem 0.5rem 0.5rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .preview-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    padding: 0 0.25rem;
+  }
+  .preview-count {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--brown, #3d2b1f);
+  }
+  .preview-clear-btn {
+    background: none;
+    border: 1px solid rgba(184,148,90,0.5);
+    border-radius: 4px;
+    padding: 0.2rem 0.6rem;
+    font-size: 0.8rem;
+    color: var(--brown, #3d2b1f);
+    cursor: pointer;
+  }
+  .preview-clear-btn:hover { background: rgba(184,148,90,0.1); }
+  .preview-thumbnails {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 0.5rem;
+  }
+  .preview-card {
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden;
+    background: rgba(0,0,0,0.04);
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .preview-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .preview-card-name {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    font-size: 0.65rem;
+    padding: 0.15rem 0.3rem;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .preview-card-remove {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    border: none;
+    font-size: 0.9rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+  .preview-card-remove:hover { background: rgba(200,0,0,0.75); }
+  .preview-add-more {
+    border: 2px dashed rgba(184,148,90,0.4);
+    border-radius: 6px;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: rgba(184,148,90,0.7);
+    background: transparent;
+    gap: 0.2rem;
+  }
+  .preview-add-more span { font-size: 0.65rem; color: var(--brown, #3d2b1f); }
+  .preview-add-more:hover { background: rgba(184,148,90,0.07); }
 </style>
 
 <script src="/js/upload.js"></script>
