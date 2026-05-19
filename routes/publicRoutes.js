@@ -80,71 +80,9 @@ router.get('/gallery', asyncHandler(async function(req, res) {
   res.render('gallery', { config: siteConfig(), photos: photos, livestreamVisible: navConfig.livestreamVisible });
 }));
 
-// -- RSVP --
-
-router.get('/rsvp', asyncHandler(async function(req, res) {
-  var flash = req.session.flash || null;
-  delete req.session.flash;
-  var navConfig = await getNavConfig();
-  res.render('rsvp', { config: siteConfig(), flash: flash, errors: [], formData: null, livestreamVisible: navConfig.livestreamVisible });
-}));
-
-router.post('/rsvp', asyncHandler(async function(req, res) {
-  var name        = req.body.name;
-  var email       = req.body.email;
-  var attending   = req.body.attending;
-  var guest_count = req.body.guest_count;
-  var dietary     = req.body.dietary;
-  var song        = req.body.song;
-  var message     = req.body.message;
-  var errors      = [];
-
-  if (!name || name.trim().length < 2)   errors.push('Please enter your full name.');
-  if (name && name.trim().length > 100)  errors.push('Name is too long (max 100 characters).');
-  if (email && email.trim().length > 0) {
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      errors.push('Please enter a valid email address.');
-    }
-  }
-  if (!['yes', 'no', 'maybe'].includes(attending)) {
-    errors.push('Please select whether you are attending.');
-  }
-  var guestNum = parseInt(guest_count, 10);
-  if (attending === 'yes' && (isNaN(guestNum) || guestNum < 1 || guestNum > 10)) {
-    errors.push('Please enter a valid number of guests (1-10).');
-  }
-
-  if (errors.length > 0) {
-    var navConfigErr = await getNavConfig();
-    return res.render('rsvp', {
-      config: siteConfig(),
-      flash: null,
-      errors: errors,
-      formData: { name: name, email: email, attending: attending, guest_count: guest_count, dietary: dietary, song: song, message: message },
-      livestreamVisible: navConfigErr.livestreamVisible,
-    });
-  }
-
-  await db.insertRsvp({
-    name:                name.trim().substring(0, 100),
-    email:               email ? email.trim().substring(0, 200) : null,
-    attending:           attending,
-    guestCount:          attending === 'yes' ? guestNum : 0,
-    dietaryRequirements: dietary ? dietary.trim().substring(0, 500) : null,
-    songRequest:         song ? song.trim().substring(0, 200) : null,
-    message:             message ? message.trim().substring(0, 1000) : null,
-  });
-
-  req.session.flash = {
-    type: 'success',
-    message: attending === 'yes'
-      ? "Thank you! We can't wait to celebrate with you."
-      : attending === 'no'
-      ? "Thank you for letting us know. You'll be in our thoughts."
-      : "Thank you! We'll keep a spot open for you.",
-  };
-  res.redirect('/rsvp');
-}));
+// -- RSVP removed — redirect to home --
+router.get('/rsvp', function(req, res) { res.redirect('/'); });
+router.post('/rsvp', function(req, res) { res.redirect('/'); });
 
 // -- Guest photo upload --
 
@@ -288,6 +226,32 @@ router.get('/livestream', asyncHandler(async function(req, res) {
 
   var channel = channelSetting || process.env.TWITCH_CHANNEL || null;
   res.render('livestream', { config: siteConfig(), channel: channel, livestreamVisible: livestreamVisible });
+}));
+
+// -- API: site status (consumed by static index.html) --
+router.get('/api/site-status', asyncHandler(async function(req, res) {
+  var [visibleSetting, channelSetting, homepageSetting] = await Promise.all([
+    db.getSetting('livestream_visible'),
+    db.getSetting('livestream_channel'),
+    db.getSetting('livestream_homepage'),
+  ]);
+  res.json({
+    livestreamVisible:  (visibleSetting === null || visibleSetting === '1'),
+    livestreamChannel:  channelSetting || process.env.TWITCH_CHANNEL || null,
+    livestreamHomepage: (homepageSetting === '1'),
+  });
+}));
+
+// -- API: featured guest photos (consumed by static index.html) --
+router.get('/api/featured-photos', asyncHandler(async function(req, res) {
+  var photos = await db.getFeaturedPhotos();
+  res.json(photos.map(function(p) {
+    return {
+      id:           p._id,
+      filename:     p.filename,
+      uploaderName: p.uploader_name || null,
+    };
+  }));
 }));
 
 module.exports = router;

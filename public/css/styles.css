@@ -1474,7 +1474,7 @@ p:last-child { margin-bottom: 0; }
   transform: translateY(-50%);
   pointer-events: none;
   z-index: 0;
-  opacity: 0.55;
+  opacity: 0.68;
 }
 .botanical-left  { left: 0; }
 .botanical-right { right: 0; }
@@ -1815,4 +1815,117 @@ p:last-child { margin-bottom: 0; }
   letter-spacing: 0.06em;
   color: #6e6a82;
   margin: 1.5rem 0 0.5rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HOME PAGE — Livestream CTA banner (shown when live but no homepage embed)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.home-livestream-cta-section {
+  padding: 2.5rem 0;
+  background: linear-gradient(135deg, #f5ede0 0%, #ede4d6 100%);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.livestream-cta-card {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-accent);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem 2rem;
+  box-shadow: var(--shadow-lg);
+  flex-wrap: wrap;
+}
+
+.livestream-cta-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.livestream-cta-text {
+  flex: 1;
+  min-width: 200px;
+}
+
+.livestream-cta-text h2 {
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
+  margin-bottom: 0.25rem;
+  color: var(--color-primary);
+}
+
+.livestream-cta-text p {
+  color: var(--color-text-muted);
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 480px) {
+  .livestream-cta-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.5rem;
+    gap: 1rem;
+  }
+  .livestream-cta-text { min-width: auto; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HOME PAGE — Guest Moments upload CTA
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.moments-upload-cta {
+  background: linear-gradient(135deg, var(--color-light) 0%, #ede4d6 100%);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  text-align: center;
+}
+
+.moments-upload-text {
+  flex: 1;
+  min-width: 200px;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+@media (max-width: 480px) {
+  .moments-upload-cta { flex-direction: column; gap: 1rem; padding: 1.25rem; }
+  .moments-upload-text { min-width: auto; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HOME PAGE — Nav tile live variant
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.nav-tile--live {
+  border-color: var(--color-accent);
+  position: relative;
+}
+
+.nav-tile--live::before {
+  content: 'LIVE';
+  position: absolute;
+  top: 0.5rem;
+  right: 0.6rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--color-error);
+  background: #fdecec;
+  padding: 0.1rem 0.4rem;
+  border-radius: 50px;
+}
+
+.nav-tile--live:hover {
+  border-color: var(--color-error);
 }
