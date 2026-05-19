@@ -81,9 +81,11 @@ async function getPhotoStats() {
  */
 async function getPhotoCountByGuest(uploaderName) {
   if (!uploaderName || !uploaderName.trim()) return 0;
-  const escaped = uploaderName.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const nameRe  = new RegExp('^' + escaped + '$', 'i');
-  return photosDb.count({ uploaderName: nameRe, status: { $ne: 'rejected' } });
+  const name   = uploaderName.trim().toLowerCase();
+  const photos = await photosDb.find({ status: { $ne: 'rejected' } });
+  return photos.filter(function(p) {
+    return (p.uploaderName || '').toLowerCase() === name;
+  }).length;
 }
 
 function normalisePhoto(doc) {

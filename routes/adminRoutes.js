@@ -1,40 +1,58 @@
 'use strict';
 
-const express = require('express');
-const path = require('path');
-const fs = require('fs');
-const bcrypt = require('bcryptjs');
-const multer = require('multer');
-const router = express.Router();
+const express    = require('express');
+const path       = require('path');
+const fs         = require('fs');
+const bcrypt     = require('bcryptjs');
+const multer     = require('multer');
+const rateLimit  = require('express-rate-limit');
+const router     = express.Router();
 
 const db = require('../db/database');
 const { requireAdmin, redirectIfLoggedIn } = require('../middleware/auth');
+const { validateCsrfFromBody } = require('../middleware/csrf');
 
 const IMAGES_DIR = path.join(__dirname, '..', 'public', 'images');
 
-// Multer storage for site images
-const siteImageStorage = multer.diskStorage({
-  destination: function(req, file, cb) {
-    cb(null, IMAGES_DIR);
-  },
-  filename: function(req, file, cb) {
-    var ext = path.extname(file.originalname).toLowerCase() || '.jpg';
-    // Only allow image extensions
-    var allowed = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
-    if (!allowed.includes(ext)) ext = '.jpg';
-    cb(null, 'site-' + Date.now() + ext);
-  },
-});
+// Magic byte detection for site images (JPEG, PNG, WebP, GIF)
+function detectSiteImageMime(buffer) {
+  if (!buffer || buffer.length < 12) return null;
+  if (buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF) return 'image/jpeg';
+  if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47 &&
+      buffer[4] === 0x0D && buffer[5] === 0x0A && buffer[6] === 0x1A && buffer[7] === 0x0A) return 'image/png';
+  if (buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46 &&
+      buffer[8] === 0x57 && buffer[9] === 0x45 && buffer[10] === 0x42 && buffer[11] === 0x50) return 'image/webp';
+  if (buffer[0] === 0x47 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x38 &&
+      (buffer[4] === 0x37 || buffer[4] === 0x39) && buffer[5] === 0x61) return 'image/gif';
+  return null;
+}
+
+// Multer for site images — memory storage so we can validate bytes before writing
 const siteImageUpload = multer({
-  storage: siteImageStorage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: function(req, file, cb) {
-    var allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-    if (allowed.includes(file.mimetype)) {
+    var allowedMime = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    var allowedExt  = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+    var ext = path.extname(file.originalname).toLowerCase();
+    if (allowedMime.includes(file.mimetype) && allowedExt.includes(ext)) {
       cb(null, true);
     } else {
       cb(new Error('INVALID_TYPE'));
     }
+  },
+});
+
+// Rate limiter for admin login: 10 attempts per 15 minutes per IP
+const loginLimiter = rateLimit({
+  windowMs:              15 * 60 * 1000,
+  max:                   10,
+  standardHeaders:       true,
+  legacyHeaders:         false,
+  skipSuccessfulRequests: true,
+  handler: function(req, res) {
+    req.session.flash = { type: 'error', message: 'Too many login attempts. Please wait 15 minutes before trying again.' };
+    res.redirect('/admin/login');
   },
 });
 
@@ -114,7 +132,7 @@ router.get('/login', redirectIfLoggedIn, (req, res) => {
   res.render('admin/login', { flash });
 });
 
-router.post('/login', redirectIfLoggedIn, asyncHandler(async (req, res) => {
+router.post('/login', loginLimiter, redirectIfLoggedIn, asyncHandler(async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
     req.session.flash = { type: 'error', message: 'Username and password are required.' };
@@ -281,15 +299,39 @@ router.post('/photo/:id/unfeature', requireAdmin, asyncHandler(async (req, res) 
 
 router.post('/site-image/upload', requireAdmin, function(req, res, next) {
   siteImageUpload.single('site_image')(req, res, function(err) {
+    // CSRF check after multer parses the multipart body
+    if (!validateCsrfFromBody(req)) {
+      req.session.flash = { type: 'error', message: 'Security token invalid. Please try again.' };
+      return res.redirect('/admin/dashboard');
+    }
     if (err) {
-      req.session.flash = { type: 'error', message: 'Image upload failed: ' + (err.message || 'Unknown error') };
+      var errMsg = err.code === 'LIMIT_FILE_SIZE'
+        ? 'Image too large. Maximum size is 10 MB.'
+        : 'Invalid file type. Only JPEG, PNG, WebP, and GIF images are accepted.';
+      req.session.flash = { type: 'error', message: errMsg };
       return res.redirect('/admin/dashboard');
     }
     if (!req.file) {
       req.session.flash = { type: 'error', message: 'No image file selected.' };
       return res.redirect('/admin/dashboard');
     }
-    req.session.flash = { type: 'success', message: 'Site image uploaded: ' + req.file.filename };
+    // Magic byte validation — verify actual file content, not just declared MIME type
+    var detectedMime = detectSiteImageMime(req.file.buffer);
+    if (!detectedMime) {
+      req.session.flash = { type: 'error', message: 'Invalid file. Only JPEG, PNG, WebP, and GIF images are accepted.' };
+      return res.redirect('/admin/dashboard');
+    }
+    // Write to disk with a safe timestamped filename
+    var extMap = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp', 'image/gif': '.gif' };
+    var safeFilename = 'site-' + Date.now() + extMap[detectedMime];
+    var destPath = path.join(IMAGES_DIR, safeFilename);
+    try {
+      fs.writeFileSync(destPath, req.file.buffer);
+      req.session.flash = { type: 'success', message: 'Site image uploaded: ' + safeFilename };
+    } catch (writeErr) {
+      console.error('[Site image] Write error:', writeErr.message);
+      req.session.flash = { type: 'error', message: 'Failed to save image. Please try again.' };
+    }
     res.redirect('/admin/dashboard');
   });
 });
@@ -333,9 +375,14 @@ router.get('/livestream', requireAdmin, asyncHandler(async (req, res) => {
 }));
 
 router.post('/livestream', requireAdmin, asyncHandler(async (req, res) => {
-  const channel  = (req.body.livestream_channel  || '').trim().substring(0, 100);
+  const channel  = (req.body.livestream_channel  || '').trim().substring(0, 25);
   const visible  = req.body.livestream_visible  === '1' ? '1' : '0';
   const homepage = req.body.livestream_homepage === '1' ? '1' : '0';
+
+  if (channel && !/^[a-zA-Z0-9_]{1,25}$/.test(channel)) {
+    req.session.flash = { type: 'error', message: 'Invalid Twitch channel name. Use only letters, numbers, and underscores (max 25 characters).' };
+    return res.redirect('/admin/dashboard');
+  }
 
   await Promise.all([
     db.setSetting('livestream_channel',  channel),

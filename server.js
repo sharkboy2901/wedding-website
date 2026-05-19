@@ -1,9 +1,11 @@
 'use strict';
 
+const crypto  = require('crypto');
 const express = require('express');
 const path    = require('path');
 const fs      = require('fs');
 const session = require('express-session');
+const helmet  = require('helmet');
 
 const db                 = require('./db/database');
 const { csrfMiddleware } = require('./middleware/csrf');
@@ -12,6 +14,30 @@ const publicRouter       = require('./routes/publicRoutes');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
+
+// -- Trust Railway's reverse proxy so req.ip reflects the real client IP --
+app.set('trust proxy', 1);
+
+// -- Security headers --
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc:     ["'self'"],
+      scriptSrc:      ["'self'", "'unsafe-inline'"],
+      styleSrc:       ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      fontSrc:        ["'self'", 'https://fonts.gstatic.com'],
+      imgSrc:         ["'self'", 'data:', 'blob:'],
+      frameSrc:       ['https://player.twitch.tv', 'https://www.twitch.tv'],
+      connectSrc:     ["'self'"],
+      objectSrc:      ["'none'"],
+      baseUri:        ["'self'"],
+      formAction:     ["'self'"],
+      frameAncestors: ["'none'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+  hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+}));
 
 // -- View engine --
 app.set('view engine', 'ejs');
@@ -22,15 +48,21 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // -- Session --
+var sessionSecret = process.env.SESSION_SECRET;
+if (!sessionSecret) {
+  sessionSecret = crypto.randomBytes(32).toString('hex');
+  console.warn('[Security] SESSION_SECRET env var not set — using a random ephemeral secret. ' +
+               'Admin sessions will not survive server restarts. Set SESSION_SECRET in Railway.');
+}
 app.use(session({
-  secret:            process.env.SESSION_SECRET || 'mkcbf9e3a27d4b81f65e2a0c74d9b38a1f52e6c',
+  secret:            sessionSecret,
   resave:            false,
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
     secure:   process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge:   8 * 60 * 60 * 1000,
+    sameSite: 'strict',
+    maxAge:   2 * 60 * 60 * 1000,
   },
 }));
 
