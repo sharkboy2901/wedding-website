@@ -16,7 +16,7 @@
   <div class="admin-header-inner">
     <h1 class="admin-header-title">Admin Dashboard</h1>
     <nav class="admin-nav" aria-label="Admin navigation">
-      <a href="/admin/dashboard" class="admin-nav-link admin-nav-link--active">Photos</a>
+      <a href="/admin/dashboard" class="admin-nav-link admin-nav-link--active">Dashboard</a>
       <a href="/admin/rsvps" class="admin-nav-link">RSVPs</a>
       <a href="/" class="admin-nav-link" target="_blank" rel="noopener noreferrer">View Site ↗</a>
       <a href="/admin/logout" class="admin-nav-link admin-nav-link--logout">Sign Out</a>
@@ -57,7 +57,7 @@
 
     <!-- ── Livestream Settings ─────────────────────────────────────────────── -->
     <section class="admin-section" aria-labelledby="livestream-heading">
-      <h2 class="admin-section-title" id="livestream-heading">Livestream Settings</h2>
+      <h2 class="admin-section-title" id="livestream-heading">&#128250; Livestream Settings</h2>
       <div class="admin-settings-card">
         <form action="/admin/livestream" method="post" class="admin-settings-form">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -84,7 +84,7 @@
                 value="1"
                 <%= siteSettings.livestream_visible === '1' ? 'checked' : '' %>
               >
-              <span>Show "Watch Live" link &amp; page to guests</span>
+              <span>Show "Watch Live" link, tile &amp; page to guests</span>
             </label>
           </div>
 
@@ -96,12 +96,16 @@
                 value="1"
                 <%= siteSettings.livestream_homepage === '1' ? 'checked' : '' %>
               >
-              <span>Embed livestream player on home page</span>
+              <span>Embed livestream player directly on home page</span>
             </label>
           </div>
 
-          <div class="admin-settings-row">
+          <div class="admin-settings-row" style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;">
             <button type="submit" class="admin-btn admin-btn--primary">Save Livestream Settings</button>
+            <% if (siteSettings.livestream_visible === '1' && siteSettings.livestream_channel) { %>
+              <a href="/livestream" target="_blank" rel="noopener noreferrer"
+                 class="admin-btn admin-btn--secondary">Preview Livestream Page ↗</a>
+            <% } %>
           </div>
         </form>
       </div>
@@ -109,4 +113,148 @@
 
     <!-- ── Site Images ────────────────────────────────────────────────────── -->
     <section class="admin-section" aria-labelledby="site-images-heading">
-      <h2 class="admin-section-title" id="site-images-heading">Site Ima
+      <h2 class="admin-section-title" id="site-images-heading">&#128444; Site Images</h2>
+      <p class="admin-section-note">Upload images to use on the site (hero backgrounds, gallery, etc.). Images are available at <code>/images/&lt;filename&gt;</code>.</p>
+
+      <!-- Upload new site image -->
+      <form action="/admin/site-image/upload" method="post" enctype="multipart/form-data"
+            class="admin-settings-card" style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;padding:1.25rem 1.5rem;">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <label class="admin-settings-label" style="margin:0;white-space:nowrap;">Upload New Image</label>
+        <input type="file" name="site_image" accept="image/jpeg,image/png,image/webp,image/gif"
+               required style="color:#c8c4d8;flex:1;min-width:200px;">
+        <button type="submit" class="admin-btn admin-btn--primary">Upload</button>
+      </form>
+
+      <!-- Existing site images grid -->
+      <% if (siteImages && siteImages.length > 0) { %>
+        <div class="admin-site-image-grid" style="margin-top:1rem;">
+          <% siteImages.forEach(function(img) { %>
+            <div class="admin-site-image-card">
+              <div class="admin-site-image-thumb">
+                <img src="/images/<%= encodeURIComponent(img) %>" alt="<%= img %>" loading="lazy">
+              </div>
+              <div class="admin-site-image-info">
+                <p class="admin-site-image-name" title="<%= img %>"><%= img %></p>
+                <form action="/admin/site-image/<%= encodeURIComponent(img) %>/delete" method="post">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button type="submit" class="admin-btn admin-btn--danger admin-btn--sm"
+                          onclick="return confirm('Delete this image?')">Delete</button>
+                </form>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <div class="admin-empty" style="margin-top:1rem;">No site images uploaded yet.</div>
+      <% } %>
+    </section>
+
+    <!-- ── Pending Photos ─────────────────────────────────────────────────── -->
+    <section class="admin-section" aria-labelledby="pending-heading">
+      <h2 class="admin-section-title" id="pending-heading">
+        &#9203; Pending Photos
+        <% if (photoStats.pending > 0) { %>
+          <span class="badge badge--warning"><%= photoStats.pending %></span>
+        <% } %>
+      </h2>
+
+      <% if (pendingPhotos && pendingPhotos.length > 0) { %>
+        <p class="admin-section-note">Review guest photos. Approve to add to the public gallery or reject to discard.</p>
+        <div class="admin-photo-grid">
+          <% pendingPhotos.forEach(function(photo) { %>
+            <div class="admin-photo-card">
+              <div class="admin-photo-thumb">
+                <img class="admin-photo-img"
+                     src="/admin/photo/<%= photo._id %>/image"
+                     alt="Photo by <%= photo.uploader_name || 'anonymous' %>"
+                     loading="lazy">
+              </div>
+              <div class="admin-photo-info">
+                <div class="admin-photo-meta">
+                  <strong><%= photo.uploader_name || 'Anonymous' %></strong><br>
+                  <span class="admin-photo-date"><%= photo.uploaded_at ? new Date(photo.uploaded_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : 'Unknown date' %></span><br>
+                  <span class="admin-photo-size"><%= photo.file_size ? Math.round(photo.file_size/1024) + ' KB' : '' %></span>
+                </div>
+                <% if (photo.uploader_message) { %>
+                  <p class="admin-photo-msg">"<%= photo.uploader_message %>"</p>
+                <% } %>
+                <div class="admin-photo-actions">
+                  <form action="/admin/photo/<%= photo._id %>/approve" method="post" style="flex:1;">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button type="submit" class="btn-approve btn--full-width">&#10003; Approve</button>
+                  </form>
+                  <form action="/admin/photo/<%= photo._id %>/reject" method="post" style="flex:1;">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button type="submit" class="btn-reject btn--full-width"
+                            onclick="return confirm('Reject and delete this photo?')">&#10007; Reject</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <div class="admin-empty">No photos pending review.</div>
+      <% } %>
+    </section>
+
+    <!-- ── Approved Photos ────────────────────────────────────────────────── -->
+    <section class="admin-section" aria-labelledby="approved-heading">
+      <h2 class="admin-section-title" id="approved-heading">&#10003; Approved Photos</h2>
+
+      <% if (approvedPhotos && approvedPhotos.length > 0) { %>
+        <p class="admin-section-note">Feature photos to show them on the home page. Unfeature or delete as needed.</p>
+        <div class="admin-photo-grid">
+          <% approvedPhotos.forEach(function(photo) { %>
+            <div class="admin-photo-card admin-photo-card--approved<%= photo.featured ? ' admin-photo-card--featured' : '' %>">
+              <% if (photo.featured) { %>
+                <div class="admin-featured-badge">&#9733; Featured on Home</div>
+              <% } %>
+              <div class="admin-photo-thumb">
+                <img class="admin-photo-img"
+                     src="/uploads/approved/<%= photo.filename %>"
+                     alt="Photo by <%= photo.uploader_name || 'anonymous' %>"
+                     loading="lazy">
+              </div>
+              <div class="admin-photo-info">
+                <div class="admin-photo-meta">
+                  <strong><%= photo.uploader_name || 'Anonymous' %></strong>
+                  <span class="badge badge--approved">Approved</span><br>
+                  <span class="admin-photo-date"><%= photo.reviewed_at ? new Date(photo.reviewed_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}) : '' %></span>
+                </div>
+                <% if (photo.uploader_message) { %>
+                  <p class="admin-photo-msg">"<%= photo.uploader_message %>"</p>
+                <% } %>
+                <div class="admin-photo-actions" style="flex-direction:column;gap:0.4rem;">
+                  <% if (!photo.featured) { %>
+                    <form action="/admin/photo/<%= photo._id %>/feature" method="post">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <button type="submit" class="btn-feature btn--full-width">&#9733; Feature on Home</button>
+                    </form>
+                  <% } else { %>
+                    <form action="/admin/photo/<%= photo._id %>/unfeature" method="post">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <button type="submit" class="btn-unfeature btn--full-width">&#9734; Remove from Home</button>
+                    </form>
+                  <% } %>
+                  <form action="/admin/photo/<%= photo._id %>/delete" method="post">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button type="submit" class="btn-reject btn--full-width btn-reject.btn--full-width"
+                            onclick="return confirm('Remove this photo from the public gallery?')">Delete</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <div class="admin-empty">No approved photos yet. Approve photos from the Pending section above.</div>
+      <% } %>
+    </section>
+
+  </div>
+</main>
+
+</body>
+</html>

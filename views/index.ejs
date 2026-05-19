@@ -11,7 +11,7 @@
       <h1 class="hero-names"><%= config.coupleNames %></h1>
       <p class="hero-date"><%= config.weddingDate %></p>
       <p class="hero-venue"><%= config.venueName %><% if (config.venueLocation) { %>, <%= config.venueLocation %><% } %></p>
-      <a href="/rsvp" class="btn btn-primary hero-cta">RSVP Now</a>
+      <a href="/gallery" class="btn btn-primary hero-cta">View Gallery</a>
     </div>
     <div class="hero-flourish" aria-hidden="true">
       <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
@@ -74,11 +74,11 @@
           <p><%= config.dressCode %></p>
         </div>
         <div class="detail-card">
-          <div class="detail-icon" aria-hidden="true">✉</div>
-          <h3>RSVP Deadline</h3>
-          <p>Please reply by</p>
-          <p><%= config.rsvpDeadline %></p>
-          <a href="/rsvp" class="detail-link">RSVP now &rarr;</a>
+          <div class="detail-icon" aria-hidden="true">📷</div>
+          <h3>Share Moments</h3>
+          <p>Upload your photos</p>
+          <p>from our special day</p>
+          <a href="/upload" class="detail-link">Share a photo &rarr;</a>
         </div>
       </div>
     </div>
@@ -103,13 +103,20 @@
           <span class="nav-tile-title">Share a Photo</span>
           <span class="nav-tile-sub">Upload your memory</span>
         </a>
+        <% if (livestreamVisible) { %>
+        <a href="/livestream" class="nav-tile nav-tile--live">
+          <span class="nav-tile-icon" aria-hidden="true">📺</span>
+          <span class="nav-tile-title">Watch Live</span>
+          <span class="nav-tile-sub">Join us remotely</span>
+        </a>
+        <% } %>
       </div>
     </div>
   </section>
 
-  <!-- Livestream embed (home page) -->
+  <!-- Livestream section: full embed when admin enables homepage player -->
   <% if (livestreamHomepage && livestreamChannel) { %>
-  <section class="home-livestream-section">
+  <section class="home-livestream-section" aria-label="Live stream">
     <div class="container">
       <h2 class="section-title">Watch Live</h2>
       <p class="section-sub">Join us from wherever you are</p>
@@ -123,6 +130,23 @@
           title="Wedding livestream"
         ></iframe>
       </div>
+      <div style="text-align:center;margin-top:1.25rem;">
+        <a href="/livestream" class="btn btn-secondary">Open Full Livestream Page &rarr;</a>
+      </div>
+    </div>
+  </section>
+  <% } else if (livestreamVisible && livestreamChannel) { %>
+  <!-- Livestream available but not embedded on homepage — show a CTA banner -->
+  <section class="home-livestream-cta-section" aria-label="Live stream">
+    <div class="container">
+      <div class="livestream-cta-card">
+        <div class="livestream-cta-icon" aria-hidden="true">📺</div>
+        <div class="livestream-cta-text">
+          <h2>We're Live!</h2>
+          <p>Watch our ceremony live from wherever you are.</p>
+        </div>
+        <a href="/livestream" class="btn btn-primary">Watch Live &rarr;</a>
+      </div>
     </div>
   </section>
   <% } %>
@@ -131,8 +155,11 @@
   <section class="home-moments-section" id="moments">
     <div class="container">
       <h2 class="section-title">Guest Moments</h2>
-      <p class="section-sub">Share your photos from our special day</p>
-      <a href="/upload" class="btn btn-primary" style="margin-bottom:2rem;">Share a Photo</a>
+      <p class="section-sub">Capture and share the magic of our day</p>
+      <div class="moments-upload-cta">
+        <p class="moments-upload-text">Taken a beautiful photo at the wedding? Share it with us — your memories may be featured right here!</p>
+        <a href="/upload" class="btn btn-primary">Share Your Photo</a>
+      </div>
       <% if (featuredPhotos && featuredPhotos.length > 0) { %>
         <div class="moments-grid">
           <% featuredPhotos.forEach(function(photo) { %>

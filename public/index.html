@@ -33,13 +33,24 @@
     .nav-brand {
       font-family: 'Cormorant Garamond', serif;
       font-style: italic; font-size: 1.3rem; color: var(--gold); letter-spacing: 0.02em;
+      text-decoration: none;
     }
-    .nav-links { display: flex; gap: 36px; list-style: none; }
+    .nav-links { display: flex; gap: 28px; list-style: none; align-items: center; flex-wrap: wrap; }
     .nav-links a {
-      font-size: 0.7rem; letter-spacing: 0.16em; font-weight: 600;
+      font-size: 0.68rem; letter-spacing: 0.15em; font-weight: 600;
       color: var(--brown); text-decoration: none; text-transform: uppercase; transition: color 0.2s;
     }
     .nav-links a:hover { color: var(--gold); }
+    .nav-links .nav-sep {
+      width: 1px; height: 12px; background: rgba(184,148,90,0.35);
+    }
+    #navLiveLink { display: none; }
+    #navLiveLink a {
+      color: #c0392b; animation: pulse-live 2s ease-in-out infinite;
+    }
+    @keyframes pulse-live {
+      0%,100% { opacity: 1; } 50% { opacity: 0.6; }
+    }
 
     /* ─── HERO ────────────────────────────────── */
     #hero {
@@ -61,13 +72,13 @@
         rgba(0,0,0,0.58) 100%);
     }
 
-    /* Decorative leaves SVG */
-    .leaf-left, .leaf-right {
-      position: absolute; bottom: 140px; z-index: 2;
-      opacity: 0.5; pointer-events: none;
+    /* Hero botanical decorations */
+    .hero-botanical-left, .hero-botanical-right {
+      position: absolute; bottom: 100px; z-index: 2;
+      opacity: 0.55; pointer-events: none;
     }
-    .leaf-left  { left: 30px; }
-    .leaf-right { right: 30px; transform: scaleX(-1); }
+    .hero-botanical-left  { left: 24px; }
+    .hero-botanical-right { right: 24px; }
 
     .hero-content {
       position: relative; z-index: 3;
@@ -179,15 +190,13 @@
       border-radius: 2px; border: 6px solid var(--warm-white);
       box-shadow: 0 8px 28px rgba(61,43,31,0.22);
     }
-    /* Dot pattern decoration */
     .dots-deco {
       position: absolute; top: -20px; left: 310px;
       display: grid; grid-template-columns: repeat(6,8px); gap: 6px;
       opacity: 0.25; pointer-events: none;
     }
     .dots-deco span {
-      width: 4px; height: 4px; border-radius: 50%; background: var(--gold);
-      display: block;
+      width: 4px; height: 4px; border-radius: 50%; background: var(--gold); display: block;
     }
     .story-text { padding: 10px 0 50px; }
     .story-text .section-title { text-align: left; }
@@ -198,8 +207,7 @@
       line-height: 1.8; color: var(--brown-light);
     }
     .heart-divider {
-      display: flex; align-items: center; gap: 14px; margin-top: 34px;
-      color: var(--gold);
+      display: flex; align-items: center; gap: 14px; margin-top: 34px; color: var(--gold);
     }
     .heart-divider::before, .heart-divider::after {
       content: ''; flex: 0 0 44px; height: 1px; background: var(--gold);
@@ -285,7 +293,88 @@
       to   { transform: translateX(-50%); }
     }
 
-    /* Lightbox */
+    /* ─── GUEST MOMENTS ───────────────────────── */
+    #guest-moments { background: var(--warm-white); text-align: center; }
+    .moments-upload-box {
+      max-width: 680px; margin: 0 auto 56px;
+      background: var(--cream);
+      border: 1px solid rgba(184,148,90,0.3);
+      border-radius: 4px;
+      padding: 36px 32px;
+    }
+    .moments-upload-box p {
+      font-size: 0.82rem; color: var(--brown-light); line-height: 1.75;
+      margin-bottom: 24px; letter-spacing: 0.03em;
+    }
+    .btn-gold {
+      display: inline-block;
+      padding: 14px 36px;
+      background: var(--gold); color: #fff;
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+      text-decoration: none; border-radius: 2px;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .btn-gold:hover { background: #a07a42; transform: translateY(-2px); }
+    .btn-outline {
+      display: inline-block;
+      padding: 12px 32px;
+      border: 1.5px solid var(--gold); color: var(--gold);
+      font-size: 0.68rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase;
+      text-decoration: none; border-radius: 2px;
+      transition: background 0.2s, color 0.2s;
+      margin-top: 12px;
+    }
+    .btn-outline:hover { background: var(--gold); color: #fff; }
+    .moments-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px; max-width: 1000px; margin: 0 auto 40px;
+      text-align: left;
+    }
+    .moment-card {
+      border-radius: 3px; overflow: hidden;
+      box-shadow: 0 4px 20px rgba(61,43,31,0.1);
+    }
+    .moment-card img {
+      width: 100%; height: 240px; object-fit: cover; display: block;
+    }
+    .moment-name {
+      font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--brown-light); padding: 10px 14px 12px; background: var(--warm-white);
+    }
+    .moments-empty-note {
+      font-size: 0.82rem; color: var(--brown-light); font-style: italic; margin-bottom: 32px;
+    }
+    .moments-gallery-link {
+      font-size: 0.7rem; letter-spacing: 0.14em; font-weight: 600;
+      color: var(--gold); text-decoration: none; text-transform: uppercase;
+    }
+    .moments-gallery-link:hover { text-decoration: underline; }
+
+    /* ─── WATCH LIVE ──────────────────────────── */
+    #watch-live { display: none; background: var(--cream-dark); text-align: center; }
+    #watch-live.is-live { display: block; }
+    .live-embed-wrap {
+      max-width: 900px; margin: 0 auto;
+      position: relative; width: 100%; aspect-ratio: 16/9;
+      border-radius: 4px; overflow: hidden;
+      box-shadow: 0 8px 40px rgba(61,43,31,0.18);
+      background: #000;
+    }
+    .live-embed-wrap iframe {
+      position: absolute; inset: 0; width: 100%; height: 100%; border: 0;
+    }
+    .live-cta-card {
+      max-width: 640px; margin: 0 auto;
+      background: var(--warm-white);
+      border: 1px solid rgba(184,148,90,0.35);
+      border-radius: 4px; padding: 48px 40px;
+    }
+    .live-cta-card p {
+      font-size: 0.82rem; color: var(--brown-light); line-height: 1.75; margin-bottom: 28px;
+    }
+
+    /* ─── LIGHTBOX ───────────────────────────── */
     .lightbox {
       display: none; position: fixed; inset: 0; z-index: 200;
       background: rgba(0,0,0,0.92); align-items: center; justify-content: center;
@@ -313,12 +402,32 @@
       font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase;
       color: rgba(245,237,224,0.55); margin-bottom: 24px;
     }
-    .footer-tagline { font-size: 0.7rem; color: rgba(245,237,224,0.35); }
+    .footer-links {
+      display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 18px;
+    }
+    .footer-links a {
+      font-size: 0.65rem; letter-spacing: 0.14em; text-transform: uppercase;
+      color: rgba(245,237,224,0.55); text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--gold); }
+    .footer-tagline { font-size: 0.7rem; color: rgba(245,237,224,0.3); }
+
+    /* ─── BOTANICAL PANELS (fixed sides, wide screens only) ─── */
+    .botanical-panel {
+      position: fixed; top: 50%; transform: translateY(-50%);
+      pointer-events: none; z-index: 1; opacity: 0.60;
+    }
+    .botanical-panel-left  { left: 0; }
+    .botanical-panel-right { right: 0; }
+    @media (max-width: 1100px) {
+      .botanical-panel { display: none; }
+    }
 
     /* ─── RESPONSIVE ──────────────────────────── */
     @media (max-width: 860px) {
       nav { padding: 14px 20px; }
-      .nav-links { gap: 20px; }
+      .nav-links { gap: 16px; }
       section { padding: 70px 24px; }
       .story-inner { grid-template-columns: 1fr; gap: 70px; }
       .story-photos { min-height: 420px; }
@@ -326,25 +435,210 @@
       .details-grid { grid-template-columns: repeat(2,1fr); }
       .cd-unit { padding: 14px 20px; }
       .cd-num { font-size: 2.2rem; }
+      .moments-grid { grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width: 600px) {
+      .nav-links { gap: 10px; }
+      .nav-links a { font-size: 0.58rem; letter-spacing: 0.1em; }
+      .nav-sep { display: none; }
     }
     @media (max-width: 500px) {
       .details-grid { grid-template-columns: 1fr; max-width: 300px; margin: 0 auto; }
       .t-event { grid-template-columns: 1fr 50px 1fr; }
-      .nav-links { gap: 12px; }
-      .nav-links a { font-size: 0.6rem; }
+      .moments-grid { grid-template-columns: 1fr; }
+      .hero-botanical-left, .hero-botanical-right { display: none; }
+      .moments-upload-box { padding: 28px 20px; }
+      .live-cta-card { padding: 36px 24px; }
     }
   </style>
 </head>
 <body>
 
+<!-- ═══ BOTANICAL SIDE PANELS (fixed, wide screens) ═══ -->
+<div class="botanical-panel botanical-panel-left" aria-hidden="true">
+  <svg viewBox="0 0 130 620" xmlns="http://www.w3.org/2000/svg" width="130" height="620">
+    <path d="M 102,5 C 90,38 74,72 72,118 C 70,164 84,198 78,248 C 72,298 54,332 58,388 C 62,444 78,480 66,534 C 54,588 38,608 24,618"
+          fill="none" stroke="#8b9a78" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 99,22 C 82,14 64,18 56,27 C 63,35 81,33 99,22 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+    <path d="M 100,35 C 114,27 126,31 128,42 C 120,49 108,45 100,35 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+    <path d="M 76,73 C 59,65 41,69 33,78 C 40,86 58,84 76,73 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+    <path d="M 74,86 C 88,78 101,82 103,93 C 95,100 83,96 74,86 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+    <path d="M 75,125 C 58,117 40,121 32,130 C 39,138 57,136 75,125 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+    <path d="M 74,138 C 88,130 100,134 102,145 C 94,152 82,148 74,138 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+    <line x1="76" y1="128" x2="70" y2="140" stroke="#8b9a78" stroke-width="0.8"/>
+    <ellipse cx="70" cy="145" rx="4" ry="6.5" fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
+    <line x1="78" y1="133" x2="85" y2="144" stroke="#8b9a78" stroke-width="0.8"/>
+    <ellipse cx="85" cy="149" rx="4" ry="6.5" fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
+    <path d="M 79,175 C 63,167 45,171 37,180 C 44,188 62,186 79,175 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+    <path d="M 78,188 C 91,180 103,184 105,195 C 97,202 85,198 78,188 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+    <path d="M 76,230 C 60,222 42,226 34,235 C 41,243 59,241 76,230 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+    <path d="M 75,243 C 88,235 100,239 102,250 C 94,257 82,253 75,243 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+    <path d="M 62,280 C 46,272 28,276 20,285 C 27,293 45,291 62,280 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+    <path d="M 61,293 C 74,285 86,289 88,300 C 80,307 68,303 61,293 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+    <path d="M 60,335 C 44,327 26,331 18,340 C 25,348 43,346 60,335 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+    <path d="M 59,348 C 72,340 84,344 86,355 C 78,362 66,358 59,348 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+    <path d="M 62,390 C 46,382 28,386 20,395 C 27,403 45,401 62,390 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+    <path d="M 61,403 C 74,395 86,399 88,410 C 80,417 68,413 61,403 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+    <line x1="63" y1="397" x2="57" y2="409" stroke="#8b9a78" stroke-width="0.8"/>
+    <ellipse cx="57" cy="414" rx="4" ry="6.5" fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
+    <line x1="65" y1="400" x2="72" y2="411" stroke="#8b9a78" stroke-width="0.8"/>
+    <ellipse cx="72" cy="416" rx="4" ry="6.5" fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
+    <path d="M 68,453 C 52,445 34,449 26,458 C 33,466 51,464 68,453 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+    <path d="M 67,466 C 80,458 92,462 94,473 C 86,480 74,476 67,466 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+    <path d="M 52,550 C 36,542 18,546 10,555 C 17,563 35,561 52,550 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+    <path d="M 51,563 C 64,555 76,559 78,570 C 70,577 58,573 51,563 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+    <!-- Lily flower -->
+    <line x1="76" y1="200" x2="38" y2="218" stroke="#8b9a78" stroke-width="1.1" stroke-linecap="round"/>
+    <path d="M 55,212 C 50,205 42,200 36,196 C 34,202 38,209 55,212 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.8"/>
+    <g transform="translate(38,216)">
+      <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30 C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z" fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9" transform="rotate(0)"/>
+      <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30 C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z" fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9" transform="rotate(60)"/>
+      <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30 C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z" fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9" transform="rotate(120)"/>
+      <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30 C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z" fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9" transform="rotate(180)"/>
+      <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30 C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z" fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9" transform="rotate(240)"/>
+      <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30 C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z" fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9" transform="rotate(300)"/>
+      <g transform="rotate(0)"><line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/><ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/></g>
+      <g transform="rotate(60)"><line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/><ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/></g>
+      <g transform="rotate(120)"><line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/><ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/></g>
+      <g transform="rotate(180)"><line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/><ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/></g>
+      <g transform="rotate(240)"><line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/><ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/></g>
+      <g transform="rotate(300)"><line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/><ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/></g>
+      <circle cx="0" cy="0" r="4" fill="rgba(210,185,135,0.55)" stroke="#c8a870" stroke-width="0.9"/>
+    </g>
+    <!-- Baby's breath clusters -->
+    <g transform="translate(25,92)">
+      <path d="M 0,0 L -14,-20 M 0,0 L 0,-22 M 0,0 L 14,-20" fill="none" stroke="#c0b8a8" stroke-width="0.65" stroke-linecap="round"/>
+      <path d="M -14,-20 L -22,-32 M -14,-20 L -8,-32 M 0,-22 L -9,-34 M 0,-22 L 9,-34 M 14,-20 L 8,-32 M 14,-20 L 22,-32" fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
+      <circle cx="-22" cy="-32" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+      <circle cx="-8"  cy="-32" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+      <circle cx="-9"  cy="-34" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+      <circle cx="9"   cy="-34" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+      <circle cx="8"   cy="-32" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+      <circle cx="22"  cy="-32" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+    </g>
+    <g transform="translate(100,308)">
+      <path d="M 0,0 L -12,-18 M 0,0 L 0,-20 M 0,0 L 12,-18 M -12,-18 L -19,-28 M -12,-18 L -7,-29 M 0,-20 L -8,-30 M 0,-20 L 8,-30 M 12,-18 L 7,-29 M 12,-18 L 19,-28" fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
+      <circle cx="-19" cy="-28" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+      <circle cx="-7"  cy="-29" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+      <circle cx="-8"  cy="-30" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+      <circle cx="8"   cy="-30" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+      <circle cx="7"   cy="-29" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+      <circle cx="19"  cy="-28" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+    </g>
+    <g transform="translate(18,372)">
+      <path d="M 0,0 L -11,-16 M 0,0 L 0,-18 M 0,0 L 11,-16 M -11,-16 L -17,-25 M -11,-16 L -6,-26 M 0,-18 L -7,-27 M 0,-18 L 7,-27 M 11,-16 L 6,-26 M 11,-16 L 17,-25" fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
+      <circle cx="-17" cy="-25" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+      <circle cx="-6"  cy="-26" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+      <circle cx="-7"  cy="-27" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+      <circle cx="7"   cy="-27" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+      <circle cx="6"   cy="-26" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+      <circle cx="17"  cy="-25" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+    </g>
+    <g transform="translate(94,536)">
+      <path d="M 0,0 L -12,-17 M 0,0 L 0,-19 M 0,0 L 12,-17 M -12,-17 L -19,-27 M -12,-17 L -6,-28 M 0,-19 L -7,-29 M 0,-19 L 7,-29 M 12,-17 L 6,-28 M 12,-17 L 19,-27" fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
+      <circle cx="-19" cy="-27" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+      <circle cx="-6"  cy="-28" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+      <circle cx="-7"  cy="-29" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+      <circle cx="7"   cy="-29" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+      <circle cx="6"   cy="-28" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+      <circle cx="19"  cy="-27" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+    </g>
+  </svg>
+</div>
+
+<div class="botanical-panel botanical-panel-right" aria-hidden="true">
+  <svg viewBox="0 0 130 620" xmlns="http://www.w3.org/2000/svg" width="130" height="620">
+    <g transform="translate(130,0) scale(-1,1)">
+      <path d="M 102,5 C 90,38 74,72 72,118 C 70,164 84,198 78,248 C 72,298 54,332 58,388 C 62,444 78,480 66,534 C 54,588 38,608 24,618"
+            fill="none" stroke="#8b9a78" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M 99,22 C 82,14 64,18 56,27 C 63,35 81,33 99,22 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+      <path d="M 100,35 C 114,27 126,31 128,42 C 120,49 108,45 100,35 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+      <path d="M 76,73 C 59,65 41,69 33,78 C 40,86 58,84 76,73 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+      <path d="M 74,86 C 88,78 101,82 103,93 C 95,100 83,96 74,86 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+      <path d="M 75,125 C 58,117 40,121 32,130 C 39,138 57,136 75,125 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+      <path d="M 74,138 C 88,130 100,134 102,145 C 94,152 82,148 74,138 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+      <line x1="76" y1="128" x2="70" y2="140" stroke="#8b9a78" stroke-width="0.8"/>
+      <ellipse cx="70" cy="145" rx="4" ry="6.5" fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
+      <line x1="78" y1="133" x2="85" y2="144" stroke="#8b9a78" stroke-width="0.8"/>
+      <ellipse cx="85" cy="149" rx="4" ry="6.5" fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
+      <path d="M 79,175 C 63,167 45,171 37,180 C 44,188 62,186 79,175 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+      <path d="M 78,188 C 91,180 103,184 105,195 C 97,202 85,198 78,188 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+      <path d="M 76,230 C 60,222 42,226 34,235 C 41,243 59,241 76,230 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+      <path d="M 75,243 C 88,235 100,239 102,250 C 94,257 82,253 75,243 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+      <path d="M 62,280 C 46,272 28,276 20,285 C 27,293 45,291 62,280 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+      <path d="M 61,293 C 74,285 86,289 88,300 C 80,307 68,303 61,293 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+      <path d="M 60,335 C 44,327 26,331 18,340 C 25,348 43,346 60,335 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+      <path d="M 59,348 C 72,340 84,344 86,355 C 78,362 66,358 59,348 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+      <path d="M 62,390 C 46,382 28,386 20,395 C 27,403 45,401 62,390 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+      <path d="M 61,403 C 74,395 86,399 88,410 C 80,417 68,413 61,403 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+      <line x1="63" y1="397" x2="57" y2="409" stroke="#8b9a78" stroke-width="0.8"/>
+      <ellipse cx="57" cy="414" rx="4" ry="6.5" fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
+      <line x1="65" y1="400" x2="72" y2="411" stroke="#8b9a78" stroke-width="0.8"/>
+      <ellipse cx="72" cy="416" rx="4" ry="6.5" fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
+      <path d="M 68,453 C 52,445 34,449 26,458 C 33,466 51,464 68,453 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+      <path d="M 67,466 C 80,458 92,462 94,473 C 86,480 74,476 67,466 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+      <path d="M 52,550 C 36,542 18,546 10,555 C 17,563 35,561 52,550 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+      <path d="M 51,563 C 64,555 76,559 78,570 C 70,577 58,573 51,563 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+      <line x1="76" y1="200" x2="38" y2="218" stroke="#8b9a78" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M 55,212 C 50,205 42,200 36,196 C 34,202 38,209 55,212 Z" fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.8"/>
+      <g transform="translate(38,216)">
+        <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30 C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z" fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9" transform="rotate(0)"/>
+        <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30 C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z" fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9" transform="rotate(60)"/>
+        <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30 C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z" fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9" transform="rotate(120)"/>
+        <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30 C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z" fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9" transform="rotate(180)"/>
+        <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30 C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z" fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9" transform="rotate(240)"/>
+        <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30 C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z" fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9" transform="rotate(300)"/>
+        <g transform="rotate(0)"><line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/><ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/></g>
+        <g transform="rotate(60)"><line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/><ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/></g>
+        <g transform="rotate(120)"><line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/><ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/></g>
+        <g transform="rotate(180)"><line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/><ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/></g>
+        <g transform="rotate(240)"><line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/><ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/></g>
+        <g transform="rotate(300)"><line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/><ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/></g>
+        <circle cx="0" cy="0" r="4" fill="rgba(210,185,135,0.55)" stroke="#c8a870" stroke-width="0.9"/>
+      </g>
+      <g transform="translate(25,92)">
+        <path d="M 0,0 L -14,-20 M 0,0 L 0,-22 M 0,0 L 14,-20 M -14,-20 L -22,-32 M -14,-20 L -8,-32 M 0,-22 L -9,-34 M 0,-22 L 9,-34 M 14,-20 L 8,-32 M 14,-20 L 22,-32" fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
+        <circle cx="-22" cy="-32" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+        <circle cx="-8" cy="-32" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+        <circle cx="-9" cy="-34" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+        <circle cx="9" cy="-34" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+        <circle cx="8" cy="-32" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+        <circle cx="22" cy="-32" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+      </g>
+      <g transform="translate(18,372)">
+        <path d="M 0,0 L -11,-16 M 0,0 L 0,-18 M 0,0 L 11,-16 M -11,-16 L -17,-25 M -11,-16 L -6,-26 M 0,-18 L -7,-27 M 0,-18 L 7,-27 M 11,-16 L 6,-26 M 11,-16 L 17,-25" fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
+        <circle cx="-17" cy="-25" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+        <circle cx="-6" cy="-26" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+        <circle cx="-7" cy="-27" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+        <circle cx="7" cy="-27" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+        <circle cx="6" cy="-26" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+        <circle cx="17" cy="-25" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+      </g>
+      <g transform="translate(94,536)">
+        <path d="M 0,0 L -12,-17 M 0,0 L 0,-19 M 0,0 L 12,-17 M -12,-17 L -19,-27 M -12,-17 L -6,-28 M 0,-19 L -7,-29 M 0,-19 L 7,-29 M 12,-17 L 6,-28 M 12,-17 L 19,-27" fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
+        <circle cx="-19" cy="-27" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+        <circle cx="-6" cy="-28" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+        <circle cx="-7" cy="-29" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+        <circle cx="7" cy="-29" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+        <circle cx="6" cy="-28" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+        <circle cx="19" cy="-27" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
+      </g>
+    </g>
+  </svg>
+</div>
+
 <!-- ── NAV ──────────────────────────────────────── -->
 <nav>
-  <div class="nav-brand">Matthew &amp; Kristine</div>
+  <a class="nav-brand" href="/">Matthew &amp; Kristine</a>
   <ul class="nav-links">
     <li><a href="#story">Story</a></li>
     <li><a href="#details">Details</a></li>
     <li><a href="#schedule">Schedule</a></li>
     <li><a href="#photos">Photos</a></li>
+    <li class="nav-sep"></li>
+    <li><a href="/gallery">Gallery</a></li>
+    <li><a href="/upload">Share Photos</a></li>
+    <li id="navLiveLink"><a href="/livestream">&#9679; Watch Live</a></li>
   </ul>
 </nav>
 
@@ -353,22 +647,52 @@
   <div class="hero-slides" id="heroSlides"></div>
   <div class="hero-overlay"></div>
 
-  <!-- Leaf decorations -->
-  <svg class="leaf-left" width="40" height="160" viewBox="0 0 40 160" fill="none">
-    <path d="M20 160 C20 100 5 80 20 0 C35 80 20 100 20 160Z" fill="white" opacity="0.6"/>
-    <line x1="20" y1="160" x2="20" y2="0" stroke="white" stroke-width="0.8" opacity="0.4"/>
-    <ellipse cx="12" cy="40" rx="10" ry="14" fill="white" opacity="0.4" transform="rotate(-30 12 40)"/>
-    <ellipse cx="28" cy="70" rx="10" ry="14" fill="white" opacity="0.4" transform="rotate(30 28 70)"/>
-    <ellipse cx="12" cy="100" rx="10" ry="14" fill="white" opacity="0.4" transform="rotate(-30 12 100)"/>
-    <ellipse cx="28" cy="130" rx="10" ry="14" fill="white" opacity="0.4" transform="rotate(30 28 130)"/>
+  <!-- Botanical lily decorations in hero -->
+  <svg class="hero-botanical-left" width="56" height="200" viewBox="0 0 56 200" fill="none" aria-hidden="true">
+    <path d="M 28,200 C 28,160 20,130 26,80 C 28,50 32,30 28,5" stroke="rgba(255,255,255,0.5)" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    <path d="M 27,90 C 18,82 8,84 3,92 C 10,98 20,97 27,90 Z" fill="rgba(255,255,255,0.35)" stroke="rgba(255,255,255,0.4)" stroke-width="0.8"/>
+    <path d="M 28,110 C 37,102 46,105 50,114 C 43,119 33,117 28,110 Z" fill="rgba(255,255,255,0.35)" stroke="rgba(255,255,255,0.4)" stroke-width="0.8"/>
+    <path d="M 26,140 C 16,133 6,136 2,145 C 9,150 19,148 26,140 Z" fill="rgba(255,255,255,0.35)" stroke="rgba(255,255,255,0.4)" stroke-width="0.8"/>
+    <path d="M 28,162 C 37,155 45,158 48,167 C 41,172 32,170 28,162 Z" fill="rgba(255,255,255,0.35)" stroke="rgba(255,255,255,0.4)" stroke-width="0.8"/>
+    <!-- Lily flower -->
+    <g transform="translate(28,45)">
+      <path d="M0,0 C4,-3 6,-10 4,-17 C3,-21 0,-22 0,-19 C0,-22 -3,-21 -4,-17 C-6,-10 -4,-3 0,0Z" fill="rgba(255,255,255,0.75)" stroke="rgba(255,255,255,0.6)" stroke-width="0.8" transform="rotate(0)"/>
+      <path d="M0,0 C4,-3 6,-10 4,-17 C3,-21 0,-22 0,-19 C0,-22 -3,-21 -4,-17 C-6,-10 -4,-3 0,0Z" fill="rgba(255,255,255,0.75)" stroke="rgba(255,255,255,0.6)" stroke-width="0.8" transform="rotate(60)"/>
+      <path d="M0,0 C4,-3 6,-10 4,-17 C3,-21 0,-22 0,-19 C0,-22 -3,-21 -4,-17 C-6,-10 -4,-3 0,0Z" fill="rgba(255,255,255,0.75)" stroke="rgba(255,255,255,0.6)" stroke-width="0.8" transform="rotate(120)"/>
+      <path d="M0,0 C4,-3 6,-10 4,-17 C3,-21 0,-22 0,-19 C0,-22 -3,-21 -4,-17 C-6,-10 -4,-3 0,0Z" fill="rgba(255,255,255,0.75)" stroke="rgba(255,255,255,0.6)" stroke-width="0.8" transform="rotate(180)"/>
+      <path d="M0,0 C4,-3 6,-10 4,-17 C3,-21 0,-22 0,-19 C0,-22 -3,-21 -4,-17 C-6,-10 -4,-3 0,0Z" fill="rgba(255,255,255,0.75)" stroke="rgba(255,255,255,0.6)" stroke-width="0.8" transform="rotate(240)"/>
+      <path d="M0,0 C4,-3 6,-10 4,-17 C3,-21 0,-22 0,-19 C0,-22 -3,-21 -4,-17 C-6,-10 -4,-3 0,0Z" fill="rgba(255,255,255,0.75)" stroke="rgba(255,255,255,0.6)" stroke-width="0.8" transform="rotate(300)"/>
+      <circle cx="0" cy="0" r="2.5" fill="rgba(255,210,100,0.7)"/>
+    </g>
+    <!-- Baby's breath -->
+    <circle cx="10" cy="170" r="2" fill="white" opacity="0.5"/>
+    <circle cx="16" cy="164" r="1.5" fill="white" opacity="0.5"/>
+    <circle cx="7"  cy="163" r="1.5" fill="white" opacity="0.5"/>
+    <circle cx="44" cy="130" r="2" fill="white" opacity="0.5"/>
+    <circle cx="50" cy="124" r="1.5" fill="white" opacity="0.5"/>
   </svg>
-  <svg class="leaf-right" width="40" height="160" viewBox="0 0 40 160" fill="none">
-    <path d="M20 160 C20 100 5 80 20 0 C35 80 20 100 20 160Z" fill="white" opacity="0.6"/>
-    <line x1="20" y1="160" x2="20" y2="0" stroke="white" stroke-width="0.8" opacity="0.4"/>
-    <ellipse cx="12" cy="40" rx="10" ry="14" fill="white" opacity="0.4" transform="rotate(-30 12 40)"/>
-    <ellipse cx="28" cy="70" rx="10" ry="14" fill="white" opacity="0.4" transform="rotate(30 28 70)"/>
-    <ellipse cx="12" cy="100" rx="10" ry="14" fill="white" opacity="0.4" transform="rotate(-30 12 100)"/>
-    <ellipse cx="28" cy="130" rx="10" ry="14" fill="white" opacity="0.4" transform="rotate(30 28 130)"/>
+  <svg class="hero-botanical-right" width="56" height="200" viewBox="0 0 56 200" fill="none" aria-hidden="true">
+    <g transform="translate(56,0) scale(-1,1)">
+      <path d="M 28,200 C 28,160 20,130 26,80 C 28,50 32,30 28,5" stroke="rgba(255,255,255,0.5)" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      <path d="M 27,90 C 18,82 8,84 3,92 C 10,98 20,97 27,90 Z" fill="rgba(255,255,255,0.35)" stroke="rgba(255,255,255,0.4)" stroke-width="0.8"/>
+      <path d="M 28,110 C 37,102 46,105 50,114 C 43,119 33,117 28,110 Z" fill="rgba(255,255,255,0.35)" stroke="rgba(255,255,255,0.4)" stroke-width="0.8"/>
+      <path d="M 26,140 C 16,133 6,136 2,145 C 9,150 19,148 26,140 Z" fill="rgba(255,255,255,0.35)" stroke="rgba(255,255,255,0.4)" stroke-width="0.8"/>
+      <path d="M 28,162 C 37,155 45,158 48,167 C 41,172 32,170 28,162 Z" fill="rgba(255,255,255,0.35)" stroke="rgba(255,255,255,0.4)" stroke-width="0.8"/>
+      <g transform="translate(28,45)">
+        <path d="M0,0 C4,-3 6,-10 4,-17 C3,-21 0,-22 0,-19 C0,-22 -3,-21 -4,-17 C-6,-10 -4,-3 0,0Z" fill="rgba(255,255,255,0.75)" stroke="rgba(255,255,255,0.6)" stroke-width="0.8" transform="rotate(0)"/>
+        <path d="M0,0 C4,-3 6,-10 4,-17 C3,-21 0,-22 0,-19 C0,-22 -3,-21 -4,-17 C-6,-10 -4,-3 0,0Z" fill="rgba(255,255,255,0.75)" stroke="rgba(255,255,255,0.6)" stroke-width="0.8" transform="rotate(60)"/>
+        <path d="M0,0 C4,-3 6,-10 4,-17 C3,-21 0,-22 0,-19 C0,-22 -3,-21 -4,-17 C-6,-10 -4,-3 0,0Z" fill="rgba(255,255,255,0.75)" stroke="rgba(255,255,255,0.6)" stroke-width="0.8" transform="rotate(120)"/>
+        <path d="M0,0 C4,-3 6,-10 4,-17 C3,-21 0,-22 0,-19 C0,-22 -3,-21 -4,-17 C-6,-10 -4,-3 0,0Z" fill="rgba(255,255,255,0.75)" stroke="rgba(255,255,255,0.6)" stroke-width="0.8" transform="rotate(180)"/>
+        <path d="M0,0 C4,-3 6,-10 4,-17 C3,-21 0,-22 0,-19 C0,-22 -3,-21 -4,-17 C-6,-10 -4,-3 0,0Z" fill="rgba(255,255,255,0.75)" stroke="rgba(255,255,255,0.6)" stroke-width="0.8" transform="rotate(240)"/>
+        <path d="M0,0 C4,-3 6,-10 4,-17 C3,-21 0,-22 0,-19 C0,-22 -3,-21 -4,-17 C-6,-10 -4,-3 0,0Z" fill="rgba(255,255,255,0.75)" stroke="rgba(255,255,255,0.6)" stroke-width="0.8" transform="rotate(300)"/>
+        <circle cx="0" cy="0" r="2.5" fill="rgba(255,210,100,0.7)"/>
+      </g>
+      <circle cx="10" cy="170" r="2" fill="white" opacity="0.5"/>
+      <circle cx="16" cy="164" r="1.5" fill="white" opacity="0.5"/>
+      <circle cx="7"  cy="163" r="1.5" fill="white" opacity="0.5"/>
+      <circle cx="44" cy="130" r="2" fill="white" opacity="0.5"/>
+      <circle cx="50" cy="124" r="1.5" fill="white" opacity="0.5"/>
+    </g>
   </svg>
 
   <div class="hero-content">
@@ -397,7 +721,6 @@
 <section id="story">
   <div class="story-inner">
     <div class="story-photos">
-      <!-- Dot pattern deco -->
       <div class="dots-deco" id="dotsDeco"></div>
       <img id="storyPhotoA" class="story-photo-a" alt="Matthew and Kristine" />
       <img id="storyPhotoB" class="story-photo-b" alt="Matthew and Kristine" />
@@ -499,6 +822,30 @@
   </div>
 </section>
 
+<!-- ── GUEST MOMENTS ──────────────────────────── -->
+<section id="guest-moments">
+  <h2 class="section-title">Guest Moments</h2>
+  <div class="section-rule"></div>
+  <div class="moments-upload-box">
+    <p>Captured a beautiful moment at our wedding? We'd love to see it.<br>
+       Upload your photos and they may be featured right here for everyone to enjoy.</p>
+    <a href="/upload" class="btn-gold">Share Your Photo</a>
+  </div>
+  <div id="momentsGrid"></div>
+  <p class="moments-empty-note" id="momentsEmpty" style="display:none;">
+    Photos shared by guests will appear here once approved.
+  </p>
+  <a href="/gallery" class="moments-gallery-link">View the full gallery &rarr;</a>
+</section>
+
+<!-- ── WATCH LIVE ──────────────────────────────── -->
+<section id="watch-live">
+  <h2 class="section-title">Watch Live</h2>
+  <div class="section-rule"></div>
+  <p class="section-sub">Join us from wherever you are in the world</p>
+  <div id="liveEmbed"></div>
+</section>
+
 <!-- ── LIGHTBOX ───────────────────────────────── -->
 <div class="lightbox" id="lightbox">
   <button class="lightbox-close" id="lbClose">&times;</button>
@@ -509,27 +856,25 @@
 <footer>
   <div class="footer-names">Matthew &amp; Kristine</div>
   <div class="footer-date">6th June, 2026</div>
+  <div class="footer-links">
+    <a href="/gallery">Gallery</a>
+    <a href="/upload">Share a Photo</a>
+  </div>
   <div class="footer-tagline">Made with ♥ for our special day</div>
 </footer>
 
 <script>
   const PHOTOS = [
-    '/images/photo-1.jpeg',
-    '/images/photo-2.jpeg',
-    '/images/photo-3.jpeg',
-    '/images/photo-4.jpeg',
-    '/images/photo-5.jpeg',
-    '/images/photo-6.jpeg',
-    '/images/photo-7.jpeg',
-    '/images/photo-8.jpeg',
-    '/images/photo-9.jpeg'
+    '/images/photo-1.jpeg', '/images/photo-2.jpeg', '/images/photo-3.jpeg',
+    '/images/photo-4.jpeg', '/images/photo-5.jpeg', '/images/photo-6.jpeg',
+    '/images/photo-7.jpeg', '/images/photo-8.jpeg', '/images/photo-9.jpeg'
   ];
 
-  // ── Dot pattern decoration ──────────────────────────────────
+  // ── Dot pattern decoration ───────────────────
   const dotsDeco = document.getElementById('dotsDeco');
   for (let i = 0; i < 30; i++) dotsDeco.appendChild(document.createElement('span'));
 
-  // ── Hero Slideshow ──────────────────────────────────────────
+  // ── Hero Slideshow ───────────────────────────
   const slidesEl = document.getElementById('heroSlides');
   const dotsEl   = document.getElementById('heroDots');
   let current = 0, timer;
@@ -562,38 +907,29 @@
   document.getElementById('heroPrev').addEventListener('click', () => go(current - 1));
   timer = setTimeout(() => go(1), 5500);
 
-  // ── Story section photos ─────────────────────────────────────
+  // ── Story section photos ─────────────────────
   document.getElementById('storyPhotoA').src = PHOTOS[2];
   document.getElementById('storyPhotoB').src = PHOTOS[5];
 
-  // ── Photo auto-scroll strip ──────────────────────────────────
+  // ── Photo auto-scroll strip ──────────────────
   const strip = document.getElementById('photoStrip');
-  // Double photos for infinite loop
   [...PHOTOS, ...PHOTOS].forEach(src => {
     const img = document.createElement('img');
-    img.src = src;
-    img.className = 'strip-photo';
-    img.alt = 'Matthew and Kristine';
+    img.src = src; img.className = 'strip-photo'; img.alt = 'Matthew and Kristine';
     img.addEventListener('click', () => openLightbox(src));
     strip.appendChild(img);
   });
 
-  // ── Lightbox ─────────────────────────────────────────────────
-  const lb     = document.getElementById('lightbox');
-  const lbImg  = document.getElementById('lbImg');
-  const lbClose = document.getElementById('lbClose');
-
-  function openLightbox(src) {
-    lbImg.src = src;
-    lb.classList.add('open');
-  }
-  lbClose.addEventListener('click', () => lb.classList.remove('open'));
+  // ── Lightbox ─────────────────────────────────
+  const lb = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lbImg');
+  document.getElementById('lbClose').addEventListener('click', () => lb.classList.remove('open'));
   lb.addEventListener('click', e => { if (e.target === lb) lb.classList.remove('open'); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') lb.classList.remove('open'); });
+  function openLightbox(src) { lbImg.src = src; lb.classList.add('open'); }
 
-  // ── Countdown ────────────────────────────────────────────────
+  // ── Countdown ────────────────────────────────
   const WEDDING = new Date('2026-06-06T15:00:00');
-
   function tick() {
     const diff = WEDDING - Date.now();
     if (diff <= 0) {
@@ -602,11 +938,79 @@
     }
     document.getElementById('cd-days').textContent = Math.floor(diff / 86400000);
     document.getElementById('cd-hrs').textContent  = Math.floor((diff % 86400000) / 3600000);
-    document.getElementById('cd-min').textContent  = Math.floor((diff % 3600000)  / 60000);
-    document.getElementById('cd-sec').textContent  = Math.floor((diff % 60000)    / 1000);
+    document.getElementById('cd-min').textContent  = Math.floor((diff % 3600000) / 60000);
+    document.getElementById('cd-sec').textContent  = Math.floor((diff % 60000) / 1000);
   }
-  tick();
-  setInterval(tick, 1000);
+  tick(); setInterval(tick, 1000);
+
+  // ── Featured guest photos (from API) ─────────
+  fetch('/api/featured-photos')
+    .then(r => r.ok ? r.json() : [])
+    .then(photos => {
+      const grid = document.getElementById('momentsGrid');
+      const empty = document.getElementById('momentsEmpty');
+      if (!photos || photos.length === 0) {
+        empty.style.display = 'block';
+        return;
+      }
+      grid.className = 'moments-grid';
+      photos.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'moment-card';
+        const img = document.createElement('img');
+        img.src = '/uploads/approved/' + p.filename;
+        img.alt = p.uploaderName ? 'Photo by ' + p.uploaderName : 'Guest photo';
+        img.loading = 'lazy';
+        img.addEventListener('click', () => openLightbox(img.src));
+        card.appendChild(img);
+        if (p.uploaderName) {
+          const name = document.createElement('div');
+          name.className = 'moment-name';
+          name.textContent = p.uploaderName;
+          card.appendChild(name);
+        }
+        grid.appendChild(card);
+      });
+    })
+    .catch(() => { document.getElementById('momentsEmpty').style.display = 'block'; });
+
+  // ── Livestream visibility (from API) ─────────
+  fetch('/api/site-status')
+    .then(r => r.ok ? r.json() : null)
+    .then(status => {
+      if (!status) return;
+      const liveSection = document.getElementById('watch-live');
+      const liveEmbed   = document.getElementById('liveEmbed');
+      const navLink     = document.getElementById('navLiveLink');
+
+      if (status.livestreamVisible && status.livestreamChannel) {
+        navLink.style.display = 'list-item';
+
+        if (status.livestreamHomepage) {
+          // Show embedded player
+          liveSection.classList.add('is-live');
+          const wrap = document.createElement('div');
+          wrap.className = 'live-embed-wrap';
+          const iframe = document.createElement('iframe');
+          iframe.src = 'https://player.twitch.tv/?channel=' +
+            encodeURIComponent(status.livestreamChannel) +
+            '&parent=wedding-website-production-f7cb.up.railway.app&autoplay=false';
+          iframe.allowFullscreen = true;
+          iframe.title = 'Wedding livestream';
+          wrap.appendChild(iframe);
+          liveEmbed.appendChild(wrap);
+        } else {
+          // Show CTA card pointing to the livestream page
+          liveSection.classList.add('is-live');
+          liveEmbed.innerHTML =
+            '<div class="live-cta-card">' +
+              '<p>We\'re streaming the ceremony live! Click below to join us from wherever you are.</p>' +
+              '<a href="/livestream" class="btn-gold">Watch Live Now &rarr;</a>' +
+            '</div>';
+        }
+      }
+    })
+    .catch(() => {});
 </script>
 </body>
 </html>
