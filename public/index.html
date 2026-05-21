@@ -178,20 +178,26 @@
       max-width: 1100px; margin: 0 auto;
       display: grid; grid-template-columns: 1fr 1fr; gap: 70px; align-items: center;
     }
-    .story-photos { position: relative; min-height: 480px; }
+    .story-photos { position: relative; min-height: 540px; }
     .story-photo-a {
-      width: 76%; aspect-ratio: 3/4; object-fit: cover;
+      width: 80%; aspect-ratio: 3/2; object-fit: cover; object-position: center center;
       border-radius: 2px; display: block;
       box-shadow: 0 10px 40px rgba(61,43,31,0.18);
     }
     .story-photo-b {
-      position: absolute; bottom: -28px; right: 0;
-      width: 52%; aspect-ratio: 3/4; object-fit: cover;
-      border-radius: 2px; border: 6px solid var(--warm-white);
-      box-shadow: 0 8px 28px rgba(61,43,31,0.22);
+      position: absolute; top: 26%; right: -8px;
+      width: 55%; aspect-ratio: 3/2; object-fit: cover; object-position: center center;
+      border-radius: 2px; border: 5px solid var(--warm-white);
+      box-shadow: 0 8px 28px rgba(61,43,31,0.22); z-index: 2;
+    }
+    .story-photo-c {
+      position: absolute; bottom: -20px; left: 0;
+      width: 50%; aspect-ratio: 3/2; object-fit: cover; object-position: center center;
+      border-radius: 2px; border: 5px solid var(--warm-white);
+      box-shadow: 0 8px 28px rgba(61,43,31,0.22); z-index: 3;
     }
     .dots-deco {
-      position: absolute; top: -20px; left: 310px;
+      position: absolute; top: -20px; right: 60px;
       display: grid; grid-template-columns: repeat(6,8px); gap: 6px;
       opacity: 0.25; pointer-events: none;
     }
@@ -479,7 +485,8 @@
       section { padding: 70px 24px; }
       .story-inner { grid-template-columns: 1fr; gap: 70px; }
       .story-photos { min-height: 420px; }
-      .story-photo-b { right: -10px; }
+      .story-photo-b { right: -8px; top: 26%; }
+      .story-photo-c { left: 0; bottom: -20px; }
       .details-grid { grid-template-columns: repeat(2,1fr); }
       .cd-unit { padding: 14px 20px; }
       .cd-num { font-size: 2.2rem; }
@@ -936,6 +943,7 @@
       <div class="dots-deco" id="dotsDeco"></div>
       <img id="storyPhotoA" class="story-photo-a" alt="Matthew and Kristine" />
       <img id="storyPhotoB" class="story-photo-b" alt="Matthew and Kristine" />
+      <img id="storyPhotoC" class="story-photo-c" alt="Matthew and Kristine" />
     </div>
     <div class="story-text">
       <h2 class="section-title">Our Story</h2>
@@ -1298,8 +1306,9 @@
   timer = setTimeout(() => go(1), 5500);
 
   // ── Story section photos ─────────────────────
-  document.getElementById('storyPhotoA').src = PHOTOS[2];  // intimate close-up
-  document.getElementById('storyPhotoB').src = PHOTOS[7];  // hands over water at sunset
+  document.getElementById('storyPhotoA').src = '/images/site-story-1.jpg';
+  document.getElementById('storyPhotoB').src = '/images/site-story-2.jpg';
+  document.getElementById('storyPhotoC').src = '/images/site-story-3.jpg';
 
   // ── Photo auto-scroll strip ──────────────────
   const strip = document.getElementById('photoStrip');
