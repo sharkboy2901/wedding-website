@@ -1,532 +1,597 @@
 <%# Botanical side decorations — white lilies, baby's breath, olive branches %>
+
+<%# SVG 1 — Botanical panel left %>
 <div class="botanical-left" aria-hidden="true">
-  <svg viewBox="0 0 130 620" xmlns="http://www.w3.org/2000/svg" width="130" height="620">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 620" width="130" height="620">
+<defs>
+  <!-- Olive leaf gradient A -->
+  <linearGradient id="olgA" x1="0%" y1="50%" x2="100%" y2="50%">
+    <stop offset="0%"   stop-color="#6b7f45" stop-opacity="0.85"/>
+    <stop offset="35%"  stop-color="#b8c88a" stop-opacity="0.9"/>
+    <stop offset="65%"  stop-color="#9aaf6a" stop-opacity="0.9"/>
+    <stop offset="100%" stop-color="#5c6b3a" stop-opacity="0.8"/>
+  </linearGradient>
+  <linearGradient id="olgA2" x1="0%" y1="50%" x2="100%" y2="50%">
+    <stop offset="0%"   stop-color="#5c6b3a" stop-opacity="0.8"/>
+    <stop offset="40%"  stop-color="#9aaf6a" stop-opacity="0.9"/>
+    <stop offset="100%" stop-color="#7a8f52" stop-opacity="0.85"/>
+  </linearGradient>
+  <!-- Lily petal gradient A -->
+  <linearGradient id="lpgA" x1="50%" y1="100%" x2="50%" y2="0%">
+    <stop offset="0%"   stop-color="#ede8de"/>
+    <stop offset="40%"  stop-color="#f8f5f0"/>
+    <stop offset="100%" stop-color="#fdfcfa"/>
+  </linearGradient>
+  <linearGradient id="lpgA2" x1="50%" y1="100%" x2="50%" y2="0%">
+    <stop offset="0%"   stop-color="#e8e2d5"/>
+    <stop offset="50%"  stop-color="#f5f2ec"/>
+    <stop offset="100%" stop-color="#fdfcfa"/>
+  </linearGradient>
+  <!-- Olive fruit gradient A -->
+  <radialGradient id="ofgA" cx="38%" cy="35%" r="60%">
+    <stop offset="0%"   stop-color="#8a9e6a"/>
+    <stop offset="60%"  stop-color="#5a7040"/>
+    <stop offset="100%" stop-color="#3d5228"/>
+  </radialGradient>
+  <!-- Baby's breath fill A -->
+  <radialGradient id="bbgA" cx="40%" cy="35%" r="65%">
+    <stop offset="0%"   stop-color="#ffffff"/>
+    <stop offset="100%" stop-color="#e8e4dc"/>
+  </radialGradient>
+  <!-- Sword leaf gradient A -->
+  <linearGradient id="slgA" x1="0%" y1="50%" x2="100%" y2="50%">
+    <stop offset="0%"   stop-color="#5c6b3a" stop-opacity="0.7"/>
+    <stop offset="50%"  stop-color="#9aaf6a" stop-opacity="0.85"/>
+    <stop offset="100%" stop-color="#6b7f45" stop-opacity="0.7"/>
+  </linearGradient>
+</defs>
 
-    <!-- ═══ OLIVE BRANCH — main spine, curves from top-right to bottom-left ═══ -->
-    <path d="M 102,5 C 90,38 74,72 72,118 C 70,164 84,198 78,248
-             C 72,298 54,332 58,388 C 62,444 78,480 66,534
-             C 54,588 38,608 24,618"
-          fill="none" stroke="#8b9a78" stroke-width="1.8"
-          stroke-linecap="round" stroke-linejoin="round"/>
+<g opacity="0.78">
 
-    <!-- Olive leaves — alternating pairs along the branch -->
-    <!-- Pair 1 (y≈28) -->
-    <path d="M 99,22 C 82,14 64,18 56,27 C 63,35 81,33 99,22 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-    <path d="M 100,35 C 114,27 126,31 128,42 C 120,49 108,45 100,35 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+  <!-- ═══ MAIN STEM — flows from upper-right toward lower-left ═══ -->
+  <path d="M 98,8 C 92,35 80,62 76,98 C 72,134 82,165 76,210
+           C 70,255 55,285 56,335 C 57,385 72,415 65,465
+           C 58,515 42,548 30,585 C 22,608 16,616 10,622"
+        fill="none" stroke="#6b7a45" stroke-width="1.4"
+        stroke-linecap="round" stroke-linejoin="round"/>
 
-    <!-- Pair 2 (y≈78) -->
-    <path d="M 76,73 C 59,65 41,69 33,78 C 40,86 58,84 76,73 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-    <path d="M 74,86 C 88,78 101,82 103,93 C 95,100 83,96 74,86 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+  <!-- ═══ OLIVE BRANCH SECTION (y 60–400) ═══ -->
 
-    <!-- Pair 3 (y≈130) -->
-    <path d="M 75,125 C 58,117 40,121 32,130 C 39,138 57,136 75,125 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-    <path d="M 74,138 C 88,130 100,134 102,145 C 94,152 82,148 74,138 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+  <!-- Pair 1 left leaf (y≈68) — lanceolate narrow organic -->
+  <path d="M 79,62 C 76,58 68,54 58,52 C 50,51 42,53 38,57
+           C 38,60 44,64 54,65 C 64,66 74,65 79,62 Z"
+        fill="url(#olgA)" stroke="#6b7a45" stroke-width="0.4"/>
+  <path d="M 79,62 C 74,63 64,64 54,63 C 44,62 39,59 38,57
+           C 42,55 50,53 58,54 C 68,55 76,59 79,62 Z"
+        fill="none" stroke="#8faa60" stroke-width="0.3" opacity="0.6"/>
 
-    <!-- Olives (small fruits) near y=148 -->
-    <line x1="76" y1="128" x2="70" y2="140" stroke="#8b9a78" stroke-width="0.8"/>
-    <ellipse cx="70" cy="145" rx="4" ry="6.5"
-             fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
-    <line x1="78" y1="133" x2="85" y2="144" stroke="#8b9a78" stroke-width="0.8"/>
-    <ellipse cx="85" cy="149" rx="4" ry="6.5"
-             fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
+  <!-- Pair 1 right leaf (y≈72) -->
+  <path d="M 80,66 C 84,62 92,59 101,58 C 109,57 117,60 120,64
+           C 119,67 113,70 103,71 C 93,72 84,70 80,66 Z"
+        fill="url(#olgA2)" stroke="#6b7a45" stroke-width="0.4"/>
+  <path d="M 80,66 C 85,68 93,70 103,69 C 113,68 118,66 120,64
+           C 116,62 108,60 101,61 C 92,62 84,65 80,66 Z"
+        fill="none" stroke="#8faa60" stroke-width="0.3" opacity="0.6"/>
 
-    <!-- Pair 4 (y≈180) -->
-    <path d="M 79,175 C 63,167 45,171 37,180 C 44,188 62,186 79,175 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-    <path d="M 78,188 C 91,180 103,184 105,195 C 97,202 85,198 78,188 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+  <!-- Pair 2 left leaf (y≈110) -->
+  <path d="M 77,105 C 74,100 65,95 55,93 C 46,91 37,94 33,98
+           C 33,101 39,106 50,108 C 61,110 72,109 77,105 Z"
+        fill="url(#olgA)" stroke="#6b7a45" stroke-width="0.4"/>
+  <path d="M 77,105 C 72,107 61,108 51,106 C 41,104 35,101 33,98
+           C 37,96 46,94 55,95 C 65,96 73,101 77,105 Z"
+        fill="none" stroke="#8faa60" stroke-width="0.3" opacity="0.6"/>
 
-    <!-- Pair 5 (y≈235) -->
-    <path d="M 76,230 C 60,222 42,226 34,235 C 41,243 59,241 76,230 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-    <path d="M 75,243 C 88,235 100,239 102,250 C 94,257 82,253 75,243 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+  <!-- Pair 2 right leaf (y≈118) -->
+  <path d="M 79,112 C 83,107 91,104 101,103 C 110,102 118,105 121,110
+           C 120,113 113,117 103,118 C 93,119 83,116 79,112 Z"
+        fill="url(#olgA2)" stroke="#6b7a45" stroke-width="0.4"/>
 
-    <!-- Olives near y=250 -->
-    <line x1="74" y1="234" x2="68" y2="246" stroke="#8b9a78" stroke-width="0.8"/>
-    <ellipse cx="68" cy="251" rx="4" ry="6.5"
-             fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
+  <!-- Olives cluster (y≈120) -->
+  <line x1="78" y1="110" x2="72" y2="122" stroke="#6b7a45" stroke-width="0.6"/>
+  <ellipse cx="72" cy="127" rx="3.5" ry="5.5" fill="url(#ofgA)" stroke="#4a6030" stroke-width="0.5" opacity="0.85"/>
+  <line x1="80" y1="114" x2="88" y2="124" stroke="#6b7a45" stroke-width="0.6"/>
+  <ellipse cx="88" cy="129" rx="3.5" ry="5.5" fill="url(#ofgA)" stroke="#4a6030" stroke-width="0.5" opacity="0.85"/>
+  <!-- tiny highlight on olive -->
+  <ellipse cx="70" cy="124" rx="1.2" ry="1.8" fill="#aabf80" opacity="0.4"/>
+  <ellipse cx="86" cy="126" rx="1.2" ry="1.8" fill="#aabf80" opacity="0.4"/>
 
-    <!-- Pair 6 (y≈285) -->
-    <path d="M 62,280 C 46,272 28,276 20,285 C 27,293 45,291 62,280 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-    <path d="M 61,293 C 74,285 86,289 88,300 C 80,307 68,303 61,293 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+  <!-- Pair 3 left leaf (y≈158) -->
+  <path d="M 75,152 C 72,147 63,142 52,140 C 43,138 34,141 30,145
+           C 30,149 37,153 48,155 C 59,157 70,156 75,152 Z"
+        fill="url(#olgA)" stroke="#6b7a45" stroke-width="0.4"/>
 
-    <!-- Pair 7 (y≈340) -->
-    <path d="M 60,335 C 44,327 26,331 18,340 C 25,348 43,346 60,335 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-    <path d="M 59,348 C 72,340 84,344 86,355 C 78,362 66,358 59,348 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+  <!-- Pair 3 right leaf (y≈165) -->
+  <path d="M 77,159 C 81,154 89,151 99,150 C 108,149 116,152 119,157
+           C 118,161 111,164 101,165 C 91,166 81,163 77,159 Z"
+        fill="url(#olgA2)" stroke="#6b7a45" stroke-width="0.4"/>
 
-    <!-- Pair 8 (y≈395) -->
-    <path d="M 62,390 C 46,382 28,386 20,395 C 27,403 45,401 62,390 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-    <path d="M 61,403 C 74,395 86,399 88,410 C 80,417 68,413 61,403 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+  <!-- Pair 4 left leaf (y≈208) -->
+  <path d="M 74,202 C 71,197 61,192 50,190 C 41,188 32,191 28,196
+           C 28,200 35,204 46,206 C 57,208 69,207 74,202 Z"
+        fill="url(#olgA)" stroke="#6b7a45" stroke-width="0.4"/>
 
-    <!-- Olives near y=408 -->
-    <line x1="63" y1="397" x2="57" y2="409" stroke="#8b9a78" stroke-width="0.8"/>
-    <ellipse cx="57" cy="414" rx="4" ry="6.5"
-             fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
-    <line x1="65" y1="400" x2="72" y2="411" stroke="#8b9a78" stroke-width="0.8"/>
-    <ellipse cx="72" cy="416" rx="4" ry="6.5"
-             fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
+  <!-- Pair 4 right leaf (y≈215) -->
+  <path d="M 76,209 C 80,204 88,201 98,200 C 107,199 115,202 118,207
+           C 117,210 110,214 100,215 C 90,216 80,213 76,209 Z"
+        fill="url(#olgA2)" stroke="#6b7a45" stroke-width="0.4"/>
 
-    <!-- Pair 9 (y≈458) -->
-    <path d="M 68,453 C 52,445 34,449 26,458 C 33,466 51,464 68,453 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-    <path d="M 67,466 C 80,458 92,462 94,473 C 86,480 74,476 67,466 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+  <!-- Pair 5 left (y≈258) -->
+  <path d="M 58,252 C 55,247 46,242 35,240 C 26,238 17,241 13,246
+           C 13,250 20,254 31,256 C 42,258 53,257 58,252 Z"
+        fill="url(#olgA)" stroke="#6b7a45" stroke-width="0.4"/>
 
-    <!-- Pair 10 (y≈505) -->
-    <path d="M 62,500 C 46,492 28,496 20,505 C 27,513 45,511 62,500 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-    <path d="M 61,513 C 74,505 86,509 88,520 C 80,527 68,523 61,513 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+  <!-- Pair 5 right (y≈265) -->
+  <path d="M 60,259 C 64,254 72,251 82,250 C 91,249 99,252 102,257
+           C 101,261 94,264 84,265 C 74,266 64,263 60,259 Z"
+        fill="url(#olgA2)" stroke="#6b7a45" stroke-width="0.4"/>
 
-    <!-- Pair 11 (y≈555) -->
-    <path d="M 52,550 C 36,542 18,546 10,555 C 17,563 35,561 52,550 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-    <path d="M 51,563 C 64,555 76,559 78,570 C 70,577 58,573 51,563 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+  <!-- Olives cluster 2 (y≈268) -->
+  <line x1="59" y1="256" x2="53" y2="268" stroke="#6b7a45" stroke-width="0.6"/>
+  <ellipse cx="53" cy="273" rx="3.5" ry="5.5" fill="url(#ofgA)" stroke="#4a6030" stroke-width="0.5" opacity="0.85"/>
+  <ellipse cx="51" cy="270" rx="1" ry="1.5" fill="#aabf80" opacity="0.4"/>
 
-    <!-- ═══ WHITE LILY #1 — centered at (38, 216) ═══ -->
-    <!-- Short stem connecting lily to branch -->
-    <line x1="76" y1="200" x2="38" y2="218" stroke="#8b9a78" stroke-width="1.1"
-          stroke-linecap="round"/>
-    <!-- Lily leaves (narrow, pointed) -->
-    <path d="M 55,212 C 50,205 42,200 36,196 C 34,202 38,209 55,212 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.8"/>
-    <path d="M 52,216 C 48,222 42,228 35,230 C 33,224 38,217 52,216 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.8"/>
-    <g transform="translate(38, 216)">
-      <!-- 6 petals (lily viewed slightly from side — outer ring) -->
-      <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30
-               C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z"
-            fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9"
-            transform="rotate(0)"/>
-      <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30
-               C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z"
-            fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9"
-            transform="rotate(60)"/>
-      <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30
-               C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z"
-            fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9"
-            transform="rotate(120)"/>
-      <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30
-               C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z"
-            fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9"
-            transform="rotate(180)"/>
-      <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30
-               C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z"
-            fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9"
-            transform="rotate(240)"/>
-      <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30
-               C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z"
-            fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9"
-            transform="rotate(300)"/>
-      <!-- Stamens (6 filaments with anther tips) -->
-      <g transform="rotate(0)">
-        <line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/>
-        <ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/>
-      </g>
-      <g transform="rotate(60)">
-        <line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/>
-        <ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/>
-      </g>
-      <g transform="rotate(120)">
-        <line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/>
-        <ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/>
-      </g>
-      <g transform="rotate(180)">
-        <line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/>
-        <ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/>
-      </g>
-      <g transform="rotate(240)">
-        <line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/>
-        <ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/>
-      </g>
-      <g transform="rotate(300)">
-        <line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/>
-        <ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/>
-      </g>
-      <!-- Pistil centre -->
-      <circle cx="0" cy="0" r="4" fill="rgba(210,185,135,0.55)" stroke="#c8a870" stroke-width="0.9"/>
+  <!-- Pair 6 left (y≈305) -->
+  <path d="M 57,299 C 54,294 45,289 34,287 C 25,285 16,288 12,293
+           C 12,297 19,301 30,303 C 41,305 52,304 57,299 Z"
+        fill="url(#olgA)" stroke="#6b7a45" stroke-width="0.4"/>
+
+  <!-- Pair 6 right (y≈312) -->
+  <path d="M 59,306 C 63,301 71,298 81,297 C 90,296 98,299 101,304
+           C 100,307 93,311 83,312 C 73,313 63,310 59,306 Z"
+        fill="url(#olgA2)" stroke="#6b7a45" stroke-width="0.4"/>
+
+  <!-- Pair 7 left (y≈355) -->
+  <path d="M 57,349 C 54,344 45,339 34,337 C 25,335 16,338 12,343
+           C 12,347 19,351 30,353 C 41,355 52,354 57,349 Z"
+        fill="url(#olgA)" stroke="#6b7a45" stroke-width="0.4"/>
+
+  <!-- Pair 7 right (y≈362) -->
+  <path d="M 59,356 C 63,351 71,348 81,347 C 90,346 98,349 101,354
+           C 100,357 93,361 83,362 C 73,363 63,360 59,356 Z"
+        fill="url(#olgA2)" stroke="#6b7a45" stroke-width="0.4"/>
+
+  <!-- ═══ LILY BLOOM — open flower at (42,300) ═══ -->
+  <!-- Stem to lily -->
+  <path d="M 57,338 C 53,330 48,320 42,310" fill="none" stroke="#6b7a45" stroke-width="1.0" stroke-linecap="round"/>
+  <!-- Sword leaves flanking lily -->
+  <path d="M 48,320 C 44,312 36,305 27,300 C 24,305 28,314 40,319 C 42,320 46,321 48,320 Z"
+        fill="url(#slgA)" stroke="#6b7a45" stroke-width="0.4"/>
+  <path d="M 46,324 C 50,316 56,308 64,302 C 66,307 63,316 52,323 C 50,324 48,325 46,324 Z"
+        fill="url(#slgA)" stroke="#6b7a45" stroke-width="0.4"/>
+
+  <g transform="translate(42,300)">
+    <!-- Back tepals (3, offset 30deg) — slightly more cream, slightly behind -->
+    <!-- Tepal B1 (rot 10deg) -->
+    <path d="M 0,0 C 3,-3 8,-12 9,-24 C 10,-34 7,-40 4,-42
+             C 2,-43 1,-40 0,-36 C -1,-32 -1,-28 -2,-22
+             C -4,-14 -3,-5 0,0 Z"
+          fill="#ede8de" stroke="#d8d0c0" stroke-width="0.35" opacity="0.88"
+          transform="rotate(10)"/>
+    <!-- Tepal B2 (rot 130deg) -->
+    <path d="M 0,0 C 3,-3 8,-12 9,-24 C 10,-34 7,-40 4,-42
+             C 2,-43 1,-40 0,-36 C -1,-32 -1,-28 -2,-22
+             C -4,-14 -3,-5 0,0 Z"
+          fill="#ede8de" stroke="#d8d0c0" stroke-width="0.35" opacity="0.88"
+          transform="rotate(130)"/>
+    <!-- Tepal B3 (rot 250deg) -->
+    <path d="M 0,0 C 3,-3 8,-12 9,-24 C 10,-34 7,-40 4,-42
+             C 2,-43 1,-40 0,-36 C -1,-32 -1,-28 -2,-22
+             C -4,-14 -3,-5 0,0 Z"
+          fill="#ede8de" stroke="#d8d0c0" stroke-width="0.35" opacity="0.88"
+          transform="rotate(250)"/>
+    <!-- Front tepals (3) — slightly brighter white, varied shapes -->
+    <!-- Tepal F1 (rot -20deg) — recurved tip -->
+    <path d="M 0,0 C 4,-4 10,-14 11,-27 C 12,-37 8,-43 5,-44
+             C 3,-44 2,-41 1,-37 C 0,-33 0,-29 -1,-24
+             C -3,-16 -3,-6 0,0 Z"
+          fill="url(#lpgA)" stroke="#ddd5c5" stroke-width="0.4"
+          transform="rotate(-20)"/>
+    <!-- central vein on F1 -->
+    <path d="M 1,-4 C 1,-12 2,-22 2,-34" fill="none" stroke="#e8e0d0" stroke-width="0.35" opacity="0.7"
+          transform="rotate(-20)"/>
+    <!-- Tepal F2 (rot 100deg) — slightly wider -->
+    <path d="M 0,0 C 5,-4 11,-15 12,-28 C 13,-38 9,-44 5,-45
+             C 3,-45 2,-42 1,-38 C 0,-34 0,-30 -1,-25
+             C -3,-17 -3,-7 0,0 Z"
+          fill="url(#lpgA)" stroke="#ddd5c5" stroke-width="0.4"
+          transform="rotate(100)"/>
+    <path d="M 1,-4 C 1,-12 2,-22 2,-35" fill="none" stroke="#e8e0d0" stroke-width="0.35" opacity="0.7"
+          transform="rotate(100)"/>
+    <!-- Tepal F3 (rot 220deg) -->
+    <path d="M 0,0 C 4,-4 10,-14 10,-26 C 11,-36 7,-42 4,-43
+             C 2,-44 1,-41 0,-37 C -1,-33 -1,-29 -2,-23
+             C -4,-15 -3,-6 0,0 Z"
+          fill="url(#lpgA2)" stroke="#ddd5c5" stroke-width="0.4"
+          transform="rotate(220)"/>
+    <path d="M 1,-4 C 1,-12 1,-21 1,-32" fill="none" stroke="#e8e0d0" stroke-width="0.35" opacity="0.7"
+          transform="rotate(220)"/>
+    <!-- Stamens — 6, slightly uneven angles -->
+    <g opacity="0.9">
+      <line x1="0" y1="-2" x2="2" y2="-28" stroke="#b8902a" stroke-width="0.5"/>
+      <ellipse cx="2.5" cy="-29.5" rx="1.8" ry="1" fill="#c8a040" transform="rotate(20,2.5,-29.5)"/>
+      <line x1="0" y1="-2" x2="-3" y2="-27" stroke="#b8902a" stroke-width="0.5"/>
+      <ellipse cx="-3.5" cy="-28.5" rx="1.8" ry="1" fill="#c8a040" transform="rotate(-15,-3.5,-28.5)"/>
+      <line x1="0" y1="-2" x2="7" y2="-25" stroke="#b8902a" stroke-width="0.5"/>
+      <ellipse cx="7.8" cy="-26" rx="1.8" ry="1" fill="#c8a040" transform="rotate(35,7.8,-26)"/>
+      <line x1="0" y1="-2" x2="-7" y2="-24" stroke="#b8902a" stroke-width="0.5"/>
+      <ellipse cx="-7.8" cy="-25" rx="1.8" ry="1" fill="#c8a040" transform="rotate(-35,-7.8,-25)"/>
+      <line x1="0" y1="-2" x2="4" y2="-29" stroke="#b8902a" stroke-width="0.5"/>
+      <ellipse cx="4.5" cy="-30.5" rx="1.8" ry="1" fill="#d4aa48" transform="rotate(10,4.5,-30.5)"/>
+      <line x1="0" y1="-2" x2="-1" y2="-30" stroke="#b8902a" stroke-width="0.5"/>
+      <ellipse cx="-1.2" cy="-31.5" rx="1.8" ry="1" fill="#d4aa48" transform="rotate(-5,-1.2,-31.5)"/>
     </g>
+    <!-- Pistil -->
+    <circle cx="0" cy="-1" r="3.5" fill="rgba(195,168,110,0.5)" stroke="#b8902a" stroke-width="0.5"/>
+  </g>
 
-    <!-- ═══ WHITE LILY #2 — smaller, centered at (50, 448), as a bud/side bloom ═══ -->
-    <line x1="66" y1="436" x2="50" y2="449" stroke="#8b9a78" stroke-width="1.0"
-          stroke-linecap="round"/>
-    <!-- Lily leaf -->
-    <path d="M 60,443 C 56,438 50,434 44,432 C 43,437 47,443 60,443 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.8"/>
-    <g transform="translate(50, 448)">
-      <path d="M 0,0 C 4,-3 6,-10 5,-18 C 3,-23 0,-24 0,-21
-               C 0,-24 -3,-23 -5,-18 C -6,-10 -4,-3 0,0 Z"
-            fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.8"
-            transform="rotate(0)"/>
-      <path d="M 0,0 C 4,-3 6,-10 5,-18 C 3,-23 0,-24 0,-21
-               C 0,-24 -3,-23 -5,-18 C -6,-10 -4,-3 0,0 Z"
-            fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.8"
-            transform="rotate(60)"/>
-      <path d="M 0,0 C 4,-3 6,-10 5,-18 C 3,-23 0,-24 0,-21
-               C 0,-24 -3,-23 -5,-18 C -6,-10 -4,-3 0,0 Z"
-            fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.8"
-            transform="rotate(120)"/>
-      <path d="M 0,0 C 4,-3 6,-10 5,-18 C 3,-23 0,-24 0,-21
-               C 0,-24 -3,-23 -5,-18 C -6,-10 -4,-3 0,0 Z"
-            fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.8"
-            transform="rotate(180)"/>
-      <path d="M 0,0 C 4,-3 6,-10 5,-18 C 3,-23 0,-24 0,-21
-               C 0,-24 -3,-23 -5,-18 C -6,-10 -4,-3 0,0 Z"
-            fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.8"
-            transform="rotate(240)"/>
-      <path d="M 0,0 C 4,-3 6,-10 5,-18 C 3,-23 0,-24 0,-21
-               C 0,-24 -3,-23 -5,-18 C -6,-10 -4,-3 0,0 Z"
-            fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.8"
-            transform="rotate(300)"/>
-      <g transform="rotate(30)">
-        <line x1="0" y1="0" x2="0" y2="-16" stroke="#c8a870" stroke-width="0.6"/>
-        <circle cx="0" cy="-17" r="1.3" fill="#c89a58"/>
-      </g>
-      <g transform="rotate(150)">
-        <line x1="0" y1="0" x2="0" y2="-16" stroke="#c8a870" stroke-width="0.6"/>
-        <circle cx="0" cy="-17" r="1.3" fill="#c89a58"/>
-      </g>
-      <g transform="rotate(270)">
-        <line x1="0" y1="0" x2="0" y2="-16" stroke="#c8a870" stroke-width="0.6"/>
-        <circle cx="0" cy="-17" r="1.3" fill="#c89a58"/>
-      </g>
-      <circle cx="0" cy="0" r="3" fill="rgba(210,185,135,0.55)" stroke="#c8a870" stroke-width="0.8"/>
-    </g>
+  <!-- ═══ LILY BUD 1 (y≈200) ═══ -->
+  <path d="M 72,195 C 66,188 58,178 52,168" fill="none" stroke="#6b7a45" stroke-width="0.9" stroke-linecap="round"/>
+  <path d="M 58,178 C 54,172 47,166 40,162 C 38,167 42,174 54,176 Z"
+        fill="url(#slgA)" stroke="#6b7a45" stroke-width="0.4"/>
+  <!-- Bud shape — elongated, slightly open at top -->
+  <g transform="translate(52,168)">
+    <path d="M 0,0 C 5,-2 9,-10 8,-20 C 7,-27 3,-30 0,-28 C -3,-30 -7,-27 -8,-20 C -9,-10 -5,-2 0,0 Z"
+          fill="url(#lpgA)" stroke="#d8d0c0" stroke-width="0.4"/>
+    <!-- Sepal lines on bud -->
+    <path d="M -2,-2 C -4,-8 -5,-16 -4,-22" fill="none" stroke="#9aaf6a" stroke-width="0.5" opacity="0.6"/>
+    <path d="M 2,-2 C 4,-8 5,-16 4,-22" fill="none" stroke="#9aaf6a" stroke-width="0.5" opacity="0.6"/>
+    <!-- Tiny tip peek of petal -->
+    <path d="M -3,-24 C -1,-28 1,-28 3,-24" fill="none" stroke="#ede8de" stroke-width="0.5"/>
+  </g>
 
-    <!-- ═══ BABY'S BREATH clusters ═══ -->
+  <!-- ═══ LILY BUD 2 — smaller, more closed (y≈420) ═══ -->
+  <path d="M 63,415 C 57,406 50,395 46,385" fill="none" stroke="#6b7a45" stroke-width="0.9" stroke-linecap="round"/>
+  <path d="M 52,400 C 48,394 41,388 33,384 C 31,389 35,396 48,399 Z"
+        fill="url(#slgA)" stroke="#6b7a45" stroke-width="0.4"/>
+  <g transform="translate(46,385)">
+    <path d="M 0,0 C 4,-2 7,-9 6,-17 C 5,-23 2,-26 0,-24 C -2,-26 -5,-23 -6,-17 C -7,-9 -4,-2 0,0 Z"
+          fill="url(#lpgA2)" stroke="#d8d0c0" stroke-width="0.4"/>
+    <path d="M -2,-2 C -3,-7 -4,-13 -3,-18" fill="none" stroke="#9aaf6a" stroke-width="0.45" opacity="0.6"/>
+    <path d="M 2,-2 C 3,-7 4,-13 3,-18" fill="none" stroke="#9aaf6a" stroke-width="0.45" opacity="0.6"/>
+  </g>
 
-    <!-- Cluster A at (25, 92) -->
-    <g transform="translate(25, 92)">
-      <path d="M 0,0 L -14,-20 M 0,0 L 0,-22 M 0,0 L 14,-20"
-            fill="none" stroke="#c0b8a8" stroke-width="0.65" stroke-linecap="round"/>
-      <path d="M -14,-20 L -22,-32 M -14,-20 L -8,-32"
-            fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-      <path d="M 0,-22 L -9,-34 M 0,-22 L 9,-34"
-            fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-      <path d="M 14,-20 L 8,-32 M 14,-20 L 22,-32"
-            fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-      <circle cx="-22" cy="-32" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="-8"  cy="-32" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="-9"  cy="-34" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="9"   cy="-34" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="8"   cy="-32" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="22"  cy="-32" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-    </g>
+  <!-- ═══ BABY'S BREATH CLOUD (y 440–580) ═══ -->
+  <!-- Main spray stems -->
+  <path d="M 55,465 C 50,455 44,445 38,435" fill="none" stroke="#8a9a75" stroke-width="0.7" stroke-linecap="round"/>
+  <!-- Branch spray A from (38,435) -->
+  <g transform="translate(38,435)">
+    <!-- Level 1 branches -->
+    <path d="M 0,0 C -4,-6 -10,-14 -16,-22" fill="none" stroke="#9aaa80" stroke-width="0.45" stroke-linecap="round"/>
+    <path d="M 0,0 C 2,-7 4,-15 5,-24"      fill="none" stroke="#9aaa80" stroke-width="0.45" stroke-linecap="round"/>
+    <path d="M 0,0 C 6,-5 13,-12 18,-19"    fill="none" stroke="#9aaa80" stroke-width="0.45" stroke-linecap="round"/>
+    <!-- Level 2 from (-16,-22) -->
+    <path d="M -16,-22 C -19,-26 -24,-31 -28,-36" fill="none" stroke="#a0aa88" stroke-width="0.35" stroke-linecap="round"/>
+    <path d="M -16,-22 C -13,-27 -10,-33 -8,-38"  fill="none" stroke="#a0aa88" stroke-width="0.35" stroke-linecap="round"/>
+    <!-- Level 2 from (5,-24) -->
+    <path d="M 5,-24 C 2,-29 0,-35 -1,-41"   fill="none" stroke="#a0aa88" stroke-width="0.35" stroke-linecap="round"/>
+    <path d="M 5,-24 C 8,-29 11,-35 13,-41"  fill="none" stroke="#a0aa88" stroke-width="0.35" stroke-linecap="round"/>
+    <!-- Level 2 from (18,-19) -->
+    <path d="M 18,-19 C 15,-25 13,-31 12,-37"  fill="none" stroke="#a0aa88" stroke-width="0.35" stroke-linecap="round"/>
+    <path d="M 18,-19 C 21,-24 24,-30 26,-36"  fill="none" stroke="#a0aa88" stroke-width="0.35" stroke-linecap="round"/>
+    <!-- Level 3 micro-branches -->
+    <path d="M -28,-36 C -30,-39 -33,-43 -34,-47" fill="none" stroke="#a8b090" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M -28,-36 C -26,-40 -24,-44 -22,-48" fill="none" stroke="#a8b090" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M -8,-38 C -10,-42 -11,-46 -12,-50"  fill="none" stroke="#a8b090" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M -8,-38 C -6,-42 -4,-46 -3,-50"     fill="none" stroke="#a8b090" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M -1,-41 C -3,-45 -4,-49 -4,-53"     fill="none" stroke="#a8b090" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M -1,-41 C 1,-45 3,-49 4,-53"         fill="none" stroke="#a8b090" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M 13,-41 C 11,-45 10,-49 9,-53"       fill="none" stroke="#a8b090" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M 13,-41 C 15,-45 16,-49 18,-53"      fill="none" stroke="#a8b090" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M 12,-37 C 10,-41 9,-45 8,-49"        fill="none" stroke="#a8b090" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M 26,-36 C 24,-40 23,-44 22,-48"      fill="none" stroke="#a8b090" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M 26,-36 C 28,-40 29,-44 30,-48"      fill="none" stroke="#a8b090" stroke-width="0.28" stroke-linecap="round"/>
+    <!-- Tiny flower dots — level 3 tips -->
+    <circle cx="-34" cy="-48" r="1.6" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="-22" cy="-49" r="1.5" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="-12" cy="-51" r="1.6" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="-3"  cy="-51" r="1.5" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="-4"  cy="-54" r="1.5" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="4"   cy="-54" r="1.6" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="9"   cy="-54" r="1.5" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="18"  cy="-54" r="1.5" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="8"   cy="-50" r="1.6" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="22"  cy="-49" r="1.5" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="30"  cy="-49" r="1.6" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <!-- Level 2 tip dots -->
+    <circle cx="-16" cy="-23" r="1.3" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3" opacity="0.7"/>
+    <circle cx="5"   cy="-25" r="1.3" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3" opacity="0.7"/>
+    <circle cx="18"  cy="-20" r="1.3" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3" opacity="0.7"/>
+  </g>
 
-    <!-- Cluster B at (100, 308) -->
-    <g transform="translate(100, 308)">
-      <path d="M 0,0 L -12,-18 M 0,0 L 0,-20 M 0,0 L 12,-18"
-            fill="none" stroke="#c0b8a8" stroke-width="0.65" stroke-linecap="round"/>
-      <path d="M -12,-18 L -19,-28 M -12,-18 L -7,-29"
-            fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-      <path d="M 0,-20 L -8,-30 M 0,-20 L 8,-30"
-            fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-      <path d="M 12,-18 L 7,-29 M 12,-18 L 19,-28"
-            fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-      <circle cx="-19" cy="-28" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="-7"  cy="-29" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="-8"  cy="-30" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="8"   cy="-30" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="7"   cy="-29" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="19"  cy="-28" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-    </g>
+  <!-- Second spray from stem (y≈510) -->
+  <path d="M 48,515 C 40,505 32,494 24,484" fill="none" stroke="#8a9a75" stroke-width="0.65" stroke-linecap="round"/>
+  <g transform="translate(24,484)">
+    <path d="M 0,0 C -5,-7 -11,-15 -16,-23"  fill="none" stroke="#9aaa80" stroke-width="0.42" stroke-linecap="round"/>
+    <path d="M 0,0 C 1,-8 3,-16 4,-25"       fill="none" stroke="#9aaa80" stroke-width="0.42" stroke-linecap="round"/>
+    <path d="M 0,0 C 7,-6 14,-13 19,-20"     fill="none" stroke="#9aaa80" stroke-width="0.42" stroke-linecap="round"/>
+    <path d="M -16,-23 C -19,-28 -22,-33 -24,-38" fill="none" stroke="#a0aa88" stroke-width="0.32" stroke-linecap="round"/>
+    <path d="M -16,-23 C -13,-28 -10,-33 -8,-38"  fill="none" stroke="#a0aa88" stroke-width="0.32" stroke-linecap="round"/>
+    <path d="M 4,-25 C 2,-30 0,-36 -1,-42"        fill="none" stroke="#a0aa88" stroke-width="0.32" stroke-linecap="round"/>
+    <path d="M 4,-25 C 6,-30 9,-36 10,-42"         fill="none" stroke="#a0aa88" stroke-width="0.32" stroke-linecap="round"/>
+    <path d="M 19,-20 C 16,-26 14,-32 13,-38"      fill="none" stroke="#a0aa88" stroke-width="0.32" stroke-linecap="round"/>
+    <path d="M 19,-20 C 22,-25 24,-31 25,-37"      fill="none" stroke="#a0aa88" stroke-width="0.32" stroke-linecap="round"/>
+    <circle cx="-24" cy="-39" r="1.6" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="-8"  cy="-39" r="1.5" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="-1"  cy="-43" r="1.6" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="10"  cy="-43" r="1.5" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="13"  cy="-39" r="1.6" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="25"  cy="-38" r="1.5" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="-16" cy="-24" r="1.3" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3" opacity="0.7"/>
+    <circle cx="4"   cy="-26" r="1.3" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3" opacity="0.7"/>
+    <circle cx="19"  cy="-21" r="1.3" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3" opacity="0.7"/>
+  </g>
 
-    <!-- Cluster C at (18, 372) -->
-    <g transform="translate(18, 372)">
-      <path d="M 0,0 L -11,-16 M 0,0 L 0,-18 M 0,0 L 11,-16"
-            fill="none" stroke="#c0b8a8" stroke-width="0.65" stroke-linecap="round"/>
-      <path d="M -11,-16 L -17,-25 M -11,-16 L -6,-26"
-            fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-      <path d="M 0,-18 L -7,-27 M 0,-18 L 7,-27"
-            fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-      <path d="M 11,-16 L 6,-26 M 11,-16 L 17,-25"
-            fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-      <circle cx="-17" cy="-25" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="-6"  cy="-26" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="-7"  cy="-27" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="7"   cy="-27" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="6"   cy="-26" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="17"  cy="-25" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-    </g>
+  <!-- Third small spray (y≈570) -->
+  <path d="M 28,570 C 20,560 14,548 10,538" fill="none" stroke="#8a9a75" stroke-width="0.6" stroke-linecap="round"/>
+  <g transform="translate(10,538)">
+    <path d="M 0,0 C -4,-6 -8,-13 -9,-20"   fill="none" stroke="#9aaa80" stroke-width="0.38" stroke-linecap="round"/>
+    <path d="M 0,0 C 1,-7 3,-14 4,-21"       fill="none" stroke="#9aaa80" stroke-width="0.38" stroke-linecap="round"/>
+    <path d="M 0,0 C 5,-5 10,-11 13,-17"     fill="none" stroke="#9aaa80" stroke-width="0.38" stroke-linecap="round"/>
+    <path d="M -9,-20 C -11,-24 -13,-28 -14,-32" fill="none" stroke="#a0aa88" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M -9,-20 C -7,-24 -5,-28 -3,-32"    fill="none" stroke="#a0aa88" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M 4,-21 C 2,-25 1,-29 0,-33"         fill="none" stroke="#a0aa88" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M 4,-21 C 6,-25 8,-29 9,-33"          fill="none" stroke="#a0aa88" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M 13,-17 C 11,-22 10,-27 9,-31"       fill="none" stroke="#a0aa88" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M 13,-17 C 15,-22 17,-27 18,-31"      fill="none" stroke="#a0aa88" stroke-width="0.28" stroke-linecap="round"/>
+    <circle cx="-14" cy="-33" r="1.5" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="-3"  cy="-33" r="1.5" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="0"   cy="-34" r="1.6" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="9"   cy="-34" r="1.5" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="9"   cy="-32" r="1.5" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="18"  cy="-32" r="1.6" fill="url(#bbgA)" stroke="#d8d4cc" stroke-width="0.3"/>
+  </g>
 
-    <!-- Cluster D at (94, 536) -->
-    <g transform="translate(94, 536)">
-      <path d="M 0,0 L -12,-17 M 0,0 L 0,-19 M 0,0 L 12,-17"
-            fill="none" stroke="#c0b8a8" stroke-width="0.65" stroke-linecap="round"/>
-      <path d="M -12,-17 L -19,-27 M -12,-17 L -6,-28"
-            fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-      <path d="M 0,-19 L -7,-29 M 0,-19 L 7,-29"
-            fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-      <path d="M 12,-17 L 6,-28 M 12,-17 L 19,-27"
-            fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-      <circle cx="-19" cy="-27" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="-6"  cy="-28" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="-7"  cy="-29" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="7"   cy="-29" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="6"   cy="-28" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="19"  cy="-27" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-    </g>
-
-  </svg>
+</g><!-- end opacity group -->
+</svg>
 </div>
 
+<%# SVG 2 — Botanical panel right (mirror of left) %>
 <div class="botanical-right" aria-hidden="true">
-  <svg viewBox="0 0 130 620" xmlns="http://www.w3.org/2000/svg" width="130" height="620">
-    <!-- Mirror the left panel horizontally: translate(130,0) scale(-1,1) -->
-    <g transform="translate(130,0) scale(-1,1)">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 620" width="130" height="620">
+<defs>
+  <linearGradient id="olgB" x1="0%" y1="50%" x2="100%" y2="50%">
+    <stop offset="0%"   stop-color="#6b7f45" stop-opacity="0.85"/>
+    <stop offset="35%"  stop-color="#b8c88a" stop-opacity="0.9"/>
+    <stop offset="65%"  stop-color="#9aaf6a" stop-opacity="0.9"/>
+    <stop offset="100%" stop-color="#5c6b3a" stop-opacity="0.8"/>
+  </linearGradient>
+  <linearGradient id="olgB2" x1="0%" y1="50%" x2="100%" y2="50%">
+    <stop offset="0%"   stop-color="#5c6b3a" stop-opacity="0.8"/>
+    <stop offset="40%"  stop-color="#9aaf6a" stop-opacity="0.9"/>
+    <stop offset="100%" stop-color="#7a8f52" stop-opacity="0.85"/>
+  </linearGradient>
+  <linearGradient id="lpgB" x1="50%" y1="100%" x2="50%" y2="0%">
+    <stop offset="0%"   stop-color="#ede8de"/>
+    <stop offset="40%"  stop-color="#f8f5f0"/>
+    <stop offset="100%" stop-color="#fdfcfa"/>
+  </linearGradient>
+  <linearGradient id="lpgB2" x1="50%" y1="100%" x2="50%" y2="0%">
+    <stop offset="0%"   stop-color="#e8e2d5"/>
+    <stop offset="50%"  stop-color="#f5f2ec"/>
+    <stop offset="100%" stop-color="#fdfcfa"/>
+  </linearGradient>
+  <radialGradient id="ofgB" cx="38%" cy="35%" r="60%">
+    <stop offset="0%"   stop-color="#8a9e6a"/>
+    <stop offset="60%"  stop-color="#5a7040"/>
+    <stop offset="100%" stop-color="#3d5228"/>
+  </radialGradient>
+  <radialGradient id="bbgB" cx="40%" cy="35%" r="65%">
+    <stop offset="0%"   stop-color="#ffffff"/>
+    <stop offset="100%" stop-color="#e8e4dc"/>
+  </radialGradient>
+  <linearGradient id="slgB" x1="0%" y1="50%" x2="100%" y2="50%">
+    <stop offset="0%"   stop-color="#5c6b3a" stop-opacity="0.7"/>
+    <stop offset="50%"  stop-color="#9aaf6a" stop-opacity="0.85"/>
+    <stop offset="100%" stop-color="#6b7f45" stop-opacity="0.7"/>
+  </linearGradient>
+</defs>
+<g transform="translate(130,0) scale(-1,1)" opacity="0.78">
 
-      <!-- ═══ OLIVE BRANCH (mirrored) ═══ -->
-      <path d="M 102,5 C 90,38 74,72 72,118 C 70,164 84,198 78,248
-               C 72,298 54,332 58,388 C 62,444 78,480 66,534
-               C 54,588 38,608 24,618"
-            fill="none" stroke="#8b9a78" stroke-width="1.8"
-            stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 98,8 C 92,35 80,62 76,98 C 72,134 82,165 76,210
+           C 70,255 55,285 56,335 C 57,385 72,415 65,465
+           C 58,515 42,548 30,585 C 22,608 16,616 10,622"
+        fill="none" stroke="#6b7a45" stroke-width="1.4"
+        stroke-linecap="round" stroke-linejoin="round"/>
 
-      <!-- Olive leaves -->
-      <path d="M 99,22 C 82,14 64,18 56,27 C 63,35 81,33 99,22 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 100,35 C 114,27 126,31 128,42 C 120,49 108,45 100,35 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 76,73 C 59,65 41,69 33,78 C 40,86 58,84 76,73 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 74,86 C 88,78 101,82 103,93 C 95,100 83,96 74,86 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 75,125 C 58,117 40,121 32,130 C 39,138 57,136 75,125 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 74,138 C 88,130 100,134 102,145 C 94,152 82,148 74,138 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <line x1="76" y1="128" x2="70" y2="140" stroke="#8b9a78" stroke-width="0.8"/>
-      <ellipse cx="70" cy="145" rx="4" ry="6.5"
-               fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
-      <line x1="78" y1="133" x2="85" y2="144" stroke="#8b9a78" stroke-width="0.8"/>
-      <ellipse cx="85" cy="149" rx="4" ry="6.5"
-               fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
-      <path d="M 79,175 C 63,167 45,171 37,180 C 44,188 62,186 79,175 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 78,188 C 91,180 103,184 105,195 C 97,202 85,198 78,188 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 76,230 C 60,222 42,226 34,235 C 41,243 59,241 76,230 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 75,243 C 88,235 100,239 102,250 C 94,257 82,253 75,243 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <line x1="74" y1="234" x2="68" y2="246" stroke="#8b9a78" stroke-width="0.8"/>
-      <ellipse cx="68" cy="251" rx="4" ry="6.5"
-               fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
-      <path d="M 62,280 C 46,272 28,276 20,285 C 27,293 45,291 62,280 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 61,293 C 74,285 86,289 88,300 C 80,307 68,303 61,293 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 60,335 C 44,327 26,331 18,340 C 25,348 43,346 60,335 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 59,348 C 72,340 84,344 86,355 C 78,362 66,358 59,348 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 62,390 C 46,382 28,386 20,395 C 27,403 45,401 62,390 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 61,403 C 74,395 86,399 88,410 C 80,417 68,413 61,403 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <line x1="63" y1="397" x2="57" y2="409" stroke="#8b9a78" stroke-width="0.8"/>
-      <ellipse cx="57" cy="414" rx="4" ry="6.5"
-               fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
-      <line x1="65" y1="400" x2="72" y2="411" stroke="#8b9a78" stroke-width="0.8"/>
-      <ellipse cx="72" cy="416" rx="4" ry="6.5"
-               fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
-      <path d="M 68,453 C 52,445 34,449 26,458 C 33,466 51,464 68,453 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 67,466 C 80,458 92,462 94,473 C 86,480 74,476 67,466 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 62,500 C 46,492 28,496 20,505 C 27,513 45,511 62,500 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 61,513 C 74,505 86,509 88,520 C 80,527 68,523 61,513 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 52,550 C 36,542 18,546 10,555 C 17,563 35,561 52,550 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 51,563 C 64,555 76,559 78,570 C 70,577 58,573 51,563 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
+  <path d="M 79,62 C 76,58 68,54 58,52 C 50,51 42,53 38,57
+           C 38,60 44,64 54,65 C 64,66 74,65 79,62 Z"
+        fill="url(#olgB)" stroke="#6b7a45" stroke-width="0.4"/>
+  <path d="M 79,62 C 74,63 64,64 54,63 C 44,62 39,59 38,57
+           C 42,55 50,53 58,54 C 68,55 76,59 79,62 Z"
+        fill="none" stroke="#8faa60" stroke-width="0.3" opacity="0.6"/>
+  <path d="M 80,66 C 84,62 92,59 101,58 C 109,57 117,60 120,64
+           C 119,67 113,70 103,71 C 93,72 84,70 80,66 Z"
+        fill="url(#olgB2)" stroke="#6b7a45" stroke-width="0.4"/>
+  <path d="M 80,66 C 85,68 93,70 103,69 C 113,68 118,66 120,64
+           C 116,62 108,60 101,61 C 92,62 84,65 80,66 Z"
+        fill="none" stroke="#8faa60" stroke-width="0.3" opacity="0.6"/>
+  <path d="M 77,105 C 74,100 65,95 55,93 C 46,91 37,94 33,98
+           C 33,101 39,106 50,108 C 61,110 72,109 77,105 Z"
+        fill="url(#olgB)" stroke="#6b7a45" stroke-width="0.4"/>
+  <path d="M 77,105 C 72,107 61,108 51,106 C 41,104 35,101 33,98
+           C 37,96 46,94 55,95 C 65,96 73,101 77,105 Z"
+        fill="none" stroke="#8faa60" stroke-width="0.3" opacity="0.6"/>
+  <path d="M 79,112 C 83,107 91,104 101,103 C 110,102 118,105 121,110
+           C 120,113 113,117 103,118 C 93,119 83,116 79,112 Z"
+        fill="url(#olgB2)" stroke="#6b7a45" stroke-width="0.4"/>
+  <line x1="78" y1="110" x2="72" y2="122" stroke="#6b7a45" stroke-width="0.6"/>
+  <ellipse cx="72" cy="127" rx="3.5" ry="5.5" fill="url(#ofgB)" stroke="#4a6030" stroke-width="0.5" opacity="0.85"/>
+  <line x1="80" y1="114" x2="88" y2="124" stroke="#6b7a45" stroke-width="0.6"/>
+  <ellipse cx="88" cy="129" rx="3.5" ry="5.5" fill="url(#ofgB)" stroke="#4a6030" stroke-width="0.5" opacity="0.85"/>
+  <ellipse cx="70" cy="124" rx="1.2" ry="1.8" fill="#aabf80" opacity="0.4"/>
+  <ellipse cx="86" cy="126" rx="1.2" ry="1.8" fill="#aabf80" opacity="0.4"/>
+  <path d="M 75,152 C 72,147 63,142 52,140 C 43,138 34,141 30,145
+           C 30,149 37,153 48,155 C 59,157 70,156 75,152 Z"
+        fill="url(#olgB)" stroke="#6b7a45" stroke-width="0.4"/>
+  <path d="M 77,159 C 81,154 89,151 99,150 C 108,149 116,152 119,157
+           C 118,161 111,164 101,165 C 91,166 81,163 77,159 Z"
+        fill="url(#olgB2)" stroke="#6b7a45" stroke-width="0.4"/>
+  <path d="M 74,202 C 71,197 61,192 50,190 C 41,188 32,191 28,196
+           C 28,200 35,204 46,206 C 57,208 69,207 74,202 Z"
+        fill="url(#olgB)" stroke="#6b7a45" stroke-width="0.4"/>
+  <path d="M 76,209 C 80,204 88,201 98,200 C 107,199 115,202 118,207
+           C 117,210 110,214 100,215 C 90,216 80,213 76,209 Z"
+        fill="url(#olgB2)" stroke="#6b7a45" stroke-width="0.4"/>
+  <path d="M 58,252 C 55,247 46,242 35,240 C 26,238 17,241 13,246
+           C 13,250 20,254 31,256 C 42,258 53,257 58,252 Z"
+        fill="url(#olgB)" stroke="#6b7a45" stroke-width="0.4"/>
+  <path d="M 60,259 C 64,254 72,251 82,250 C 91,249 99,252 102,257
+           C 101,261 94,264 84,265 C 74,266 64,263 60,259 Z"
+        fill="url(#olgB2)" stroke="#6b7a45" stroke-width="0.4"/>
+  <line x1="59" y1="256" x2="53" y2="268" stroke="#6b7a45" stroke-width="0.6"/>
+  <ellipse cx="53" cy="273" rx="3.5" ry="5.5" fill="url(#ofgB)" stroke="#4a6030" stroke-width="0.5" opacity="0.85"/>
+  <ellipse cx="51" cy="270" rx="1" ry="1.5" fill="#aabf80" opacity="0.4"/>
+  <path d="M 57,299 C 54,294 45,289 34,287 C 25,285 16,288 12,293
+           C 12,297 19,301 30,303 C 41,305 52,304 57,299 Z"
+        fill="url(#olgB)" stroke="#6b7a45" stroke-width="0.4"/>
+  <path d="M 59,306 C 63,301 71,298 81,297 C 90,296 98,299 101,304
+           C 100,307 93,311 83,312 C 73,313 63,310 59,306 Z"
+        fill="url(#olgB2)" stroke="#6b7a45" stroke-width="0.4"/>
+  <path d="M 57,349 C 54,344 45,339 34,337 C 25,335 16,338 12,343
+           C 12,347 19,351 30,353 C 41,355 52,354 57,349 Z"
+        fill="url(#olgB)" stroke="#6b7a45" stroke-width="0.4"/>
+  <path d="M 59,356 C 63,351 71,348 81,347 C 90,346 98,349 101,354
+           C 100,357 93,361 83,362 C 73,363 63,360 59,356 Z"
+        fill="url(#olgB2)" stroke="#6b7a45" stroke-width="0.4"/>
 
-      <!-- ═══ WHITE LILY #1 (mirrored position, same design) ═══ -->
-      <line x1="76" y1="200" x2="38" y2="218" stroke="#8b9a78" stroke-width="1.1"
-            stroke-linecap="round"/>
-      <path d="M 55,212 C 50,205 42,200 36,196 C 34,202 38,209 55,212 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.8"/>
-      <path d="M 52,216 C 48,222 42,228 35,230 C 33,224 38,217 52,216 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.8"/>
-      <g transform="translate(38, 216)">
-        <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30
-                 C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z"
-              fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9"
-              transform="rotate(0)"/>
-        <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30
-                 C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z"
-              fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9"
-              transform="rotate(60)"/>
-        <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30
-                 C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z"
-              fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9"
-              transform="rotate(120)"/>
-        <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30
-                 C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z"
-              fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9"
-              transform="rotate(180)"/>
-        <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30
-                 C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z"
-              fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9"
-              transform="rotate(240)"/>
-        <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30
-                 C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z"
-              fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9"
-              transform="rotate(300)"/>
-        <g transform="rotate(0)">
-          <line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/>
-          <ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/>
-        </g>
-        <g transform="rotate(60)">
-          <line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/>
-          <ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/>
-        </g>
-        <g transform="rotate(120)">
-          <line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/>
-          <ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/>
-        </g>
-        <g transform="rotate(180)">
-          <line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/>
-          <ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/>
-        </g>
-        <g transform="rotate(240)">
-          <line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/>
-          <ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/>
-        </g>
-        <g transform="rotate(300)">
-          <line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/>
-          <ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/>
-        </g>
-        <circle cx="0" cy="0" r="4" fill="rgba(210,185,135,0.55)" stroke="#c8a870" stroke-width="0.9"/>
-      </g>
+  <!-- Lily bloom -->
+  <path d="M 57,338 C 53,330 48,320 42,310" fill="none" stroke="#6b7a45" stroke-width="1.0" stroke-linecap="round"/>
+  <path d="M 48,320 C 44,312 36,305 27,300 C 24,305 28,314 40,319 C 42,320 46,321 48,320 Z"
+        fill="url(#slgB)" stroke="#6b7a45" stroke-width="0.4"/>
+  <path d="M 46,324 C 50,316 56,308 64,302 C 66,307 63,316 52,323 C 50,324 48,325 46,324 Z"
+        fill="url(#slgB)" stroke="#6b7a45" stroke-width="0.4"/>
+  <g transform="translate(42,300)">
+    <path d="M 0,0 C 3,-3 8,-12 9,-24 C 10,-34 7,-40 4,-42 C 2,-43 1,-40 0,-36 C -1,-32 -1,-28 -2,-22 C -4,-14 -3,-5 0,0 Z"
+          fill="#ede8de" stroke="#d8d0c0" stroke-width="0.35" opacity="0.88" transform="rotate(10)"/>
+    <path d="M 0,0 C 3,-3 8,-12 9,-24 C 10,-34 7,-40 4,-42 C 2,-43 1,-40 0,-36 C -1,-32 -1,-28 -2,-22 C -4,-14 -3,-5 0,0 Z"
+          fill="#ede8de" stroke="#d8d0c0" stroke-width="0.35" opacity="0.88" transform="rotate(130)"/>
+    <path d="M 0,0 C 3,-3 8,-12 9,-24 C 10,-34 7,-40 4,-42 C 2,-43 1,-40 0,-36 C -1,-32 -1,-28 -2,-22 C -4,-14 -3,-5 0,0 Z"
+          fill="#ede8de" stroke="#d8d0c0" stroke-width="0.35" opacity="0.88" transform="rotate(250)"/>
+    <path d="M 0,0 C 4,-4 10,-14 11,-27 C 12,-37 8,-43 5,-44 C 3,-44 2,-41 1,-37 C 0,-33 0,-29 -1,-24 C -3,-16 -3,-6 0,0 Z"
+          fill="url(#lpgB)" stroke="#ddd5c5" stroke-width="0.4" transform="rotate(-20)"/>
+    <path d="M 1,-4 C 1,-12 2,-22 2,-34" fill="none" stroke="#e8e0d0" stroke-width="0.35" opacity="0.7" transform="rotate(-20)"/>
+    <path d="M 0,0 C 5,-4 11,-15 12,-28 C 13,-38 9,-44 5,-45 C 3,-45 2,-42 1,-38 C 0,-34 0,-30 -1,-25 C -3,-17 -3,-7 0,0 Z"
+          fill="url(#lpgB)" stroke="#ddd5c5" stroke-width="0.4" transform="rotate(100)"/>
+    <path d="M 1,-4 C 1,-12 2,-22 2,-35" fill="none" stroke="#e8e0d0" stroke-width="0.35" opacity="0.7" transform="rotate(100)"/>
+    <path d="M 0,0 C 4,-4 10,-14 10,-26 C 11,-36 7,-42 4,-43 C 2,-44 1,-41 0,-37 C -1,-33 -1,-29 -2,-23 C -4,-15 -3,-6 0,0 Z"
+          fill="url(#lpgB2)" stroke="#ddd5c5" stroke-width="0.4" transform="rotate(220)"/>
+    <path d="M 1,-4 C 1,-12 1,-21 1,-32" fill="none" stroke="#e8e0d0" stroke-width="0.35" opacity="0.7" transform="rotate(220)"/>
+    <g opacity="0.9">
+      <line x1="0" y1="-2" x2="2" y2="-28" stroke="#b8902a" stroke-width="0.5"/>
+      <ellipse cx="2.5" cy="-29.5" rx="1.8" ry="1" fill="#c8a040" transform="rotate(20,2.5,-29.5)"/>
+      <line x1="0" y1="-2" x2="-3" y2="-27" stroke="#b8902a" stroke-width="0.5"/>
+      <ellipse cx="-3.5" cy="-28.5" rx="1.8" ry="1" fill="#c8a040" transform="rotate(-15,-3.5,-28.5)"/>
+      <line x1="0" y1="-2" x2="7" y2="-25" stroke="#b8902a" stroke-width="0.5"/>
+      <ellipse cx="7.8" cy="-26" rx="1.8" ry="1" fill="#c8a040" transform="rotate(35,7.8,-26)"/>
+      <line x1="0" y1="-2" x2="-7" y2="-24" stroke="#b8902a" stroke-width="0.5"/>
+      <ellipse cx="-7.8" cy="-25" rx="1.8" ry="1" fill="#c8a040" transform="rotate(-35,-7.8,-25)"/>
+      <line x1="0" y1="-2" x2="4" y2="-29" stroke="#b8902a" stroke-width="0.5"/>
+      <ellipse cx="4.5" cy="-30.5" rx="1.8" ry="1" fill="#d4aa48" transform="rotate(10,4.5,-30.5)"/>
+      <line x1="0" y1="-2" x2="-1" y2="-30" stroke="#b8902a" stroke-width="0.5"/>
+      <ellipse cx="-1.2" cy="-31.5" rx="1.8" ry="1" fill="#d4aa48" transform="rotate(-5,-1.2,-31.5)"/>
+    </g>
+    <circle cx="0" cy="-1" r="3.5" fill="rgba(195,168,110,0.5)" stroke="#b8902a" stroke-width="0.5"/>
+  </g>
 
-      <!-- ═══ WHITE LILY #2 (mirrored) ═══ -->
-      <line x1="66" y1="436" x2="50" y2="449" stroke="#8b9a78" stroke-width="1.0"
-            stroke-linecap="round"/>
-      <path d="M 60,443 C 56,438 50,434 44,432 C 43,437 47,443 60,443 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.8"/>
-      <g transform="translate(50, 448)">
-        <path d="M 0,0 C 4,-3 6,-10 5,-18 C 3,-23 0,-24 0,-21
-                 C 0,-24 -3,-23 -5,-18 C -6,-10 -4,-3 0,0 Z"
-              fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.8"
-              transform="rotate(0)"/>
-        <path d="M 0,0 C 4,-3 6,-10 5,-18 C 3,-23 0,-24 0,-21
-                 C 0,-24 -3,-23 -5,-18 C -6,-10 -4,-3 0,0 Z"
-              fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.8"
-              transform="rotate(60)"/>
-        <path d="M 0,0 C 4,-3 6,-10 5,-18 C 3,-23 0,-24 0,-21
-                 C 0,-24 -3,-23 -5,-18 C -6,-10 -4,-3 0,0 Z"
-              fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.8"
-              transform="rotate(120)"/>
-        <path d="M 0,0 C 4,-3 6,-10 5,-18 C 3,-23 0,-24 0,-21
-                 C 0,-24 -3,-23 -5,-18 C -6,-10 -4,-3 0,0 Z"
-              fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.8"
-              transform="rotate(180)"/>
-        <path d="M 0,0 C 4,-3 6,-10 5,-18 C 3,-23 0,-24 0,-21
-                 C 0,-24 -3,-23 -5,-18 C -6,-10 -4,-3 0,0 Z"
-              fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.8"
-              transform="rotate(240)"/>
-        <path d="M 0,0 C 4,-3 6,-10 5,-18 C 3,-23 0,-24 0,-21
-                 C 0,-24 -3,-23 -5,-18 C -6,-10 -4,-3 0,0 Z"
-              fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.8"
-              transform="rotate(300)"/>
-        <g transform="rotate(30)">
-          <line x1="0" y1="0" x2="0" y2="-16" stroke="#c8a870" stroke-width="0.6"/>
-          <circle cx="0" cy="-17" r="1.3" fill="#c89a58"/>
-        </g>
-        <g transform="rotate(150)">
-          <line x1="0" y1="0" x2="0" y2="-16" stroke="#c8a870" stroke-width="0.6"/>
-          <circle cx="0" cy="-17" r="1.3" fill="#c89a58"/>
-        </g>
-        <g transform="rotate(270)">
-          <line x1="0" y1="0" x2="0" y2="-16" stroke="#c8a870" stroke-width="0.6"/>
-          <circle cx="0" cy="-17" r="1.3" fill="#c89a58"/>
-        </g>
-        <circle cx="0" cy="0" r="3" fill="rgba(210,185,135,0.55)" stroke="#c8a870" stroke-width="0.8"/>
-      </g>
+  <!-- Lily buds -->
+  <path d="M 72,195 C 66,188 58,178 52,168" fill="none" stroke="#6b7a45" stroke-width="0.9" stroke-linecap="round"/>
+  <path d="M 58,178 C 54,172 47,166 40,162 C 38,167 42,174 54,176 Z"
+        fill="url(#slgB)" stroke="#6b7a45" stroke-width="0.4"/>
+  <g transform="translate(52,168)">
+    <path d="M 0,0 C 5,-2 9,-10 8,-20 C 7,-27 3,-30 0,-28 C -3,-30 -7,-27 -8,-20 C -9,-10 -5,-2 0,0 Z"
+          fill="url(#lpgB)" stroke="#d8d0c0" stroke-width="0.4"/>
+    <path d="M -2,-2 C -4,-8 -5,-16 -4,-22" fill="none" stroke="#9aaf6a" stroke-width="0.5" opacity="0.6"/>
+    <path d="M 2,-2 C 4,-8 5,-16 4,-22" fill="none" stroke="#9aaf6a" stroke-width="0.5" opacity="0.6"/>
+    <path d="M -3,-24 C -1,-28 1,-28 3,-24" fill="none" stroke="#ede8de" stroke-width="0.5"/>
+  </g>
+  <path d="M 63,415 C 57,406 50,395 46,385" fill="none" stroke="#6b7a45" stroke-width="0.9" stroke-linecap="round"/>
+  <path d="M 52,400 C 48,394 41,388 33,384 C 31,389 35,396 48,399 Z"
+        fill="url(#slgB)" stroke="#6b7a45" stroke-width="0.4"/>
+  <g transform="translate(46,385)">
+    <path d="M 0,0 C 4,-2 7,-9 6,-17 C 5,-23 2,-26 0,-24 C -2,-26 -5,-23 -6,-17 C -7,-9 -4,-2 0,0 Z"
+          fill="url(#lpgB2)" stroke="#d8d0c0" stroke-width="0.4"/>
+    <path d="M -2,-2 C -3,-7 -4,-13 -3,-18" fill="none" stroke="#9aaf6a" stroke-width="0.45" opacity="0.6"/>
+    <path d="M 2,-2 C 3,-7 4,-13 3,-18" fill="none" stroke="#9aaf6a" stroke-width="0.45" opacity="0.6"/>
+  </g>
 
-      <!-- ═══ BABY'S BREATH (mirrored) ═══ -->
-      <g transform="translate(25, 92)">
-        <path d="M 0,0 L -14,-20 M 0,0 L 0,-22 M 0,0 L 14,-20"
-              fill="none" stroke="#c0b8a8" stroke-width="0.65" stroke-linecap="round"/>
-        <path d="M -14,-20 L -22,-32 M -14,-20 L -8,-32"
-              fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-        <path d="M 0,-22 L -9,-34 M 0,-22 L 9,-34"
-              fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-        <path d="M 14,-20 L 8,-32 M 14,-20 L 22,-32"
-              fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-        <circle cx="-22" cy="-32" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="-8"  cy="-32" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="-9"  cy="-34" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="9"   cy="-34" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="8"   cy="-32" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="22"  cy="-32" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      </g>
-      <g transform="translate(100, 308)">
-        <path d="M 0,0 L -12,-18 M 0,0 L 0,-20 M 0,0 L 12,-18"
-              fill="none" stroke="#c0b8a8" stroke-width="0.65" stroke-linecap="round"/>
-        <path d="M -12,-18 L -19,-28 M -12,-18 L -7,-29"
-              fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-        <path d="M 0,-20 L -8,-30 M 0,-20 L 8,-30"
-              fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-        <path d="M 12,-18 L 7,-29 M 12,-18 L 19,-28"
-              fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-        <circle cx="-19" cy="-28" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="-7"  cy="-29" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="-8"  cy="-30" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="8"   cy="-30" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="7"   cy="-29" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="19"  cy="-28" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      </g>
-      <g transform="translate(18, 372)">
-        <path d="M 0,0 L -11,-16 M 0,0 L 0,-18 M 0,0 L 11,-16"
-              fill="none" stroke="#c0b8a8" stroke-width="0.65" stroke-linecap="round"/>
-        <path d="M -11,-16 L -17,-25 M -11,-16 L -6,-26"
-              fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-        <path d="M 0,-18 L -7,-27 M 0,-18 L 7,-27"
-              fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-        <path d="M 11,-16 L 6,-26 M 11,-16 L 17,-25"
-              fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-        <circle cx="-17" cy="-25" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="-6"  cy="-26" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="-7"  cy="-27" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="7"   cy="-27" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="6"   cy="-26" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="17"  cy="-25" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      </g>
-      <g transform="translate(94, 536)">
-        <path d="M 0,0 L -12,-17 M 0,0 L 0,-19 M 0,0 L 12,-17"
-              fill="none" stroke="#c0b8a8" stroke-width="0.65" stroke-linecap="round"/>
-        <path d="M -12,-17 L -19,-27 M -12,-17 L -6,-28"
-              fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-        <path d="M 0,-19 L -7,-29 M 0,-19 L 7,-29"
-              fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-        <path d="M 12,-17 L 6,-28 M 12,-17 L 19,-27"
-              fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-        <circle cx="-19" cy="-27" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="-6"  cy="-28" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="-7"  cy="-29" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="7"   cy="-29" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="6"   cy="-28" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="19"  cy="-27" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      </g>
+  <!-- Baby's breath sprays -->
+  <path d="M 55,465 C 50,455 44,445 38,435" fill="none" stroke="#8a9a75" stroke-width="0.7" stroke-linecap="round"/>
+  <g transform="translate(38,435)">
+    <path d="M 0,0 C -4,-6 -10,-14 -16,-22" fill="none" stroke="#9aaa80" stroke-width="0.45" stroke-linecap="round"/>
+    <path d="M 0,0 C 2,-7 4,-15 5,-24"      fill="none" stroke="#9aaa80" stroke-width="0.45" stroke-linecap="round"/>
+    <path d="M 0,0 C 6,-5 13,-12 18,-19"    fill="none" stroke="#9aaa80" stroke-width="0.45" stroke-linecap="round"/>
+    <path d="M -16,-22 C -19,-26 -24,-31 -28,-36" fill="none" stroke="#a0aa88" stroke-width="0.35" stroke-linecap="round"/>
+    <path d="M -16,-22 C -13,-27 -10,-33 -8,-38"  fill="none" stroke="#a0aa88" stroke-width="0.35" stroke-linecap="round"/>
+    <path d="M 5,-24 C 2,-29 0,-35 -1,-41"   fill="none" stroke="#a0aa88" stroke-width="0.35" stroke-linecap="round"/>
+    <path d="M 5,-24 C 8,-29 11,-35 13,-41"  fill="none" stroke="#a0aa88" stroke-width="0.35" stroke-linecap="round"/>
+    <path d="M 18,-19 C 15,-25 13,-31 12,-37"  fill="none" stroke="#a0aa88" stroke-width="0.35" stroke-linecap="round"/>
+    <path d="M 18,-19 C 21,-24 24,-30 26,-36"  fill="none" stroke="#a0aa88" stroke-width="0.35" stroke-linecap="round"/>
+    <path d="M -28,-36 C -30,-39 -33,-43 -34,-47" fill="none" stroke="#a8b090" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M -28,-36 C -26,-40 -24,-44 -22,-48" fill="none" stroke="#a8b090" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M -8,-38 C -10,-42 -11,-46 -12,-50"  fill="none" stroke="#a8b090" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M -8,-38 C -6,-42 -4,-46 -3,-50"     fill="none" stroke="#a8b090" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M -1,-41 C -3,-45 -4,-49 -4,-53"     fill="none" stroke="#a8b090" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M -1,-41 C 1,-45 3,-49 4,-53"         fill="none" stroke="#a8b090" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M 13,-41 C 11,-45 10,-49 9,-53"       fill="none" stroke="#a8b090" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M 13,-41 C 15,-45 16,-49 18,-53"      fill="none" stroke="#a8b090" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M 12,-37 C 10,-41 9,-45 8,-49"        fill="none" stroke="#a8b090" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M 26,-36 C 24,-40 23,-44 22,-48"      fill="none" stroke="#a8b090" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M 26,-36 C 28,-40 29,-44 30,-48"      fill="none" stroke="#a8b090" stroke-width="0.28" stroke-linecap="round"/>
+    <circle cx="-34" cy="-48" r="1.6" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="-22" cy="-49" r="1.5" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="-12" cy="-51" r="1.6" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="-3"  cy="-51" r="1.5" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="-4"  cy="-54" r="1.5" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="4"   cy="-54" r="1.6" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="9"   cy="-54" r="1.5" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="18"  cy="-54" r="1.5" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="8"   cy="-50" r="1.6" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="22"  cy="-49" r="1.5" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="30"  cy="-49" r="1.6" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="-16" cy="-23" r="1.3" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3" opacity="0.7"/>
+    <circle cx="5"   cy="-25" r="1.3" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3" opacity="0.7"/>
+    <circle cx="18"  cy="-20" r="1.3" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3" opacity="0.7"/>
+  </g>
+  <path d="M 48,515 C 40,505 32,494 24,484" fill="none" stroke="#8a9a75" stroke-width="0.65" stroke-linecap="round"/>
+  <g transform="translate(24,484)">
+    <path d="M 0,0 C -5,-7 -11,-15 -16,-23"  fill="none" stroke="#9aaa80" stroke-width="0.42" stroke-linecap="round"/>
+    <path d="M 0,0 C 1,-8 3,-16 4,-25"       fill="none" stroke="#9aaa80" stroke-width="0.42" stroke-linecap="round"/>
+    <path d="M 0,0 C 7,-6 14,-13 19,-20"     fill="none" stroke="#9aaa80" stroke-width="0.42" stroke-linecap="round"/>
+    <path d="M -16,-23 C -19,-28 -22,-33 -24,-38" fill="none" stroke="#a0aa88" stroke-width="0.32" stroke-linecap="round"/>
+    <path d="M -16,-23 C -13,-28 -10,-33 -8,-38"  fill="none" stroke="#a0aa88" stroke-width="0.32" stroke-linecap="round"/>
+    <path d="M 4,-25 C 2,-30 0,-36 -1,-42"        fill="none" stroke="#a0aa88" stroke-width="0.32" stroke-linecap="round"/>
+    <path d="M 4,-25 C 6,-30 9,-36 10,-42"         fill="none" stroke="#a0aa88" stroke-width="0.32" stroke-linecap="round"/>
+    <path d="M 19,-20 C 16,-26 14,-32 13,-38"      fill="none" stroke="#a0aa88" stroke-width="0.32" stroke-linecap="round"/>
+    <path d="M 19,-20 C 22,-25 24,-31 25,-37"      fill="none" stroke="#a0aa88" stroke-width="0.32" stroke-linecap="round"/>
+    <circle cx="-24" cy="-39" r="1.6" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="-8"  cy="-39" r="1.5" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="-1"  cy="-43" r="1.6" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="10"  cy="-43" r="1.5" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="13"  cy="-39" r="1.6" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="25"  cy="-38" r="1.5" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="-16" cy="-24" r="1.3" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3" opacity="0.7"/>
+    <circle cx="4"   cy="-26" r="1.3" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3" opacity="0.7"/>
+    <circle cx="19"  cy="-21" r="1.3" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3" opacity="0.7"/>
+  </g>
+  <path d="M 28,570 C 20,560 14,548 10,538" fill="none" stroke="#8a9a75" stroke-width="0.6" stroke-linecap="round"/>
+  <g transform="translate(10,538)">
+    <path d="M 0,0 C -4,-6 -8,-13 -9,-20"   fill="none" stroke="#9aaa80" stroke-width="0.38" stroke-linecap="round"/>
+    <path d="M 0,0 C 1,-7 3,-14 4,-21"       fill="none" stroke="#9aaa80" stroke-width="0.38" stroke-linecap="round"/>
+    <path d="M 0,0 C 5,-5 10,-11 13,-17"     fill="none" stroke="#9aaa80" stroke-width="0.38" stroke-linecap="round"/>
+    <path d="M -9,-20 C -11,-24 -13,-28 -14,-32" fill="none" stroke="#a0aa88" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M -9,-20 C -7,-24 -5,-28 -3,-32"    fill="none" stroke="#a0aa88" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M 4,-21 C 2,-25 1,-29 0,-33"         fill="none" stroke="#a0aa88" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M 4,-21 C 6,-25 8,-29 9,-33"          fill="none" stroke="#a0aa88" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M 13,-17 C 11,-22 10,-27 9,-31"       fill="none" stroke="#a0aa88" stroke-width="0.28" stroke-linecap="round"/>
+    <path d="M 13,-17 C 15,-22 17,-27 18,-31"      fill="none" stroke="#a0aa88" stroke-width="0.28" stroke-linecap="round"/>
+    <circle cx="-14" cy="-33" r="1.5" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="-3"  cy="-33" r="1.5" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="0"   cy="-34" r="1.6" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="9"   cy="-34" r="1.5" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="9"   cy="-32" r="1.5" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3"/>
+    <circle cx="18"  cy="-32" r="1.6" fill="url(#bbgB)" stroke="#d8d4cc" stroke-width="0.3"/>
+  </g>
 
-    </g><!-- end mirror group -->
-  </svg>
+</g><!-- end mirror group -->
+</svg>
 </div>
