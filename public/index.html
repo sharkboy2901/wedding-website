@@ -1245,9 +1245,19 @@
 
 <script>
   const PHOTOS = [
-    '/images/photo-1.jpeg', '/images/photo-2.jpeg', '/images/photo-3.jpeg',
-    '/images/photo-4.jpeg', '/images/photo-5.jpeg', '/images/photo-6.jpeg',
-    '/images/photo-7.jpeg', '/images/photo-8.jpeg', '/images/photo-9.jpeg'
+    '/images/site-couple-1.jpg',  // golden seaside, facing each other
+    '/images/site-couple-2.jpg',  // silhouette golden hour
+    '/images/site-couple-3.jpg',  // intimate close-up at seaside
+    '/images/site-couple-4.jpg',  // walking in hills, golden
+    '/images/site-couple-5.jpg',  // b&w walking in hills
+    '/images/site-couple-6.jpg',  // ring / hands close-up
+    '/images/site-couple-7.jpg',  // b&w facing each other on beach
+    '/images/site-couple-8.jpg',  // hands touching over water at sunset
+    '/images/site-couple-9.jpg',  // golden sunset beach holding hands
+    '/images/site-couple-10.jpg', // b&w silhouette on beach
+    '/images/site-couple-11.jpg', // golden silhouette at sunset
+    '/images/site-couple-12.jpg', // sparklers at beach
+    '/images/site-couple-13.jpg', // b&w kissing
   ];
 
   // ── Dot pattern decoration ───────────────────
@@ -1288,8 +1298,8 @@
   timer = setTimeout(() => go(1), 5500);
 
   // ── Story section photos ─────────────────────
-  document.getElementById('storyPhotoA').src = PHOTOS[2];
-  document.getElementById('storyPhotoB').src = PHOTOS[5];
+  document.getElementById('storyPhotoA').src = PHOTOS[2];  // intimate close-up
+  document.getElementById('storyPhotoB').src = PHOTOS[7];  // hands over water at sunset
 
   // ── Photo auto-scroll strip ──────────────────
   const strip = document.getElementById('photoStrip');
@@ -1372,7 +1382,7 @@
           const iframe = document.createElement('iframe');
           iframe.src = 'https://player.twitch.tv/?channel=' +
             encodeURIComponent(status.livestreamChannel) +
-            '&parent=wedding-website-production-f7cb.up.railway.app&autoplay=false';
+            '&parent=mk-wedding.up.railway.app&autoplay=false';
           iframe.allowFullscreen = true;
           iframe.title = 'Wedding livestream';
           wrap.appendChild(iframe);
