@@ -114,15 +114,15 @@
     <!-- ── Site Images ────────────────────────────────────────────────────── -->
     <section class="admin-section" aria-labelledby="site-images-heading">
       <h2 class="admin-section-title" id="site-images-heading">&#128444; Site Images</h2>
-      <p class="admin-section-note">Upload images to use on the site (hero backgrounds, gallery, etc.). Images are available at <code>/images/&lt;filename&gt;</code>.</p>
+      <p class="admin-section-note">Images available at <code>/images/&lt;filename&gt;</code>. You can upload multiple at once, replace an existing image in-place, or delete it.</p>
 
-      <!-- Upload new site image -->
+      <!-- Upload new site images (multi-file) -->
       <form action="/admin/site-image/upload" method="post" enctype="multipart/form-data"
             class="admin-settings-card" style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;padding:1.25rem 1.5rem;">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <label class="admin-settings-label" style="margin:0;white-space:nowrap;">Upload New Image</label>
-        <input type="file" name="site_image" accept="image/jpeg,image/png,image/webp,image/gif"
-               required style="color:#c8c4d8;flex:1;min-width:200px;">
+        <label class="admin-settings-label" style="margin:0;white-space:nowrap;">Upload Images</label>
+        <input type="file" name="site_images" accept="image/jpeg,image/png,image/webp,image/gif"
+               multiple required style="color:#c8c4d8;flex:1;min-width:200px;">
         <button type="submit" class="admin-btn admin-btn--primary">Upload</button>
       </form>
 
@@ -136,11 +136,26 @@
               </div>
               <div class="admin-site-image-info">
                 <p class="admin-site-image-name" title="<%= img %>"><%= img %></p>
-                <form action="/admin/site-image/<%= encodeURIComponent(img) %>/delete" method="post">
-                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                  <button type="submit" class="admin-btn admin-btn--danger admin-btn--sm"
-                          onclick="return confirm('Delete this image?')">Delete</button>
-                </form>
+                <div style="display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center;">
+                  <!-- Replace in-place -->
+                  <form action="/admin/site-image/<%= encodeURIComponent(img) %>/replace" method="post"
+                        enctype="multipart/form-data" class="replace-form" style="display:contents;">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <label class="admin-btn admin-btn--secondary admin-btn--sm replace-label" style="cursor:pointer;margin:0;">
+                      &#8635; Replace
+                      <input type="file" name="replacement"
+                             accept="image/jpeg,image/png,image/webp,image/gif"
+                             class="replace-input" style="display:none;"
+                             onchange="this.closest('form').submit()">
+                    </label>
+                  </form>
+                  <!-- Delete -->
+                  <form action="/admin/site-image/<%= encodeURIComponent(img) %>/delete" method="post" style="margin:0;">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button type="submit" class="admin-btn admin-btn--danger admin-btn--sm"
+                            onclick="return confirm('Delete <%= img %>?')">Delete</button>
+                  </form>
+                </div>
               </div>
             </div>
           <% }); %>

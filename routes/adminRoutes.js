@@ -173,12 +173,12 @@ router.get('/dashboard', requireAdmin, asyncHandler(async (req, res) => {
     db.getAllSettings(),
   ]);
 
-  // Enumerate site-*.* images from public/images/
+  // Enumerate site-*.* and photo-*.* images from public/images/
   var siteImages = [];
   if (fs.existsSync(IMAGES_DIR)) {
     siteImages = fs.readdirSync(IMAGES_DIR).filter(function(f) {
-      return /^site-.*\.(jpg|jpeg|png|webp|gif)$/i.test(f);
-    });
+      return /^(site|photo)-.*\.(jpg|jpeg|png|webp|gif)$/i.test(f);
+    }).sort();
   }
 
   const siteSettings = {
@@ -295,10 +295,10 @@ router.post('/photo/:id/unfeature', requireAdmin, asyncHandler(async (req, res) 
   res.redirect('/admin/dashboard');
 }));
 
-// -- SITE IMAGE UPLOAD --
+// -- SITE IMAGE UPLOAD (multi-file) --
 
 router.post('/site-image/upload', requireAdmin, function(req, res, next) {
-  siteImageUpload.single('site_image')(req, res, function(err) {
+  siteImageUpload.array('site_images', 20)(req, res, function(err) {
     // CSRF check after multer parses the multipart body
     if (!validateCsrfFromBody(req)) {
       req.session.flash = { type: 'error', message: 'Security token invalid. Please try again.' };
@@ -306,31 +306,38 @@ router.post('/site-image/upload', requireAdmin, function(req, res, next) {
     }
     if (err) {
       var errMsg = err.code === 'LIMIT_FILE_SIZE'
-        ? 'Image too large. Maximum size is 10 MB.'
+        ? 'One or more images exceeded the 10 MB size limit.'
         : 'Invalid file type. Only JPEG, PNG, WebP, and GIF images are accepted.';
       req.session.flash = { type: 'error', message: errMsg };
       return res.redirect('/admin/dashboard');
     }
-    if (!req.file) {
-      req.session.flash = { type: 'error', message: 'No image file selected.' };
+    var files = req.files || [];
+    if (files.length === 0) {
+      req.session.flash = { type: 'error', message: 'No image files selected.' };
       return res.redirect('/admin/dashboard');
     }
-    // Magic byte validation — verify actual file content, not just declared MIME type
-    var detectedMime = detectSiteImageMime(req.file.buffer);
-    if (!detectedMime) {
-      req.session.flash = { type: 'error', message: 'Invalid file. Only JPEG, PNG, WebP, and GIF images are accepted.' };
-      return res.redirect('/admin/dashboard');
-    }
-    // Write to disk with a safe timestamped filename
     var extMap = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp', 'image/gif': '.gif' };
-    var safeFilename = 'site-' + Date.now() + extMap[detectedMime];
-    var destPath = path.join(IMAGES_DIR, safeFilename);
-    try {
-      fs.writeFileSync(destPath, req.file.buffer);
-      req.session.flash = { type: 'success', message: 'Site image uploaded: ' + safeFilename };
-    } catch (writeErr) {
-      console.error('[Site image] Write error:', writeErr.message);
-      req.session.flash = { type: 'error', message: 'Failed to save image. Please try again.' };
+    var saved = 0;
+    var errors = [];
+    for (var i = 0; i < files.length; i++) {
+      var file = files[i];
+      var detectedMime = detectSiteImageMime(file.buffer);
+      if (!detectedMime) {
+        errors.push(file.originalname + ': not a recognised image.');
+        continue;
+      }
+      var safeFilename = 'site-' + Date.now() + '-' + i + extMap[detectedMime];
+      try {
+        fs.writeFileSync(path.join(IMAGES_DIR, safeFilename), file.buffer);
+        saved++;
+      } catch (writeErr) {
+        errors.push(file.originalname + ': failed to save.');
+      }
+    }
+    if (errors.length > 0) {
+      req.session.flash = { type: 'error', message: errors.join(' ') };
+    } else {
+      req.session.flash = { type: 'success', message: saved + ' image' + (saved !== 1 ? 's' : '') + ' uploaded.' };
     }
     res.redirect('/admin/dashboard');
   });
@@ -359,6 +366,50 @@ router.post('/site-image/:filename/delete', requireAdmin, asyncHandler(async (re
   }
   res.redirect('/admin/dashboard');
 }));
+
+// -- SITE IMAGE REPLACE --
+
+router.post('/site-image/:filename/replace', requireAdmin, function(req, res, next) {
+  siteImageUpload.single('replacement')(req, res, function(err) {
+    if (!validateCsrfFromBody(req)) {
+      req.session.flash = { type: 'error', message: 'Security token invalid. Please try again.' };
+      return res.redirect('/admin/dashboard');
+    }
+    var filename = req.params.filename;
+    if (!/^site-[^/\\]+\.(jpg|jpeg|png|webp|gif)$/i.test(filename) &&
+        !/^photo-[^/\\]+\.(jpg|jpeg|png|webp|gif)$/i.test(filename)) {
+      req.session.flash = { type: 'error', message: 'Invalid filename.' };
+      return res.redirect('/admin/dashboard');
+    }
+    var existingPath = path.join(IMAGES_DIR, filename);
+    if (!existingPath.startsWith(IMAGES_DIR + path.sep)) {
+      req.session.flash = { type: 'error', message: 'Invalid file path.' };
+      return res.redirect('/admin/dashboard');
+    }
+    if (err) {
+      var errMsg = err.code === 'LIMIT_FILE_SIZE' ? 'Image too large (max 10 MB).' : 'Invalid file type.';
+      req.session.flash = { type: 'error', message: errMsg };
+      return res.redirect('/admin/dashboard');
+    }
+    if (!req.file) {
+      req.session.flash = { type: 'error', message: 'No replacement file selected.' };
+      return res.redirect('/admin/dashboard');
+    }
+    var detectedMime = detectSiteImageMime(req.file.buffer);
+    if (!detectedMime) {
+      req.session.flash = { type: 'error', message: 'Invalid file. Only JPEG, PNG, WebP, and GIF images are accepted.' };
+      return res.redirect('/admin/dashboard');
+    }
+    try {
+      fs.writeFileSync(existingPath, req.file.buffer);
+      req.session.flash = { type: 'success', message: filename + ' replaced successfully.' };
+    } catch (writeErr) {
+      console.error('[Site image replace] Write error:', writeErr.message);
+      req.session.flash = { type: 'error', message: 'Failed to save replacement image. Please try again.' };
+    }
+    res.redirect('/admin/dashboard');
+  });
+});
 
 // -- LIVESTREAM SETTINGS --
 
