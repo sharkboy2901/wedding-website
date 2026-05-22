@@ -1,532 +1,426 @@
-<%# Botanical side decorations — white lilies, baby's breath, olive branches %>
+<%# Botanical side decorations — watercolor-style olive branches, white lilies, baby's breath %>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- ── Watercolor filter: subtle organic warp + soft edges ── -->
+    <filter id="bot-wc" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3"/>
+    </filter>
+    <filter id="bot-soft" x="-5%" y="-5%" width="110%" height="110%">
+      <feGaussianBlur stdDeviation="0.25"/>
+    </filter>
+
+    <!-- ── Olive leaf gradients (silvery sage to deep olive green) ── -->
+    <linearGradient id="bot-leafDk" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"  stop-color="#5e7048" stop-opacity="0.95"/>
+      <stop offset="55%" stop-color="#3f4e2c" stop-opacity="0.92"/>
+      <stop offset="100%" stop-color="#2a361a" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="bot-leafLt" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"  stop-color="#b8c4a4" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#8a9a78" stop-opacity="0.75"/>
+    </linearGradient>
+
+    <!-- ── Olive fruit gradients ── -->
+    <radialGradient id="bot-oliveG" cx="32%" cy="28%" r="68%">
+      <stop offset="0%"  stop-color="#d4dea0"/>
+      <stop offset="38%" stop-color="#a4b270"/>
+      <stop offset="78%" stop-color="#6a7c44"/>
+      <stop offset="100%" stop-color="#3e4a26"/>
+    </radialGradient>
+    <radialGradient id="bot-oliveD" cx="32%" cy="28%" r="68%">
+      <stop offset="0%"  stop-color="#6a5670"/>
+      <stop offset="42%" stop-color="#36283c"/>
+      <stop offset="80%" stop-color="#1c1424"/>
+      <stop offset="100%" stop-color="#0a060e"/>
+    </radialGradient>
+
+    <!-- ── White lily petal gradient ── -->
+    <linearGradient id="bot-petal" x1="50%" y1="100%" x2="50%" y2="0%">
+      <stop offset="0%"   stop-color="#e6dec8"/>
+      <stop offset="45%"  stop-color="#f6f0e2"/>
+      <stop offset="100%" stop-color="#fdfbf4"/>
+    </linearGradient>
+    <linearGradient id="bot-petalShade" x1="50%" y1="100%" x2="50%" y2="0%">
+      <stop offset="0%"   stop-color="#d8d0bc"/>
+      <stop offset="100%" stop-color="#f0eadb"/>
+    </linearGradient>
+
+    <!-- ── Baby's breath flower ── -->
+    <radialGradient id="bot-bb" cx="38%" cy="32%" r="62%">
+      <stop offset="0%"   stop-color="#ffffff"/>
+      <stop offset="70%"  stop-color="#f4efe4"/>
+      <stop offset="100%" stop-color="#d6cebe"/>
+    </radialGradient>
+
+    <!-- ── Lily sepal/bud gradient ── -->
+    <linearGradient id="bot-bud" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"  stop-color="#4e6234" stop-opacity="0.95"/>
+      <stop offset="55%" stop-color="#7a9050" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#3a4a22" stop-opacity="0.9"/>
+    </linearGradient>
+
+    <!-- ─────────────────────────────────────────────────────────
+         REUSABLE: lanceolate olive leaf (points up from origin)
+         ───────────────────────────────────────────────────────── -->
+    <symbol id="bot-leaf" overflow="visible">
+      <!-- darker base layer -->
+      <path d="M 0,-1 C -2.4,-7 -3.8,-17 -2.8,-27 C -1.8,-32 -0.5,-34 0,-34
+               C 0.5,-34 1.8,-32 2.8,-27 C 3.8,-17 2.4,-7 0,-1 Z"
+            fill="url(#bot-leafDk)" stroke="#33421e" stroke-width="0.38"/>
+      <!-- watercolor light overlay (slightly offset, lighter) -->
+      <path d="M 0,-3 C -1.6,-8 -2.6,-15 -2.0,-24 C -1.4,-29 -0.4,-31 0,-31
+               C 0.4,-31 -0.4,-29 -0.4,-26 L -0.4,-26 C -0.4,-22 -0.8,-15 -1.4,-8 Z"
+            fill="url(#bot-leafLt)" opacity="0.55"/>
+      <!-- center vein -->
+      <line x1="0" y1="-3" x2="0" y2="-31" stroke="#56683e" stroke-width="0.32" opacity="0.55"/>
+    </symbol>
+
+    <!-- Smaller olive leaf -->
+    <symbol id="bot-leaf-sm" overflow="visible">
+      <path d="M 0,-1 C -1.8,-6 -2.8,-13 -2.0,-21 C -1.3,-25 -0.3,-26 0,-26
+               C 0.3,-26 1.3,-25 2.0,-21 C 2.8,-13 1.8,-6 0,-1 Z"
+            fill="url(#bot-leafDk)" stroke="#33421e" stroke-width="0.32"/>
+      <path d="M 0,-3 C -1.2,-7 -1.9,-13 -1.5,-19 C -1.0,-22 -0.3,-23 0,-23
+               L 0,-23 C -0.3,-20 -0.6,-13 -1.0,-7 Z"
+            fill="url(#bot-leafLt)" opacity="0.55"/>
+      <line x1="0" y1="-3" x2="0" y2="-23" stroke="#56683e" stroke-width="0.28" opacity="0.55"/>
+    </symbol>
+
+    <!-- Green olive fruit -->
+    <symbol id="bot-olive-g" overflow="visible">
+      <ellipse cx="0" cy="0" rx="4" ry="5.6" fill="url(#bot-oliveG)" stroke="#3e4a26" stroke-width="0.5"/>
+      <ellipse cx="-1.2" cy="-1.8" rx="1" ry="1.6" fill="rgba(245,250,210,0.55)"/>
+    </symbol>
+
+    <!-- Dark/purple olive fruit -->
+    <symbol id="bot-olive-d" overflow="visible">
+      <ellipse cx="0" cy="0" rx="4" ry="5.6" fill="url(#bot-oliveD)" stroke="#0a060e" stroke-width="0.5"/>
+      <ellipse cx="-1.2" cy="-1.8" rx="0.9" ry="1.4" fill="rgba(180,160,210,0.45)"/>
+    </symbol>
+
+    <!-- ─────────────────────────────────────────────────────────
+         REUSABLE: White Lily (full bloom, ~50px across)
+         Reference: 6 petals with curved tips, 6 brown anthers,
+                    yellow-green stigma, brown speckles near center
+         ───────────────────────────────────────────────────────── -->
+    <symbol id="bot-lily" overflow="visible">
+      <!-- Petal shape: long, pointed, slightly waved tip -->
+      <g>
+        <!-- Outer ring of 3 petals (slightly behind) -->
+        <path d="M 0,0 C 3.5,-5 8,-15 9,-28 C 10,-38 6,-44 2.5,-44
+                 C 1.5,-44 0.5,-42 0,-38 L 0,-38
+                 C -0.5,-42 -1.5,-44 -2.5,-44 C -6,-44 -10,-38 -9,-28
+                 C -8,-15 -3.5,-5 0,0 Z"
+              fill="url(#bot-petalShade)" stroke="#c4ba9e" stroke-width="0.55" opacity="0.85" transform="rotate(60)"/>
+        <path d="M 0,0 C 3.5,-5 8,-15 9,-28 C 10,-38 6,-44 2.5,-44
+                 C 1.5,-44 0.5,-42 0,-38 L 0,-38
+                 C -0.5,-42 -1.5,-44 -2.5,-44 C -6,-44 -10,-38 -9,-28
+                 C -8,-15 -3.5,-5 0,0 Z"
+              fill="url(#bot-petalShade)" stroke="#c4ba9e" stroke-width="0.55" opacity="0.85" transform="rotate(180)"/>
+        <path d="M 0,0 C 3.5,-5 8,-15 9,-28 C 10,-38 6,-44 2.5,-44
+                 C 1.5,-44 0.5,-42 0,-38 L 0,-38
+                 C -0.5,-42 -1.5,-44 -2.5,-44 C -6,-44 -10,-38 -9,-28
+                 C -8,-15 -3.5,-5 0,0 Z"
+              fill="url(#bot-petalShade)" stroke="#c4ba9e" stroke-width="0.55" opacity="0.85" transform="rotate(300)"/>
+        <!-- Inner ring of 3 petals (in front, brighter) -->
+        <g transform="rotate(0)">
+          <path d="M 0,0 C 4,-5 9,-16 10,-30 C 11,-40 6,-46 2.5,-46
+                   C 1.2,-46 0.4,-43 0,-39 L 0,-39
+                   C -0.4,-43 -1.2,-46 -2.5,-46 C -6,-46 -11,-40 -10,-30
+                   C -9,-16 -4,-5 0,0 Z"
+                fill="url(#bot-petal)" stroke="#d4ccb6" stroke-width="0.6"/>
+          <!-- subtle petal vein -->
+          <path d="M 0,-4 C 0.5,-14 0.8,-26 0.6,-40" fill="none" stroke="#e8e2d2" stroke-width="0.45" opacity="0.7"/>
+          <!-- brown speckles near base -->
+          <circle cx="-1.8" cy="-10" r="0.45" fill="#5e3820" opacity="0.7"/>
+          <circle cx="2.2"  cy="-12" r="0.4"  fill="#5e3820" opacity="0.65"/>
+          <circle cx="-0.8" cy="-15" r="0.35" fill="#5e3820" opacity="0.6"/>
+          <circle cx="1.8"  cy="-18" r="0.35" fill="#5e3820" opacity="0.55"/>
+          <circle cx="-1.5" cy="-22" r="0.3"  fill="#5e3820" opacity="0.5"/>
+        </g>
+        <g transform="rotate(120)">
+          <path d="M 0,0 C 4,-5 9,-16 10,-30 C 11,-40 6,-46 2.5,-46
+                   C 1.2,-46 0.4,-43 0,-39 L 0,-39
+                   C -0.4,-43 -1.2,-46 -2.5,-46 C -6,-46 -11,-40 -10,-30
+                   C -9,-16 -4,-5 0,0 Z"
+                fill="url(#bot-petal)" stroke="#d4ccb6" stroke-width="0.6"/>
+          <path d="M 0,-4 C 0.5,-14 0.8,-26 0.6,-40" fill="none" stroke="#e8e2d2" stroke-width="0.45" opacity="0.7"/>
+          <circle cx="-1.8" cy="-10" r="0.45" fill="#5e3820" opacity="0.7"/>
+          <circle cx="2.2"  cy="-12" r="0.4"  fill="#5e3820" opacity="0.65"/>
+          <circle cx="-0.8" cy="-15" r="0.35" fill="#5e3820" opacity="0.6"/>
+        </g>
+        <g transform="rotate(240)">
+          <path d="M 0,0 C 4,-5 9,-16 10,-30 C 11,-40 6,-46 2.5,-46
+                   C 1.2,-46 0.4,-43 0,-39 L 0,-39
+                   C -0.4,-43 -1.2,-46 -2.5,-46 C -6,-46 -11,-40 -10,-30
+                   C -9,-16 -4,-5 0,0 Z"
+                fill="url(#bot-petal)" stroke="#d4ccb6" stroke-width="0.6"/>
+          <path d="M 0,-4 C 0.5,-14 0.8,-26 0.6,-40" fill="none" stroke="#e8e2d2" stroke-width="0.45" opacity="0.7"/>
+          <circle cx="-1.8" cy="-10" r="0.45" fill="#5e3820" opacity="0.7"/>
+          <circle cx="2.2"  cy="-12" r="0.4"  fill="#5e3820" opacity="0.65"/>
+          <circle cx="-0.8" cy="-15" r="0.35" fill="#5e3820" opacity="0.6"/>
+        </g>
+        <!-- ── 6 stamens with brown anthers (THE distinctive lily feature) ── -->
+        <g>
+          <g transform="rotate(15)">
+            <path d="M 0,-1 Q 1,-12 2,-22" fill="none" stroke="#a8b27a" stroke-width="0.55"/>
+            <ellipse cx="2.5" cy="-23" rx="0.9" ry="2.3" fill="#5a2f12" stroke="#2e1808" stroke-width="0.3" transform="rotate(18 2.5 -23)"/>
+          </g>
+          <g transform="rotate(75)">
+            <path d="M 0,-1 Q 1,-12 2,-22" fill="none" stroke="#a8b27a" stroke-width="0.55"/>
+            <ellipse cx="2.5" cy="-23" rx="0.9" ry="2.3" fill="#5a2f12" stroke="#2e1808" stroke-width="0.3" transform="rotate(18 2.5 -23)"/>
+          </g>
+          <g transform="rotate(135)">
+            <path d="M 0,-1 Q 1,-12 2,-22" fill="none" stroke="#a8b27a" stroke-width="0.55"/>
+            <ellipse cx="2.5" cy="-23" rx="0.9" ry="2.3" fill="#5a2f12" stroke="#2e1808" stroke-width="0.3" transform="rotate(18 2.5 -23)"/>
+          </g>
+          <g transform="rotate(195)">
+            <path d="M 0,-1 Q 1,-12 2,-22" fill="none" stroke="#a8b27a" stroke-width="0.55"/>
+            <ellipse cx="2.5" cy="-23" rx="0.9" ry="2.3" fill="#5a2f12" stroke="#2e1808" stroke-width="0.3" transform="rotate(18 2.5 -23)"/>
+          </g>
+          <g transform="rotate(255)">
+            <path d="M 0,-1 Q 1,-12 2,-22" fill="none" stroke="#a8b27a" stroke-width="0.55"/>
+            <ellipse cx="2.5" cy="-23" rx="0.9" ry="2.3" fill="#5a2f12" stroke="#2e1808" stroke-width="0.3" transform="rotate(18 2.5 -23)"/>
+          </g>
+          <g transform="rotate(315)">
+            <path d="M 0,-1 Q 1,-12 2,-22" fill="none" stroke="#a8b27a" stroke-width="0.55"/>
+            <ellipse cx="2.5" cy="-23" rx="0.9" ry="2.3" fill="#5a2f12" stroke="#2e1808" stroke-width="0.3" transform="rotate(18 2.5 -23)"/>
+          </g>
+        </g>
+        <!-- ── Pistil (central, taller, green stigma) ── -->
+        <line x1="0" y1="-1" x2="0.5" y2="-26" stroke="#88a058" stroke-width="0.75"/>
+        <ellipse cx="0.5" cy="-27" rx="1.1" ry="1.6" fill="#9eb060" stroke="#5e7034" stroke-width="0.3"/>
+        <!-- ── Yellow-green throat (center) ── -->
+        <circle cx="0" cy="-1" r="2.8" fill="#c8c870" opacity="0.55"/>
+        <circle cx="0" cy="-1" r="1.6" fill="#8aa040" opacity="0.6"/>
+      </g>
+    </symbol>
+
+    <!-- ── Closed lily bud (elongated green pod) ── -->
+    <symbol id="bot-bud" overflow="visible">
+      <!-- bud body -->
+      <path d="M 0,0 C -3,-2 -5,-8 -4.5,-16 C -4,-22 -2,-24 0,-24
+               C 2,-24 4,-22 4.5,-16 C 5,-8 3,-2 0,0 Z"
+            fill="url(#bot-bud)" stroke="#2c3a18" stroke-width="0.45"/>
+      <!-- highlight stripe -->
+      <path d="M -1.5,-4 C -1,-10 -0.5,-16 0,-22" fill="none" stroke="#a8c078" stroke-width="0.4" opacity="0.6"/>
+      <!-- darker shadow stripe -->
+      <path d="M 1.8,-4 C 2.2,-10 2.4,-16 2,-22" fill="none" stroke="#2c3a18" stroke-width="0.35" opacity="0.55"/>
+    </symbol>
+
+    <!-- ── Baby's breath cluster (multi-flower puff) ── -->
+    <symbol id="bot-bb-cluster" overflow="visible">
+      <!-- main stem -->
+      <path d="M 0,0 C -3,-8 -6,-16 -10,-24" fill="none" stroke="#7a8a64" stroke-width="0.7" stroke-linecap="round"/>
+      <path d="M 0,0 C 0,-9 0,-18 0,-28"     fill="none" stroke="#7a8a64" stroke-width="0.7" stroke-linecap="round"/>
+      <path d="M 0,0 C 3,-8 6,-16 10,-24"    fill="none" stroke="#7a8a64" stroke-width="0.7" stroke-linecap="round"/>
+      <!-- secondary stems -->
+      <path d="M -10,-24 C -13,-30 -16,-36 -19,-42" fill="none" stroke="#8a9874" stroke-width="0.5" stroke-linecap="round"/>
+      <path d="M -10,-24 C -8,-30 -5,-36 -3,-42"    fill="none" stroke="#8a9874" stroke-width="0.5" stroke-linecap="round"/>
+      <path d="M 0,-28 C -3,-34 -5,-40 -6,-46"      fill="none" stroke="#8a9874" stroke-width="0.5" stroke-linecap="round"/>
+      <path d="M 0,-28 C 3,-34 5,-40 6,-46"          fill="none" stroke="#8a9874" stroke-width="0.5" stroke-linecap="round"/>
+      <path d="M 10,-24 C 8,-30 5,-36 3,-42"          fill="none" stroke="#8a9874" stroke-width="0.5" stroke-linecap="round"/>
+      <path d="M 10,-24 C 13,-30 16,-36 19,-42"       fill="none" stroke="#8a9874" stroke-width="0.5" stroke-linecap="round"/>
+      <!-- LARGER flower puffs at branch tips -->
+      <g transform="translate(-19,-43)">
+        <circle cx="0" cy="0" r="3.2" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.45"/>
+        <circle cx="-2.4" cy="-1" r="2" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.35"/>
+        <circle cx="2.2" cy="-0.6" r="2.2" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.35"/>
+        <circle cx="0.5" cy="-2.6" r="1.8" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.35"/>
+        <circle cx="-1.2" cy="2" r="1.6" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.3"/>
+        <circle cx="1.8" cy="1.8" r="1.5" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.3"/>
+      </g>
+      <g transform="translate(-3,-43)">
+        <circle cx="0" cy="0" r="3.2" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.45"/>
+        <circle cx="-2.4" cy="-1" r="2" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.35"/>
+        <circle cx="2.2" cy="-0.6" r="2.2" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.35"/>
+        <circle cx="0.5" cy="-2.6" r="1.8" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.35"/>
+        <circle cx="-1.2" cy="2" r="1.6" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.3"/>
+        <circle cx="1.8" cy="1.8" r="1.5" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.3"/>
+      </g>
+      <g transform="translate(-6,-47)">
+        <circle cx="0" cy="0" r="2.8" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.4"/>
+        <circle cx="-2" cy="-0.8" r="1.8" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.3"/>
+        <circle cx="2" cy="-0.5" r="2" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.3"/>
+        <circle cx="0.4" cy="-2.4" r="1.6" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.3"/>
+        <circle cx="-1" cy="1.8" r="1.4" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.3"/>
+      </g>
+      <g transform="translate(6,-47)">
+        <circle cx="0" cy="0" r="2.8" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.4"/>
+        <circle cx="-2" cy="-0.8" r="1.8" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.3"/>
+        <circle cx="2" cy="-0.5" r="2" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.3"/>
+        <circle cx="0.4" cy="-2.4" r="1.6" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.3"/>
+        <circle cx="-1" cy="1.8" r="1.4" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.3"/>
+      </g>
+      <g transform="translate(3,-43)">
+        <circle cx="0" cy="0" r="3" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.4"/>
+        <circle cx="-2" cy="-0.7" r="1.8" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.3"/>
+        <circle cx="2" cy="-0.5" r="1.9" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.3"/>
+        <circle cx="0.3" cy="-2.4" r="1.5" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.3"/>
+      </g>
+      <g transform="translate(19,-43)">
+        <circle cx="0" cy="0" r="3.2" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.45"/>
+        <circle cx="-2.4" cy="-1" r="2" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.35"/>
+        <circle cx="2.2" cy="-0.6" r="2.2" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.35"/>
+        <circle cx="0.5" cy="-2.6" r="1.8" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.35"/>
+        <circle cx="-1.2" cy="2" r="1.6" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.3"/>
+        <circle cx="1.8" cy="1.8" r="1.5" fill="url(#bot-bb)" stroke="#bcb29a" stroke-width="0.3"/>
+      </g>
+    </symbol>
+
+    <!-- ─────────────────────────────────────────────────────────
+         REUSABLE: full botanical arrangement (one side)
+         ───────────────────────────────────────────────────────── -->
+    <symbol id="bot-arrangement" viewBox="0 0 130 620" overflow="visible">
+      <!-- watercolor wash backdrop (very faint) -->
+      <ellipse cx="80" cy="200" rx="60" ry="180" fill="#e8dfd0" opacity="0.08"/>
+      <ellipse cx="60" cy="470" rx="55" ry="160" fill="#d8d0c0" opacity="0.07"/>
+
+      <g filter="url(#bot-soft)">
+        <!-- ═══ MAIN OLIVE BRANCH — flowing curve from top-right to bottom-left ═══ -->
+        <!-- shadow layer (slightly darker, offset) -->
+        <path d="M 112,2 C 104,32 96,66 98,108 C 100,148 84,178 80,220
+                 C 76,260 84,300 72,344 C 60,388 50,432 56,478
+                 C 62,524 50,572 36,612"
+              fill="none" stroke="#2a3618" stroke-width="2.6"
+              stroke-linecap="round" stroke-linejoin="round" opacity="0.45"/>
+        <!-- main branch -->
+        <path d="M 112,2 C 104,32 96,66 98,108 C 100,148 84,178 80,220
+                 C 76,260 84,300 72,344 C 60,388 50,432 56,478
+                 C 62,524 50,572 36,612"
+              fill="none" stroke="#5a6c40" stroke-width="1.6"
+              stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- highlight -->
+        <path d="M 112,2 C 104,32 96,66 98,108 C 100,148 84,178 80,220
+                 C 76,260 84,300 72,344 C 60,388 50,432 56,478
+                 C 62,524 50,572 36,612"
+              fill="none" stroke="#a8b48a" stroke-width="0.5"
+              stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>
+
+        <!-- ── Sub-branch for upper cluster ── -->
+        <path d="M 102,38 C 92,32 78,28 64,30" fill="none" stroke="#5a6c40" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M 102,38 C 92,32 78,28 64,30" fill="none" stroke="#2a3618" stroke-width="0.6" stroke-linecap="round" opacity="0.5"/>
+        <!-- ── Sub-branch for middle cluster ── -->
+        <path d="M 88,180 C 76,176 60,170 46,172" fill="none" stroke="#5a6c40" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M 88,180 C 76,176 60,170 46,172" fill="none" stroke="#2a3618" stroke-width="0.6" stroke-linecap="round" opacity="0.5"/>
+        <!-- ── Sub-branch for lower olives ── -->
+        <path d="M 70,358 C 58,354 44,350 32,354" fill="none" stroke="#5a6c40" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M 70,358 C 58,354 44,350 32,354" fill="none" stroke="#2a3618" stroke-width="0.6" stroke-linecap="round" opacity="0.5"/>
+        <!-- ── Sub-branch for bottom cluster ── -->
+        <path d="M 54,540 C 42,544 28,548 18,554" fill="none" stroke="#5a6c40" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M 54,540 C 42,544 28,548 18,554" fill="none" stroke="#2a3618" stroke-width="0.6" stroke-linecap="round" opacity="0.5"/>
+
+        <!-- ════════ UPPER CLUSTER (y≈20-90): leaves + olive ════════ -->
+        <use href="#bot-leaf"     x="108" y="20" transform="rotate(80 108 20)"/>
+        <use href="#bot-leaf"     x="105" y="34" transform="rotate(105 105 34)"/>
+        <use href="#bot-leaf-sm"  x="86"  y="32" transform="rotate(118 86 32)"/>
+        <use href="#bot-leaf"     x="78"  y="42" transform="rotate(135 78 42)"/>
+        <use href="#bot-leaf-sm"  x="68"  y="30" transform="rotate(85 68 30)"/>
+        <use href="#bot-leaf"     x="60"  y="40" transform="rotate(150 60 40)"/>
+        <use href="#bot-leaf-sm"  x="64"  y="22" transform="rotate(70 64 22)"/>
+        <!-- olive fruits -->
+        <line x1="98" y1="36" x2="95" y2="48" stroke="#5a6c40" stroke-width="0.7"/>
+        <use href="#bot-olive-g" x="95" y="52"/>
+        <line x1="80" y1="32" x2="82" y2="46" stroke="#5a6c40" stroke-width="0.7"/>
+        <use href="#bot-olive-d" x="82" y="50"/>
+
+        <!-- ════════ BABY'S BREATH cluster 1 (upper left) ════════ -->
+        <use href="#bot-bb-cluster" x="28" y="130"/>
+
+        <!-- ════════ MID-UPPER LEAVES (y≈110-160) ════════ -->
+        <use href="#bot-leaf"     x="98" y="112" transform="rotate(95 98 112)"/>
+        <use href="#bot-leaf-sm"  x="96" y="128" transform="rotate(115 96 128)"/>
+        <use href="#bot-leaf"     x="100" y="146" transform="rotate(80 100 146)"/>
+
+        <!-- ════════ MID CLUSTER (y≈170-220): heavy with olives ════════ -->
+        <use href="#bot-leaf"     x="86" y="176" transform="rotate(120 86 176)"/>
+        <use href="#bot-leaf"     x="74" y="172" transform="rotate(135 74 172)"/>
+        <use href="#bot-leaf-sm"  x="62" y="168" transform="rotate(150 62 168)"/>
+        <use href="#bot-leaf"     x="50" y="172" transform="rotate(160 50 172)"/>
+        <use href="#bot-leaf-sm"  x="44" y="186" transform="rotate(185 44 186)"/>
+        <use href="#bot-leaf-sm"  x="56" y="184" transform="rotate(195 56 184)"/>
+        <!-- olive fruits cluster -->
+        <line x1="78" y1="178" x2="74" y2="192" stroke="#5a6c40" stroke-width="0.7"/>
+        <use href="#bot-olive-g" x="74" y="196"/>
+        <line x1="64" y1="172" x2="60" y2="186" stroke="#5a6c40" stroke-width="0.7"/>
+        <use href="#bot-olive-d" x="60" y="190"/>
+        <line x1="52" y1="176" x2="48" y2="190" stroke="#5a6c40" stroke-width="0.7"/>
+        <use href="#bot-olive-g" x="48" y="194"/>
+
+        <!-- ════════ WHITE LILY #1 — large, mid-panel (y≈260) ════════ -->
+        <!-- stem connecting to branch -->
+        <path d="M 80,222 C 70,234 58,248 48,262" fill="none" stroke="#5a6c40" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M 80,222 C 70,234 58,248 48,262" fill="none" stroke="#2a3618" stroke-width="0.55" stroke-linecap="round" opacity="0.5"/>
+        <!-- supporting sepal leaves -->
+        <use href="#bot-leaf-sm" x="62" y="252" transform="rotate(225 62 252)"/>
+        <use href="#bot-leaf-sm" x="58" y="262" transform="rotate(255 58 262)"/>
+        <!-- THE LILY -->
+        <g transform="translate(40,265)">
+          <use href="#bot-lily"/>
+        </g>
+
+        <!-- ════════ LILY BUD next to main bloom ════════ -->
+        <path d="M 60,260 C 64,250 70,242 76,238" fill="none" stroke="#5a6c40" stroke-width="0.9" stroke-linecap="round"/>
+        <g transform="translate(78,234) rotate(-15)">
+          <use href="#bot-bud"/>
+        </g>
+
+        <!-- ════════ MID-LOWER OLIVE LEAVES (y≈320-360) ════════ -->
+        <use href="#bot-leaf"     x="76" y="316" transform="rotate(160 76 316)"/>
+        <use href="#bot-leaf-sm"  x="72" y="334" transform="rotate(180 72 334)"/>
+        <use href="#bot-leaf"     x="64" y="346" transform="rotate(200 64 346)"/>
+        <use href="#bot-leaf-sm"  x="56" y="352" transform="rotate(225 56 352)"/>
+        <use href="#bot-leaf"     x="44" y="350" transform="rotate(240 44 350)"/>
+        <use href="#bot-leaf-sm"  x="32" y="352" transform="rotate(255 32 352)"/>
+        <!-- olives -->
+        <line x1="62" y1="356" x2="58" y2="368" stroke="#5a6c40" stroke-width="0.7"/>
+        <use href="#bot-olive-d" x="58" y="372"/>
+        <line x1="48" y1="354" x2="44" y2="366" stroke="#5a6c40" stroke-width="0.7"/>
+        <use href="#bot-olive-g" x="44" y="370"/>
+
+        <!-- ════════ BABY'S BREATH cluster 2 (mid-lower) ════════ -->
+        <use href="#bot-bb-cluster" x="92" y="410" transform="rotate(15 92 410)"/>
+
+        <!-- ════════ SECOND LILY (smaller, ¾ view) y≈440 ════════ -->
+        <path d="M 64,420 C 56,430 50,442 46,452" fill="none" stroke="#5a6c40" stroke-width="1" stroke-linecap="round"/>
+        <use href="#bot-leaf-sm" x="58" y="438" transform="rotate(220 58 438)"/>
+        <g transform="translate(40,460) scale(0.7)">
+          <use href="#bot-lily"/>
+        </g>
+
+        <!-- ════════ LOWER OLIVE LEAVES & FRUITS (y≈490-560) ════════ -->
+        <use href="#bot-leaf"     x="62" y="492" transform="rotate(190 62 492)"/>
+        <use href="#bot-leaf"     x="54" y="510" transform="rotate(210 54 510)"/>
+        <use href="#bot-leaf-sm"  x="44" y="520" transform="rotate(230 44 520)"/>
+        <use href="#bot-leaf"     x="36" y="534" transform="rotate(250 36 534)"/>
+        <use href="#bot-leaf-sm"  x="28" y="550" transform="rotate(270 28 550)"/>
+        <use href="#bot-leaf-sm"  x="22" y="566" transform="rotate(285 22 566)"/>
+        <!-- olives -->
+        <line x1="50" y1="514" x2="46" y2="526" stroke="#5a6c40" stroke-width="0.7"/>
+        <use href="#bot-olive-g" x="46" y="530"/>
+        <line x1="38" y1="538" x2="34" y2="550" stroke="#5a6c40" stroke-width="0.7"/>
+        <use href="#bot-olive-d" x="34" y="554"/>
+        <line x1="28" y1="552" x2="24" y2="564" stroke="#5a6c40" stroke-width="0.7"/>
+        <use href="#bot-olive-g" x="24" y="568"/>
+
+        <!-- ════════ BABY'S BREATH cluster 3 (bottom) ════════ -->
+        <use href="#bot-bb-cluster" x="60" y="586" transform="scale(0.85) translate(0,30)"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
 <div class="botanical-left" aria-hidden="true">
   <svg viewBox="0 0 130 620" xmlns="http://www.w3.org/2000/svg" width="130" height="620">
-
-    <!-- ═══ OLIVE BRANCH — main spine, curves from top-right to bottom-left ═══ -->
-    <path d="M 102,5 C 90,38 74,72 72,118 C 70,164 84,198 78,248
-             C 72,298 54,332 58,388 C 62,444 78,480 66,534
-             C 54,588 38,608 24,618"
-          fill="none" stroke="#8b9a78" stroke-width="1.8"
-          stroke-linecap="round" stroke-linejoin="round"/>
-
-    <!-- Olive leaves — alternating pairs along the branch -->
-    <!-- Pair 1 (y≈28) -->
-    <path d="M 99,22 C 82,14 64,18 56,27 C 63,35 81,33 99,22 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-    <path d="M 100,35 C 114,27 126,31 128,42 C 120,49 108,45 100,35 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-
-    <!-- Pair 2 (y≈78) -->
-    <path d="M 76,73 C 59,65 41,69 33,78 C 40,86 58,84 76,73 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-    <path d="M 74,86 C 88,78 101,82 103,93 C 95,100 83,96 74,86 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-
-    <!-- Pair 3 (y≈130) -->
-    <path d="M 75,125 C 58,117 40,121 32,130 C 39,138 57,136 75,125 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-    <path d="M 74,138 C 88,130 100,134 102,145 C 94,152 82,148 74,138 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-
-    <!-- Olives (small fruits) near y=148 -->
-    <line x1="76" y1="128" x2="70" y2="140" stroke="#8b9a78" stroke-width="0.8"/>
-    <ellipse cx="70" cy="145" rx="4" ry="6.5"
-             fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
-    <line x1="78" y1="133" x2="85" y2="144" stroke="#8b9a78" stroke-width="0.8"/>
-    <ellipse cx="85" cy="149" rx="4" ry="6.5"
-             fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
-
-    <!-- Pair 4 (y≈180) -->
-    <path d="M 79,175 C 63,167 45,171 37,180 C 44,188 62,186 79,175 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-    <path d="M 78,188 C 91,180 103,184 105,195 C 97,202 85,198 78,188 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-
-    <!-- Pair 5 (y≈235) -->
-    <path d="M 76,230 C 60,222 42,226 34,235 C 41,243 59,241 76,230 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-    <path d="M 75,243 C 88,235 100,239 102,250 C 94,257 82,253 75,243 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-
-    <!-- Olives near y=250 -->
-    <line x1="74" y1="234" x2="68" y2="246" stroke="#8b9a78" stroke-width="0.8"/>
-    <ellipse cx="68" cy="251" rx="4" ry="6.5"
-             fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
-
-    <!-- Pair 6 (y≈285) -->
-    <path d="M 62,280 C 46,272 28,276 20,285 C 27,293 45,291 62,280 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-    <path d="M 61,293 C 74,285 86,289 88,300 C 80,307 68,303 61,293 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-
-    <!-- Pair 7 (y≈340) -->
-    <path d="M 60,335 C 44,327 26,331 18,340 C 25,348 43,346 60,335 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-    <path d="M 59,348 C 72,340 84,344 86,355 C 78,362 66,358 59,348 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-
-    <!-- Pair 8 (y≈395) -->
-    <path d="M 62,390 C 46,382 28,386 20,395 C 27,403 45,401 62,390 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-    <path d="M 61,403 C 74,395 86,399 88,410 C 80,417 68,413 61,403 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-
-    <!-- Olives near y=408 -->
-    <line x1="63" y1="397" x2="57" y2="409" stroke="#8b9a78" stroke-width="0.8"/>
-    <ellipse cx="57" cy="414" rx="4" ry="6.5"
-             fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
-    <line x1="65" y1="400" x2="72" y2="411" stroke="#8b9a78" stroke-width="0.8"/>
-    <ellipse cx="72" cy="416" rx="4" ry="6.5"
-             fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
-
-    <!-- Pair 9 (y≈458) -->
-    <path d="M 68,453 C 52,445 34,449 26,458 C 33,466 51,464 68,453 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-    <path d="M 67,466 C 80,458 92,462 94,473 C 86,480 74,476 67,466 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-
-    <!-- Pair 10 (y≈505) -->
-    <path d="M 62,500 C 46,492 28,496 20,505 C 27,513 45,511 62,500 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-    <path d="M 61,513 C 74,505 86,509 88,520 C 80,527 68,523 61,513 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-
-    <!-- Pair 11 (y≈555) -->
-    <path d="M 52,550 C 36,542 18,546 10,555 C 17,563 35,561 52,550 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-    <path d="M 51,563 C 64,555 76,559 78,570 C 70,577 58,573 51,563 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-
-    <!-- ═══ WHITE LILY #1 — centered at (38, 216) ═══ -->
-    <!-- Short stem connecting lily to branch -->
-    <line x1="76" y1="200" x2="38" y2="218" stroke="#8b9a78" stroke-width="1.1"
-          stroke-linecap="round"/>
-    <!-- Lily leaves (narrow, pointed) -->
-    <path d="M 55,212 C 50,205 42,200 36,196 C 34,202 38,209 55,212 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.8"/>
-    <path d="M 52,216 C 48,222 42,228 35,230 C 33,224 38,217 52,216 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.8"/>
-    <g transform="translate(38, 216)">
-      <!-- 6 petals (lily viewed slightly from side — outer ring) -->
-      <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30
-               C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z"
-            fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9"
-            transform="rotate(0)"/>
-      <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30
-               C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z"
-            fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9"
-            transform="rotate(60)"/>
-      <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30
-               C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z"
-            fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9"
-            transform="rotate(120)"/>
-      <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30
-               C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z"
-            fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9"
-            transform="rotate(180)"/>
-      <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30
-               C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z"
-            fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9"
-            transform="rotate(240)"/>
-      <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30
-               C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z"
-            fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9"
-            transform="rotate(300)"/>
-      <!-- Stamens (6 filaments with anther tips) -->
-      <g transform="rotate(0)">
-        <line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/>
-        <ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/>
-      </g>
-      <g transform="rotate(60)">
-        <line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/>
-        <ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/>
-      </g>
-      <g transform="rotate(120)">
-        <line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/>
-        <ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/>
-      </g>
-      <g transform="rotate(180)">
-        <line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/>
-        <ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/>
-      </g>
-      <g transform="rotate(240)">
-        <line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/>
-        <ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/>
-      </g>
-      <g transform="rotate(300)">
-        <line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/>
-        <ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/>
-      </g>
-      <!-- Pistil centre -->
-      <circle cx="0" cy="0" r="4" fill="rgba(210,185,135,0.55)" stroke="#c8a870" stroke-width="0.9"/>
-    </g>
-
-    <!-- ═══ WHITE LILY #2 — smaller, centered at (50, 448), as a bud/side bloom ═══ -->
-    <line x1="66" y1="436" x2="50" y2="449" stroke="#8b9a78" stroke-width="1.0"
-          stroke-linecap="round"/>
-    <!-- Lily leaf -->
-    <path d="M 60,443 C 56,438 50,434 44,432 C 43,437 47,443 60,443 Z"
-          fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.8"/>
-    <g transform="translate(50, 448)">
-      <path d="M 0,0 C 4,-3 6,-10 5,-18 C 3,-23 0,-24 0,-21
-               C 0,-24 -3,-23 -5,-18 C -6,-10 -4,-3 0,0 Z"
-            fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.8"
-            transform="rotate(0)"/>
-      <path d="M 0,0 C 4,-3 6,-10 5,-18 C 3,-23 0,-24 0,-21
-               C 0,-24 -3,-23 -5,-18 C -6,-10 -4,-3 0,0 Z"
-            fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.8"
-            transform="rotate(60)"/>
-      <path d="M 0,0 C 4,-3 6,-10 5,-18 C 3,-23 0,-24 0,-21
-               C 0,-24 -3,-23 -5,-18 C -6,-10 -4,-3 0,0 Z"
-            fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.8"
-            transform="rotate(120)"/>
-      <path d="M 0,0 C 4,-3 6,-10 5,-18 C 3,-23 0,-24 0,-21
-               C 0,-24 -3,-23 -5,-18 C -6,-10 -4,-3 0,0 Z"
-            fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.8"
-            transform="rotate(180)"/>
-      <path d="M 0,0 C 4,-3 6,-10 5,-18 C 3,-23 0,-24 0,-21
-               C 0,-24 -3,-23 -5,-18 C -6,-10 -4,-3 0,0 Z"
-            fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.8"
-            transform="rotate(240)"/>
-      <path d="M 0,0 C 4,-3 6,-10 5,-18 C 3,-23 0,-24 0,-21
-               C 0,-24 -3,-23 -5,-18 C -6,-10 -4,-3 0,0 Z"
-            fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.8"
-            transform="rotate(300)"/>
-      <g transform="rotate(30)">
-        <line x1="0" y1="0" x2="0" y2="-16" stroke="#c8a870" stroke-width="0.6"/>
-        <circle cx="0" cy="-17" r="1.3" fill="#c89a58"/>
-      </g>
-      <g transform="rotate(150)">
-        <line x1="0" y1="0" x2="0" y2="-16" stroke="#c8a870" stroke-width="0.6"/>
-        <circle cx="0" cy="-17" r="1.3" fill="#c89a58"/>
-      </g>
-      <g transform="rotate(270)">
-        <line x1="0" y1="0" x2="0" y2="-16" stroke="#c8a870" stroke-width="0.6"/>
-        <circle cx="0" cy="-17" r="1.3" fill="#c89a58"/>
-      </g>
-      <circle cx="0" cy="0" r="3" fill="rgba(210,185,135,0.55)" stroke="#c8a870" stroke-width="0.8"/>
-    </g>
-
-    <!-- ═══ BABY'S BREATH clusters ═══ -->
-
-    <!-- Cluster A at (25, 92) -->
-    <g transform="translate(25, 92)">
-      <path d="M 0,0 L -14,-20 M 0,0 L 0,-22 M 0,0 L 14,-20"
-            fill="none" stroke="#c0b8a8" stroke-width="0.65" stroke-linecap="round"/>
-      <path d="M -14,-20 L -22,-32 M -14,-20 L -8,-32"
-            fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-      <path d="M 0,-22 L -9,-34 M 0,-22 L 9,-34"
-            fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-      <path d="M 14,-20 L 8,-32 M 14,-20 L 22,-32"
-            fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-      <circle cx="-22" cy="-32" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="-8"  cy="-32" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="-9"  cy="-34" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="9"   cy="-34" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="8"   cy="-32" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="22"  cy="-32" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-    </g>
-
-    <!-- Cluster B at (100, 308) -->
-    <g transform="translate(100, 308)">
-      <path d="M 0,0 L -12,-18 M 0,0 L 0,-20 M 0,0 L 12,-18"
-            fill="none" stroke="#c0b8a8" stroke-width="0.65" stroke-linecap="round"/>
-      <path d="M -12,-18 L -19,-28 M -12,-18 L -7,-29"
-            fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-      <path d="M 0,-20 L -8,-30 M 0,-20 L 8,-30"
-            fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-      <path d="M 12,-18 L 7,-29 M 12,-18 L 19,-28"
-            fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-      <circle cx="-19" cy="-28" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="-7"  cy="-29" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="-8"  cy="-30" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="8"   cy="-30" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="7"   cy="-29" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="19"  cy="-28" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-    </g>
-
-    <!-- Cluster C at (18, 372) -->
-    <g transform="translate(18, 372)">
-      <path d="M 0,0 L -11,-16 M 0,0 L 0,-18 M 0,0 L 11,-16"
-            fill="none" stroke="#c0b8a8" stroke-width="0.65" stroke-linecap="round"/>
-      <path d="M -11,-16 L -17,-25 M -11,-16 L -6,-26"
-            fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-      <path d="M 0,-18 L -7,-27 M 0,-18 L 7,-27"
-            fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-      <path d="M 11,-16 L 6,-26 M 11,-16 L 17,-25"
-            fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-      <circle cx="-17" cy="-25" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="-6"  cy="-26" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="-7"  cy="-27" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="7"   cy="-27" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="6"   cy="-26" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="17"  cy="-25" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-    </g>
-
-    <!-- Cluster D at (94, 536) -->
-    <g transform="translate(94, 536)">
-      <path d="M 0,0 L -12,-17 M 0,0 L 0,-19 M 0,0 L 12,-17"
-            fill="none" stroke="#c0b8a8" stroke-width="0.65" stroke-linecap="round"/>
-      <path d="M -12,-17 L -19,-27 M -12,-17 L -6,-28"
-            fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-      <path d="M 0,-19 L -7,-29 M 0,-19 L 7,-29"
-            fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-      <path d="M 12,-17 L 6,-28 M 12,-17 L 19,-27"
-            fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-      <circle cx="-19" cy="-27" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="-6"  cy="-28" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="-7"  cy="-29" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="7"   cy="-29" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="6"   cy="-28" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      <circle cx="19"  cy="-27" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-    </g>
-
+    <use href="#bot-arrangement"/>
   </svg>
 </div>
 
 <div class="botanical-right" aria-hidden="true">
   <svg viewBox="0 0 130 620" xmlns="http://www.w3.org/2000/svg" width="130" height="620">
-    <!-- Mirror the left panel horizontally: translate(130,0) scale(-1,1) -->
     <g transform="translate(130,0) scale(-1,1)">
-
-      <!-- ═══ OLIVE BRANCH (mirrored) ═══ -->
-      <path d="M 102,5 C 90,38 74,72 72,118 C 70,164 84,198 78,248
-               C 72,298 54,332 58,388 C 62,444 78,480 66,534
-               C 54,588 38,608 24,618"
-            fill="none" stroke="#8b9a78" stroke-width="1.8"
-            stroke-linecap="round" stroke-linejoin="round"/>
-
-      <!-- Olive leaves -->
-      <path d="M 99,22 C 82,14 64,18 56,27 C 63,35 81,33 99,22 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 100,35 C 114,27 126,31 128,42 C 120,49 108,45 100,35 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 76,73 C 59,65 41,69 33,78 C 40,86 58,84 76,73 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 74,86 C 88,78 101,82 103,93 C 95,100 83,96 74,86 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 75,125 C 58,117 40,121 32,130 C 39,138 57,136 75,125 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 74,138 C 88,130 100,134 102,145 C 94,152 82,148 74,138 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <line x1="76" y1="128" x2="70" y2="140" stroke="#8b9a78" stroke-width="0.8"/>
-      <ellipse cx="70" cy="145" rx="4" ry="6.5"
-               fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
-      <line x1="78" y1="133" x2="85" y2="144" stroke="#8b9a78" stroke-width="0.8"/>
-      <ellipse cx="85" cy="149" rx="4" ry="6.5"
-               fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
-      <path d="M 79,175 C 63,167 45,171 37,180 C 44,188 62,186 79,175 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 78,188 C 91,180 103,184 105,195 C 97,202 85,198 78,188 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 76,230 C 60,222 42,226 34,235 C 41,243 59,241 76,230 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 75,243 C 88,235 100,239 102,250 C 94,257 82,253 75,243 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <line x1="74" y1="234" x2="68" y2="246" stroke="#8b9a78" stroke-width="0.8"/>
-      <ellipse cx="68" cy="251" rx="4" ry="6.5"
-               fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
-      <path d="M 62,280 C 46,272 28,276 20,285 C 27,293 45,291 62,280 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 61,293 C 74,285 86,289 88,300 C 80,307 68,303 61,293 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 60,335 C 44,327 26,331 18,340 C 25,348 43,346 60,335 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 59,348 C 72,340 84,344 86,355 C 78,362 66,358 59,348 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 62,390 C 46,382 28,386 20,395 C 27,403 45,401 62,390 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 61,403 C 74,395 86,399 88,410 C 80,417 68,413 61,403 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <line x1="63" y1="397" x2="57" y2="409" stroke="#8b9a78" stroke-width="0.8"/>
-      <ellipse cx="57" cy="414" rx="4" ry="6.5"
-               fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
-      <line x1="65" y1="400" x2="72" y2="411" stroke="#8b9a78" stroke-width="0.8"/>
-      <ellipse cx="72" cy="416" rx="4" ry="6.5"
-               fill="rgba(80,110,62,0.38)" stroke="#7a9068" stroke-width="0.8"/>
-      <path d="M 68,453 C 52,445 34,449 26,458 C 33,466 51,464 68,453 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 67,466 C 80,458 92,462 94,473 C 86,480 74,476 67,466 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 62,500 C 46,492 28,496 20,505 C 27,513 45,511 62,500 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 61,513 C 74,505 86,509 88,520 C 80,527 68,523 61,513 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 52,550 C 36,542 18,546 10,555 C 17,563 35,561 52,550 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-      <path d="M 51,563 C 64,555 76,559 78,570 C 70,577 58,573 51,563 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.9"/>
-
-      <!-- ═══ WHITE LILY #1 (mirrored position, same design) ═══ -->
-      <line x1="76" y1="200" x2="38" y2="218" stroke="#8b9a78" stroke-width="1.1"
-            stroke-linecap="round"/>
-      <path d="M 55,212 C 50,205 42,200 36,196 C 34,202 38,209 55,212 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.8"/>
-      <path d="M 52,216 C 48,222 42,228 35,230 C 33,224 38,217 52,216 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.8"/>
-      <g transform="translate(38, 216)">
-        <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30
-                 C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z"
-              fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9"
-              transform="rotate(0)"/>
-        <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30
-                 C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z"
-              fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9"
-              transform="rotate(60)"/>
-        <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30
-                 C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z"
-              fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9"
-              transform="rotate(120)"/>
-        <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30
-                 C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z"
-              fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9"
-              transform="rotate(180)"/>
-        <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30
-                 C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z"
-              fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9"
-              transform="rotate(240)"/>
-        <path d="M 0,0 C 5,-4 9,-14 7,-26 C 5,-33 0,-34 0,-30
-                 C 0,-34 -5,-33 -7,-26 C -9,-14 -5,-4 0,0 Z"
-              fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.9"
-              transform="rotate(300)"/>
-        <g transform="rotate(0)">
-          <line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/>
-          <ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/>
-        </g>
-        <g transform="rotate(60)">
-          <line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/>
-          <ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/>
-        </g>
-        <g transform="rotate(120)">
-          <line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/>
-          <ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/>
-        </g>
-        <g transform="rotate(180)">
-          <line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/>
-          <ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/>
-        </g>
-        <g transform="rotate(240)">
-          <line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/>
-          <ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/>
-        </g>
-        <g transform="rotate(300)">
-          <line x1="0" y1="0" x2="0" y2="-22" stroke="#c8a870" stroke-width="0.7"/>
-          <ellipse cx="0" cy="-23.5" rx="1.5" ry="2" fill="#c89a58"/>
-        </g>
-        <circle cx="0" cy="0" r="4" fill="rgba(210,185,135,0.55)" stroke="#c8a870" stroke-width="0.9"/>
-      </g>
-
-      <!-- ═══ WHITE LILY #2 (mirrored) ═══ -->
-      <line x1="66" y1="436" x2="50" y2="449" stroke="#8b9a78" stroke-width="1.0"
-            stroke-linecap="round"/>
-      <path d="M 60,443 C 56,438 50,434 44,432 C 43,437 47,443 60,443 Z"
-            fill="rgba(122,152,100,0.22)" stroke="#8b9a78" stroke-width="0.8"/>
-      <g transform="translate(50, 448)">
-        <path d="M 0,0 C 4,-3 6,-10 5,-18 C 3,-23 0,-24 0,-21
-                 C 0,-24 -3,-23 -5,-18 C -6,-10 -4,-3 0,0 Z"
-              fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.8"
-              transform="rotate(0)"/>
-        <path d="M 0,0 C 4,-3 6,-10 5,-18 C 3,-23 0,-24 0,-21
-                 C 0,-24 -3,-23 -5,-18 C -6,-10 -4,-3 0,0 Z"
-              fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.8"
-              transform="rotate(60)"/>
-        <path d="M 0,0 C 4,-3 6,-10 5,-18 C 3,-23 0,-24 0,-21
-                 C 0,-24 -3,-23 -5,-18 C -6,-10 -4,-3 0,0 Z"
-              fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.8"
-              transform="rotate(120)"/>
-        <path d="M 0,0 C 4,-3 6,-10 5,-18 C 3,-23 0,-24 0,-21
-                 C 0,-24 -3,-23 -5,-18 C -6,-10 -4,-3 0,0 Z"
-              fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.8"
-              transform="rotate(180)"/>
-        <path d="M 0,0 C 4,-3 6,-10 5,-18 C 3,-23 0,-24 0,-21
-                 C 0,-24 -3,-23 -5,-18 C -6,-10 -4,-3 0,0 Z"
-              fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.8"
-              transform="rotate(240)"/>
-        <path d="M 0,0 C 4,-3 6,-10 5,-18 C 3,-23 0,-24 0,-21
-                 C 0,-24 -3,-23 -5,-18 C -6,-10 -4,-3 0,0 Z"
-              fill="rgba(255,255,255,0.72)" stroke="#ddd8cc" stroke-width="0.8"
-              transform="rotate(300)"/>
-        <g transform="rotate(30)">
-          <line x1="0" y1="0" x2="0" y2="-16" stroke="#c8a870" stroke-width="0.6"/>
-          <circle cx="0" cy="-17" r="1.3" fill="#c89a58"/>
-        </g>
-        <g transform="rotate(150)">
-          <line x1="0" y1="0" x2="0" y2="-16" stroke="#c8a870" stroke-width="0.6"/>
-          <circle cx="0" cy="-17" r="1.3" fill="#c89a58"/>
-        </g>
-        <g transform="rotate(270)">
-          <line x1="0" y1="0" x2="0" y2="-16" stroke="#c8a870" stroke-width="0.6"/>
-          <circle cx="0" cy="-17" r="1.3" fill="#c89a58"/>
-        </g>
-        <circle cx="0" cy="0" r="3" fill="rgba(210,185,135,0.55)" stroke="#c8a870" stroke-width="0.8"/>
-      </g>
-
-      <!-- ═══ BABY'S BREATH (mirrored) ═══ -->
-      <g transform="translate(25, 92)">
-        <path d="M 0,0 L -14,-20 M 0,0 L 0,-22 M 0,0 L 14,-20"
-              fill="none" stroke="#c0b8a8" stroke-width="0.65" stroke-linecap="round"/>
-        <path d="M -14,-20 L -22,-32 M -14,-20 L -8,-32"
-              fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-        <path d="M 0,-22 L -9,-34 M 0,-22 L 9,-34"
-              fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-        <path d="M 14,-20 L 8,-32 M 14,-20 L 22,-32"
-              fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-        <circle cx="-22" cy="-32" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="-8"  cy="-32" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="-9"  cy="-34" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="9"   cy="-34" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="8"   cy="-32" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="22"  cy="-32" r="2.4" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      </g>
-      <g transform="translate(100, 308)">
-        <path d="M 0,0 L -12,-18 M 0,0 L 0,-20 M 0,0 L 12,-18"
-              fill="none" stroke="#c0b8a8" stroke-width="0.65" stroke-linecap="round"/>
-        <path d="M -12,-18 L -19,-28 M -12,-18 L -7,-29"
-              fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-        <path d="M 0,-20 L -8,-30 M 0,-20 L 8,-30"
-              fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-        <path d="M 12,-18 L 7,-29 M 12,-18 L 19,-28"
-              fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-        <circle cx="-19" cy="-28" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="-7"  cy="-29" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="-8"  cy="-30" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="8"   cy="-30" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="7"   cy="-29" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="19"  cy="-28" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      </g>
-      <g transform="translate(18, 372)">
-        <path d="M 0,0 L -11,-16 M 0,0 L 0,-18 M 0,0 L 11,-16"
-              fill="none" stroke="#c0b8a8" stroke-width="0.65" stroke-linecap="round"/>
-        <path d="M -11,-16 L -17,-25 M -11,-16 L -6,-26"
-              fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-        <path d="M 0,-18 L -7,-27 M 0,-18 L 7,-27"
-              fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-        <path d="M 11,-16 L 6,-26 M 11,-16 L 17,-25"
-              fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-        <circle cx="-17" cy="-25" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="-6"  cy="-26" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="-7"  cy="-27" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="7"   cy="-27" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="6"   cy="-26" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="17"  cy="-25" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      </g>
-      <g transform="translate(94, 536)">
-        <path d="M 0,0 L -12,-17 M 0,0 L 0,-19 M 0,0 L 12,-17"
-              fill="none" stroke="#c0b8a8" stroke-width="0.65" stroke-linecap="round"/>
-        <path d="M -12,-17 L -19,-27 M -12,-17 L -6,-28"
-              fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-        <path d="M 0,-19 L -7,-29 M 0,-19 L 7,-29"
-              fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-        <path d="M 12,-17 L 6,-28 M 12,-17 L 19,-27"
-              fill="none" stroke="#c0b8a8" stroke-width="0.55" stroke-linecap="round"/>
-        <circle cx="-19" cy="-27" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="-6"  cy="-28" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="-7"  cy="-29" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="7"   cy="-29" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="6"   cy="-28" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-        <circle cx="19"  cy="-27" r="2.2" fill="white" stroke="#d0c8b8" stroke-width="0.65"/>
-      </g>
-
-    </g><!-- end mirror group -->
+      <use href="#bot-arrangement"/>
+    </g>
   </svg>
 </div>
