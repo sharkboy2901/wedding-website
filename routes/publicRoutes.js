@@ -63,13 +63,6 @@ router.get('/', asyncHandler(async function(req, res) {
   });
 }));
 
-// -- Our Story --
-
-router.get('/our-story', asyncHandler(async function(req, res) {
-  var navConfig = await getNavConfig();
-  res.render('story', { config: siteConfig(), livestreamVisible: navConfig.livestreamVisible });
-}));
-
 // -- Gallery --
 
 router.get('/gallery', asyncHandler(async function(req, res) {
@@ -83,6 +76,7 @@ router.get('/gallery', asyncHandler(async function(req, res) {
 // -- RSVP removed — redirect to home --
 router.get('/rsvp', function(req, res) { res.redirect('/'); });
 router.post('/rsvp', function(req, res) { res.redirect('/'); });
+router.get('/our-story', function(req, res) { res.redirect('/'); });
 
 // -- Guest photo upload --
 
