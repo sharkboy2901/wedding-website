@@ -1464,52 +1464,24 @@ p:last-child { margin-bottom: 0; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   BOTANICAL DECORATIONS — fixed side panels (desktop) + corner accents (mobile)
+   BOTANICAL DECORATIONS — fixed side panels
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .botanical-left,
 .botanical-right {
   position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
   pointer-events: none;
-  z-index: 2;
-  overflow: hidden;
+  z-index: 0;
+  opacity: 0.68;
 }
+.botanical-left  { left: 0; }
+.botanical-right { right: 0; }
 
-/* Desktop: full-height side strips */
-.botanical-left  { left: 0;  top: 0; width: 160px; height: 100vh; }
-.botanical-right { right: 0; top: 0; width: 160px; height: 100vh; }
-
-.botanical-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: right center;
-  opacity: 0.82;
-  display: block;
-}
-.botanical-img--right {
-  transform: scaleX(-1);
-}
-
-/* Mobile: corner accents */
 @media (max-width: 1100px) {
-  .botanical-left {
-    top: 0;
-    left: 0;
-    width: 120px;
-    height: 160px;
-  }
-  .botanical-right {
-    bottom: 0;
-    top: auto;
-    right: 0;
-    width: 120px;
-    height: 160px;
-  }
-  .botanical-img {
-    opacity: 0.65;
-    object-position: right top;
-  }
+  .botanical-left,
+  .botanical-right { display: none; }
 }
 
 /* Hero botanical left overlay */
