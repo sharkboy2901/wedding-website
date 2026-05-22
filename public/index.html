@@ -417,19 +417,22 @@
     .footer-links a:hover { color: var(--gold); }
     .footer-tagline { font-size: 0.7rem; color: rgba(245,237,224,0.3); }
 
-    /* ─── BOTANICAL PANELS (fixed sides, wide screens only) ─── */
+    /* ─── BOTANICAL PANELS — desktop sides + mobile corner accents ─── */
     .botanical-panel {
-      position: fixed; top: 0; height: 100vh; width: 160px;
-      pointer-events: none; z-index: 8; overflow: hidden;
+      position: fixed; pointer-events: none; z-index: 2; overflow: hidden;
     }
-    .botanical-panel-left  { left: 0; }
-    .botanical-panel-right { right: 0; }
+    .botanical-panel-left  { left: 0;  top: 0; width: 160px; height: 100vh; }
+    .botanical-panel-right { right: 0; top: 0; width: 160px; height: 100vh; }
     .botanical-panel img {
       width: 100%; height: 100%; object-fit: cover;
       object-position: right center; opacity: 0.82; display: block;
     }
     .botanical-panel-right img { transform: scaleX(-1); }
-    @media (max-width: 1040px) { .botanical-panel { display: none; } }
+    @media (max-width: 1040px) {
+      .botanical-panel-left  { width: 120px; height: 160px; top: 0; left: 0; }
+      .botanical-panel-right { width: 120px; height: 160px; bottom: 0; top: auto; right: 0; }
+      .botanical-panel img   { opacity: 0.65; object-position: right top; }
+    }
 
     /* ─── RESPONSIVE ──────────────────────────── */
     @media (max-width: 860px) {
