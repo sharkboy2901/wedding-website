@@ -444,14 +444,20 @@
     .footer-links a:hover { color: var(--gold); }
     .footer-tagline { font-size: 0.7rem; color: rgba(245,237,224,0.3); }
 
-    /* ─── BOTANICAL PANELS (fixed sides, wide screens only) ─── */
+    /* ─── BOTANICAL PANELS — desktop sides + mobile corner accents ─── */
     .botanical-panel {
       position: fixed; top: 50%; transform: translateY(-50%);
       pointer-events: none; z-index: 8; opacity: 0.92;
     }
     .botanical-panel-left  { left: 0; }
     .botanical-panel-right { right: 0; }
-    @media (max-width: 1040px) {      .botanical-panel { display: none; }    }
+    @media (max-width: 1040px) {
+      .botanical-panel-left  { width: 110px; height: 180px; top: 0; transform: none; overflow: hidden; }
+      .botanical-panel-right { width: 110px; height: 180px; top: auto; bottom: 0; transform: none; overflow: hidden; }
+      .botanical-panel { opacity: 0.6; }
+      .botanical-panel-left  svg { position: absolute; top: 0; right: 0; width: 180px; height: 700px; transform: scale(0.28); transform-origin: top right; }
+      .botanical-panel-right svg { position: absolute; bottom: 0; right: 0; width: 180px; height: 700px; transform: scale(0.28); transform-origin: bottom right; }
+    }
 
     /* ─── BOTANICAL BAND (full-width, visible on all screens) ── */
     .botanical-band {

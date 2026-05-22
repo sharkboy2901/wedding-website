@@ -1473,15 +1473,46 @@ p:last-child { margin-bottom: 0; }
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
-  z-index: 0;
+  z-index: 2;
   opacity: 0.68;
 }
 .botanical-left  { left: 0; }
 .botanical-right { right: 0; }
 
+/* Mobile: clip to corner accents */
 @media (max-width: 1100px) {
+  .botanical-left {
+    width: 110px;
+    height: 180px;
+    top: 0;
+    transform: none;
+    overflow: hidden;
+  }
+  .botanical-right {
+    width: 110px;
+    height: 180px;
+    top: auto;
+    bottom: 0;
+    transform: none;
+    overflow: hidden;
+  }
+  .botanical-left svg,
+  .botanical-right svg {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 130px;
+    height: 620px;
+    transform: scale(0.29);
+    transform-origin: top right;
+  }
+  .botanical-right svg {
+    top: auto;
+    bottom: 0;
+    transform-origin: bottom right;
+  }
   .botanical-left,
-  .botanical-right { display: none; }
+  .botanical-right { opacity: 0.6; }
 }
 
 /* Hero botanical left overlay */
