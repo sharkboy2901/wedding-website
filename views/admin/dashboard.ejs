@@ -17,7 +17,6 @@
     <h1 class="admin-header-title">Admin Dashboard</h1>
     <nav class="admin-nav" aria-label="Admin navigation">
       <a href="/admin/dashboard" class="admin-nav-link admin-nav-link--active">Dashboard</a>
-      <a href="/admin/rsvps" class="admin-nav-link">RSVPs</a>
       <a href="/" class="admin-nav-link" target="_blank" rel="noopener noreferrer">View Site ↗</a>
       <a href="/admin/logout" class="admin-nav-link admin-nav-link--logout">Sign Out</a>
     </nav>
@@ -44,14 +43,6 @@
       <div class="admin-stat">
         <span class="admin-stat-num"><%= photoStats.rejected %></span>
         <span class="admin-stat-label">Rejected</span>
-      </div>
-      <div class="admin-stat admin-stat--yes">
-        <span class="admin-stat-num"><%= rsvpStats.yes_count %></span>
-        <span class="admin-stat-label">Yes RSVPs</span>
-      </div>
-      <div class="admin-stat">
-        <span class="admin-stat-num"><%= rsvpStats.total_guests %></span>
-        <span class="admin-stat-label">Total Guests</span>
       </div>
     </div>
 
