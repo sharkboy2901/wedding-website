@@ -12,6 +12,7 @@ const db                = require('../db/database');
 const { requireAdmin, redirectIfLoggedIn } = require('../middleware/auth');
 const { validateCsrfFromBody } = require('../middleware/csrf');
 const { uploadToDrive, extractFolderId, normalizeFolderInput, streamFromDrive } = require('../lib/driveUpload');
+const { uploadToOneDrive, isConfigured: onedriveIsConfigured } = require('../lib/onedriveUpload');
 
 const IMAGES_DIR = path.join(__dirname, '..', 'public', 'images');
 
@@ -203,6 +204,7 @@ router.get('/dashboard', requireAdmin, asyncHandler(async (req, res) => {
     livestream_channel:       allSettings.livestream_channel       || (process.env.TWITCH_CHANNEL || ''),
     livestream_homepage:      allSettings.livestream_homepage      || '0',
     google_drive_folder_id:   allSettings.google_drive_folder_id  || '',
+    onedrive_folder_path:     allSettings.onedrive_folder_path    || 'Wedding Photos',
   };
 
   const flash = req.session.flash || null;
@@ -215,8 +217,9 @@ router.get('/dashboard', requireAdmin, asyncHandler(async (req, res) => {
     siteSettings,
     siteImages,
     flash,
-    adminUsername:   req.session.adminUsername,
-    driveConfigured: !!process.env.GOOGLE_SERVICE_ACCOUNT_JSON,
+    adminUsername:      req.session.adminUsername,
+    driveConfigured:    !!process.env.GOOGLE_SERVICE_ACCOUNT_JSON,
+    onedriveConfigured: onedriveIsConfigured(),
   });
 }));
 
@@ -267,14 +270,26 @@ router.post('/photo/:id/approve', requireAdmin, asyncHandler(async (req, res) =>
   await db.updatePhotoStatus(photo.id, 'approved');
 
   var successMsg = 'Photo approved and added to the gallery.';
+  var displayName = photo.original_name || photo.filename;
+
   var folderId = await db.getSetting('google_drive_folder_id');
   if (folderId) {
     var driveErr = null;
-    var driveResult = await uploadToDrive(dest, photo.original_name || photo.filename, photo.mime_type, extractFolderId(folderId))
+    var driveResult = await uploadToDrive(dest, displayName, photo.mime_type, extractFolderId(folderId))
       .catch(function(e) { driveErr = e; return null; });
     successMsg += driveResult
       ? ' Saved to Google Drive.'
       : ' (Drive upload failed: ' + (driveErr && driveErr.message ? driveErr.message : 'check Railway logs') + ')';
+  }
+
+  if (onedriveIsConfigured()) {
+    var odFolderPath = await db.getSetting('onedrive_folder_path') || 'Wedding Photos';
+    var odErr = null;
+    var odResult = await uploadToOneDrive(dest, displayName, photo.mime_type, odFolderPath)
+      .catch(function(e) { odErr = e; return null; });
+    successMsg += odResult
+      ? ' Saved to OneDrive.'
+      : ' (OneDrive upload failed: ' + (odErr && odErr.message ? odErr.message : 'check Railway logs') + ')';
   }
 
   return ajaxOk(req, res, successMsg);
@@ -305,8 +320,11 @@ router.post('/photos/bulk-action', requireAdmin, asyncHandler(async (req, res) =
   ids = ids.filter(function(id) { return typeof id === 'string' && id.trim(); });
 
   var folderId = null;
+  var odFolderPath = null;
+  var odEnabled = onedriveIsConfigured();
   if (action === 'approve') {
     folderId = await db.getSetting('google_drive_folder_id');
+    if (odEnabled) odFolderPath = await db.getSetting('onedrive_folder_path') || 'Wedding Photos';
   }
 
   var approved = 0, rejected = 0, skipped = 0;
@@ -321,12 +339,15 @@ router.post('/photos/bulk-action', requireAdmin, asyncHandler(async (req, res) =
       if (!fs.existsSync(src)) { skipped++; continue; }
       fs.renameSync(src, dest);
       await db.updatePhotoStatus(photo.id, 'approved');
+      var displayName = photo.original_name || photo.filename;
+      var photoMime   = photo.mime_type;
+      var photoDest   = dest;
       if (folderId) {
-        var folderIdOnly  = extractFolderId(folderId);
-        var displayName   = photo.original_name || photo.filename;
-        var photoMime     = photo.mime_type;
-        var photoDest     = dest;
+        var folderIdOnly = extractFolderId(folderId);
         uploadToDrive(photoDest, displayName, photoMime, folderIdOnly).catch(function() {});
+      }
+      if (odEnabled) {
+        uploadToOneDrive(photoDest, displayName, photoMime, odFolderPath).catch(function() {});
       }
       approved++;
     } else {
@@ -548,6 +569,19 @@ router.post('/settings/drive', requireAdmin, asyncHandler(async (req, res) => {
 
   await db.setSetting('google_drive_folder_id', normalizedUrl);
   req.session.flash = { type: 'success', message: 'Google Drive settings saved.' };
+  res.redirect('/admin/dashboard');
+}));
+
+// -- ONEDRIVE SETTINGS --
+
+router.post('/settings/onedrive', requireAdmin, asyncHandler(async (req, res) => {
+  var folderPath = (req.body.onedrive_folder_path || '').trim();
+
+  // Basic path sanitisation: no leading slashes, no .. segments, printable chars only
+  folderPath = folderPath.replace(/^\/+/, '').replace(/\.\./g, '').substring(0, 200) || 'Wedding Photos';
+
+  await db.setSetting('onedrive_folder_path', folderPath);
+  req.session.flash = { type: 'success', message: 'OneDrive settings saved.' };
   res.redirect('/admin/dashboard');
 }));
 

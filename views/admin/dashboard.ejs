@@ -150,6 +150,77 @@
       </div>
     </section>
 
+    <!-- ── OneDrive Integration ──────────────────────────────────────────── -->
+    <section class="admin-section" aria-labelledby="onedrive-heading">
+      <h2 class="admin-section-title" id="onedrive-heading">&#9729; OneDrive Backup</h2>
+      <div class="admin-settings-card">
+
+        <div class="admin-settings-row" style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+          <% if (onedriveConfigured) { %>
+            <span class="badge badge--approved">&#10003; OneDrive credentials set</span>
+          <% } else { %>
+            <span class="badge badge--warning">&#33; OneDrive credentials not set</span>
+            <p class="admin-settings-hint" style="margin:0.5rem 0 0;">
+              Set these environment variables in Railway to enable OneDrive backup:<br>
+              <code>ONEDRIVE_CLIENT_ID</code>, <code>ONEDRIVE_CLIENT_SECRET</code>,
+              <code>ONEDRIVE_REFRESH_TOKEN</code><br>
+              See the setup guide below to obtain these values from your Microsoft account.
+            </p>
+          <% } %>
+        </div>
+
+        <form action="/admin/settings/onedrive" method="post" class="admin-settings-form" style="margin-top:1.25rem;">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <div class="admin-settings-row">
+            <label class="admin-settings-label" for="onedrive_folder_path">
+              OneDrive Folder Path
+            </label>
+            <input
+              type="text"
+              id="onedrive_folder_path"
+              name="onedrive_folder_path"
+              class="admin-settings-input"
+              value="<%= siteSettings.onedrive_folder_path %>"
+              placeholder="e.g. Wedding Photos or Family/Wedding/2026"
+              maxlength="200"
+            >
+            <p class="admin-settings-hint">
+              Folder path inside your OneDrive where approved photos are saved.
+              Use <code>/</code> for subfolders (e.g. <code>Family/Wedding Photos</code>).
+              The folder is created automatically if it doesn&rsquo;t exist.
+            </p>
+          </div>
+
+          <div class="admin-settings-row">
+            <button type="submit" class="admin-btn admin-btn--primary">Save OneDrive Settings</button>
+          </div>
+        </form>
+
+        <details style="margin-top:1.25rem;">
+          <summary style="cursor:pointer;color:#8a82a8;font-size:0.875rem;">How to set up OneDrive credentials</summary>
+          <ol class="admin-settings-hint" style="margin-top:0.75rem;padding-left:1.25rem;line-height:1.8;">
+            <li>Go to <strong>portal.azure.com</strong> and sign in with your Microsoft account.</li>
+            <li>Navigate to <strong>Azure Active Directory &rarr; App registrations &rarr; New registration</strong>.</li>
+            <li>Name it anything (e.g. <em>Wedding Website</em>), choose <strong>Personal Microsoft accounts only</strong> as the supported account type, and set the redirect URI to <code>https://login.microsoftonline.com/common/oauth2/nativeclient</code>.</li>
+            <li>After creating the app, note the <strong>Application (client) ID</strong> &mdash; this is your <code>ONEDRIVE_CLIENT_ID</code>.</li>
+            <li>Go to <strong>Certificates &amp; secrets &rarr; New client secret</strong>, create a secret, and copy its <strong>Value</strong> &mdash; this is your <code>ONEDRIVE_CLIENT_SECRET</code>.</li>
+            <li>Go to <strong>API permissions &rarr; Add a permission &rarr; Microsoft Graph &rarr; Delegated permissions</strong> and add <code>Files.ReadWrite</code> and <code>offline_access</code>.</li>
+            <li>To get your refresh token, visit this URL in a browser (replace <code>YOUR_CLIENT_ID</code>):<br>
+              <code style="word-break:break-all;">https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id=YOUR_CLIENT_ID&response_type=code&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient&scope=Files.ReadWrite+offline_access&response_mode=query</code>
+            </li>
+            <li>Sign in, approve, and copy the <code>code=…</code> value from the redirect URL.</li>
+            <li>Exchange the code for a refresh token by running this in your terminal (replace the placeholders):<br>
+              <code style="word-break:break-all;">curl -X POST https://login.microsoftonline.com/consumers/oauth2/v2.0/token -d "client_id=YOUR_CLIENT_ID&client_secret=YOUR_CLIENT_SECRET&code=YOUR_CODE&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient&grant_type=authorization_code&scope=Files.ReadWrite+offline_access"</code>
+            </li>
+            <li>Copy the <code>refresh_token</code> value from the JSON response &mdash; this is your <code>ONEDRIVE_REFRESH_TOKEN</code>.</li>
+            <li>Add all three values as environment variables in Railway and redeploy.</li>
+          </ol>
+        </details>
+
+      </div>
+    </section>
+
     <!-- ── Site Images ────────────────────────────────────────────────────── -->
     <section class="admin-section" aria-labelledby="site-images-heading">
       <h2 class="admin-section-title" id="site-images-heading">&#128444; Site Images</h2>
