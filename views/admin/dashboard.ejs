@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard</title>
   <meta name="robots" content="noindex, nofollow">
+  <meta name="csrf-token" content="<%= csrfToken %>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
@@ -255,11 +256,11 @@
                   <p class="admin-photo-msg">"<%= photo.uploader_message %>"</p>
                 <% } %>
                 <div class="admin-photo-actions">
-                  <form action="/admin/photo/<%= photo.id %>/approve" method="post" style="flex:1;">
+                  <form action="/admin/photo/<%= photo.id %>/approve" method="post" style="flex:1;" class="photo-action-form">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <button type="submit" class="btn-approve btn--full-width">&#10003; Approve</button>
                   </form>
-                  <form action="/admin/photo/<%= photo.id %>/reject" method="post" style="flex:1;" class="reject-form">
+                  <form action="/admin/photo/<%= photo.id %>/reject" method="post" style="flex:1;" class="photo-action-form">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <button type="submit" class="btn-reject btn--full-width">&#10007; Reject</button>
                   </form>
@@ -289,7 +290,10 @@
         <p class="admin-section-note">Feature photos to highlight them on the home page. Use "Hide from Gallery" to keep a photo approved but invisible to guests — you can unhide it any time.</p>
         <div class="admin-photo-grid">
           <% approvedPhotos.forEach(function(photo) { %>
-            <div class="admin-photo-card admin-photo-card--approved<%= photo.featured ? ' admin-photo-card--featured' : '' %><%= photo.hidden ? ' admin-photo-card--hidden' : '' %>">
+            <div class="admin-photo-card admin-photo-card--approved<%= photo.featured ? ' admin-photo-card--featured' : '' %><%= photo.hidden ? ' admin-photo-card--hidden' : '' %>"
+                 data-photo-id="<%= photo.id %>"
+                 data-featured="<%= photo.featured %>"
+                 data-hidden="<%= photo.hidden %>">
               <% if (photo.featured) { %>
                 <div class="admin-featured-badge">&#9733; Featured on Home</div>
               <% } %>
@@ -322,30 +326,29 @@
                 <div class="admin-photo-actions" style="flex-direction:column;gap:0.4rem;">
                   <% if (!photo.hidden) { %>
                     <% if (!photo.featured) { %>
-                      <form action="/admin/photo/<%= photo.id %>/feature" method="post">
+                      <form action="/admin/photo/<%= photo.id %>/feature" method="post" class="photo-action-form">
                         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                         <button type="submit" class="btn-feature btn--full-width">&#9733; Feature on Home</button>
                       </form>
                     <% } else { %>
-                      <form action="/admin/photo/<%= photo.id %>/unfeature" method="post">
+                      <form action="/admin/photo/<%= photo.id %>/unfeature" method="post" class="photo-action-form">
                         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                         <button type="submit" class="btn-unfeature btn--full-width">&#9734; Remove from Home</button>
                       </form>
                     <% } %>
-                    <form action="/admin/photo/<%= photo.id %>/hide" method="post">
+                    <form action="/admin/photo/<%= photo.id %>/hide" method="post" class="photo-action-form">
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                       <button type="submit" class="btn-hide btn--full-width">&#128683; Hide from Gallery</button>
                     </form>
                   <% } else { %>
-                    <form action="/admin/photo/<%= photo.id %>/unhide" method="post">
+                    <form action="/admin/photo/<%= photo.id %>/unhide" method="post" class="photo-action-form">
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                       <button type="submit" class="btn-unhide btn--full-width">&#128065; Show in Gallery</button>
                     </form>
                   <% } %>
-                  <form action="/admin/photo/<%= photo.id %>/delete" method="post">
+                  <form action="/admin/photo/<%= photo.id %>/delete" method="post" class="photo-action-form">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <button type="submit" class="btn-reject btn--full-width"
-                            onclick="return confirm('Permanently delete this photo?')">Delete</button>
+                    <button type="submit" class="btn-reject btn--full-width">Delete</button>
                   </form>
                 </div>
               </div>
@@ -371,6 +374,7 @@
   <button class="lightbox-next" id="admin-lightbox-next" aria-label="Next photo">&#8250;</button>
 </div>
 
-<script src="/js/admin.js?v=2"></script>
+<div id="toast-container" aria-live="polite" aria-atomic="false"></div>
+<script src="/js/admin.js?v=3"></script>
 </body>
 </html>

@@ -78,6 +78,22 @@ function asyncHandler(fn) {
   return (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 }
 
+// Dual-response helpers: JSON for fetch requests, redirect for normal form posts
+function ajaxOk(req, res, message) {
+  if (req.accepts('json') && req.headers['x-requested-with'] === 'xmlhttprequest') {
+    return res.json({ ok: true, message: message || '' });
+  }
+  if (message) req.session.flash = { type: 'success', message };
+  return res.redirect('/admin/dashboard');
+}
+function ajaxErr(req, res, httpStatus, message) {
+  if (req.accepts('json') && req.headers['x-requested-with'] === 'xmlhttprequest') {
+    return res.status(httpStatus || 400).json({ ok: false, message });
+  }
+  req.session.flash = { type: 'error', message };
+  return res.redirect('/admin/dashboard');
+}
+
 // Allowed MIME types
 const ALLOWED_SERVE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
@@ -240,76 +256,50 @@ router.get('/photo/:id/image', requireAdmin, asyncHandler(async (req, res) => {
 
 router.post('/photo/:id/approve', requireAdmin, asyncHandler(async (req, res) => {
   const photo = await db.getPhotoById(req.params.id);
-  if (!photo || photo.status !== 'pending') {
-    req.session.flash = { type: 'error', message: 'Photo not found or already reviewed.' };
-    return res.redirect('/admin/dashboard');
-  }
-  if (!SAFE_FILENAME_RE.test(photo.filename)) {
-    req.session.flash = { type: 'error', message: 'Invalid photo filename.' };
-    return res.redirect('/admin/dashboard');
-  }
+  if (!photo || photo.status !== 'pending') return ajaxErr(req, res, 400, 'Photo not found or already reviewed.');
+  if (!SAFE_FILENAME_RE.test(photo.filename))  return ajaxErr(req, res, 400, 'Invalid photo filename.');
+
   const src  = path.join(PENDING_DIR, photo.filename);
   const dest = path.join(APPROVED_DIR, photo.filename);
-  if (!fs.existsSync(src)) {
-    req.session.flash = { type: 'error', message: 'Photo file not found on disk.' };
-    return res.redirect('/admin/dashboard');
-  }
+  if (!fs.existsSync(src)) return ajaxErr(req, res, 404, 'Photo file not found on disk.');
+
   fs.renameSync(src, dest);
   await db.updatePhotoStatus(photo.id, 'approved');
 
-  // Upload to Google Drive if a folder is configured
   var successMsg = 'Photo approved and added to the gallery.';
   var folderId = await db.getSetting('google_drive_folder_id');
   if (folderId) {
-    var folderIdOnly = extractFolderId(folderId);
-    var displayName = photo.original_name || photo.filename;
     var driveErr = null;
-    var driveResult = await uploadToDrive(dest, displayName, photo.mime_type, folderIdOnly)
+    var driveResult = await uploadToDrive(dest, photo.original_name || photo.filename, photo.mime_type, extractFolderId(folderId))
       .catch(function(e) { driveErr = e; return null; });
-    if (driveResult) {
-      successMsg += ' Saved to Google Drive.';
-    } else {
-      successMsg += ' (Google Drive upload failed: ' + (driveErr && driveErr.message ? driveErr.message : 'check Railway logs') + ')';
-    }
+    successMsg += driveResult
+      ? ' Saved to Google Drive.'
+      : ' (Drive upload failed: ' + (driveErr && driveErr.message ? driveErr.message : 'check Railway logs') + ')';
   }
 
-  req.session.flash = { type: 'success', message: successMsg };
-  res.redirect('/admin/dashboard');
+  return ajaxOk(req, res, successMsg);
 }));
 
 // -- PHOTO: REJECT (pending only, file deleted) --
 
 router.post('/photo/:id/reject', requireAdmin, asyncHandler(async (req, res) => {
   const photo = await db.getPhotoById(req.params.id);
-  if (!photo) {
-    req.session.flash = { type: 'error', message: 'Photo not found.' };
-    return res.redirect('/admin/dashboard');
-  }
-  if (photo.status !== 'pending') {
-    req.session.flash = { type: 'error', message: 'Photo is not in a pending state.' };
-    return res.redirect('/admin/dashboard');
-  }
+  if (!photo)                      return ajaxErr(req, res, 404, 'Photo not found.');
+  if (photo.status !== 'pending')  return ajaxErr(req, res, 400, 'Photo is not in a pending state.');
   safeDeleteFile(PENDING_DIR, photo.filename);
   await db.updatePhotoStatus(photo.id, 'rejected');
-  req.session.flash = { type: 'success', message: 'Photo rejected and removed.' };
-  res.redirect('/admin/dashboard');
+  return ajaxOk(req, res, 'Photo rejected and removed.');
 }));
 
 // -- PHOTOS: BULK APPROVE / REJECT --
 
 router.post('/photos/bulk-action', requireAdmin, asyncHandler(async (req, res) => {
-  if (!validateCsrfFromBody(req)) {
-    req.session.flash = { type: 'error', message: 'Invalid security token. Please try again.' };
-    return res.redirect('/admin/dashboard');
-  }
+  if (!validateCsrfFromBody(req)) return ajaxErr(req, res, 403, 'Invalid security token. Please try again.');
 
   var action = req.body.action;
   var ids    = req.body.photo_ids;
 
-  if (!ids || !['approve', 'reject'].includes(action)) {
-    req.session.flash = { type: 'error', message: 'Invalid bulk action.' };
-    return res.redirect('/admin/dashboard');
-  }
+  if (!ids || !['approve', 'reject'].includes(action)) return ajaxErr(req, res, 400, 'Invalid bulk action.');
 
   if (!Array.isArray(ids)) ids = [ids];
   ids = ids.filter(function(id) { return typeof id === 'string' && id.trim(); });
@@ -351,74 +341,51 @@ router.post('/photos/bulk-action', requireAdmin, asyncHandler(async (req, res) =
   if (rejected > 0) parts.push(rejected + ' photo' + (rejected !== 1 ? 's' : '') + ' rejected');
   if (skipped  > 0) parts.push(skipped  + ' skipped (not found or already reviewed)');
 
-  req.session.flash = { type: 'success', message: parts.join(', ') + '.' };
-  res.redirect('/admin/dashboard');
+  var msg = parts.join(', ') + '.';
+  return ajaxOk(req, res, msg);
 }));
 
 // -- PHOTO: DELETE APPROVED (remove from public gallery) --
 
 router.post('/photo/:id/delete', requireAdmin, asyncHandler(async (req, res) => {
   const photo = await db.getPhotoById(req.params.id);
-  if (!photo) {
-    req.session.flash = { type: 'error', message: 'Photo not found.' };
-    return res.redirect('/admin/dashboard');
-  }
-  if (photo.status !== 'approved') {
-    req.session.flash = { type: 'error', message: 'Only approved photos can be removed via this action.' };
-    return res.redirect('/admin/dashboard');
-  }
+  if (!photo)                       return ajaxErr(req, res, 404, 'Photo not found.');
+  if (photo.status !== 'approved')  return ajaxErr(req, res, 400, 'Only approved photos can be deleted this way.');
   safeDeleteFile(APPROVED_DIR, photo.filename);
   await db.updatePhotoStatus(photo.id, 'rejected');
-  req.session.flash = { type: 'success', message: 'Photo removed from the public gallery.' };
-  res.redirect('/admin/dashboard');
+  return ajaxOk(req, res, 'Photo deleted.');
 }));
 
 // -- PHOTO: FEATURE / UNFEATURE --
 
 router.post('/photo/:id/feature', requireAdmin, asyncHandler(async (req, res) => {
   const photo = await db.getPhotoById(req.params.id);
-  if (!photo || photo.status !== 'approved') {
-    req.session.flash = { type: 'error', message: 'Photo not found or not approved.' };
-    return res.redirect('/admin/dashboard');
-  }
+  if (!photo || photo.status !== 'approved') return ajaxErr(req, res, 400, 'Photo not found or not approved.');
   await db.setPhotoFeatured(photo.id, true);
-  req.session.flash = { type: 'success', message: 'Photo featured on the home page.' };
-  res.redirect('/admin/dashboard');
+  return ajaxOk(req, res, 'Photo featured on the home page.');
 }));
 
 router.post('/photo/:id/unfeature', requireAdmin, asyncHandler(async (req, res) => {
   const photo = await db.getPhotoById(req.params.id);
-  if (!photo || photo.status !== 'approved') {
-    req.session.flash = { type: 'error', message: 'Photo not found or not approved.' };
-    return res.redirect('/admin/dashboard');
-  }
+  if (!photo || photo.status !== 'approved') return ajaxErr(req, res, 400, 'Photo not found or not approved.');
   await db.setPhotoFeatured(photo.id, false);
-  req.session.flash = { type: 'success', message: 'Photo removed from home page feature.' };
-  res.redirect('/admin/dashboard');
+  return ajaxOk(req, res, 'Photo removed from home page.');
 }));
 
 // -- PHOTO: HIDE / UNHIDE FROM PUBLIC GALLERY --
 
 router.post('/photo/:id/hide', requireAdmin, asyncHandler(async (req, res) => {
   const photo = await db.getPhotoById(req.params.id);
-  if (!photo || photo.status !== 'approved') {
-    req.session.flash = { type: 'error', message: 'Photo not found or not approved.' };
-    return res.redirect('/admin/dashboard');
-  }
+  if (!photo || photo.status !== 'approved') return ajaxErr(req, res, 400, 'Photo not found or not approved.');
   await db.setPhotoHidden(photo.id, true);
-  req.session.flash = { type: 'success', message: 'Photo hidden from the public gallery.' };
-  res.redirect('/admin/dashboard');
+  return ajaxOk(req, res, 'Photo hidden from the public gallery.');
 }));
 
 router.post('/photo/:id/unhide', requireAdmin, asyncHandler(async (req, res) => {
   const photo = await db.getPhotoById(req.params.id);
-  if (!photo || photo.status !== 'approved') {
-    req.session.flash = { type: 'error', message: 'Photo not found or not approved.' };
-    return res.redirect('/admin/dashboard');
-  }
+  if (!photo || photo.status !== 'approved') return ajaxErr(req, res, 400, 'Photo not found or not approved.');
   await db.setPhotoHidden(photo.id, false);
-  req.session.flash = { type: 'success', message: 'Photo is now visible in the public gallery.' };
-  res.redirect('/admin/dashboard');
+  return ajaxOk(req, res, 'Photo is now visible in the gallery.');
 }));
 
 // -- SITE IMAGE UPLOAD (multi-file) --
