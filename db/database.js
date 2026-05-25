@@ -101,7 +101,12 @@ function normalisePhoto(doc) {
     uploader_message: doc.uploaderMessage,
     uploaded_at:      doc.uploadedAt,
     reviewed_at:      doc.reviewedAt,
+    drive_file_id:    doc.driveFileId || null,
   };
+}
+
+async function updatePhotoDriveFileId(id, driveFileId) {
+  return photosDb.update({ _id: id }, { $set: { driveFileId } });
 }
 
 // -- Site Settings operations --
@@ -191,6 +196,7 @@ module.exports = {
   getPendingPhotos,
   getPhotoById,
   updatePhotoStatus,
+  updatePhotoDriveFileId,
   getPhotoStats,
   getPhotoCountByGuest,
   insertRsvp,

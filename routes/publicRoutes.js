@@ -1,10 +1,14 @@
 'use strict';
 
 const express = require('express');
+const path    = require('path');
 const router  = express.Router();
 const db      = require('../db/database');
 const { uploadMiddleware, validateFile, saveToDisk, MAX_SIZE_MB, MAX_FILES } = require('../middleware/upload');
 const { validateCsrfFromBody } = require('../middleware/csrf');
+const { uploadToDrive, extractFolderId } = require('../lib/driveUpload');
+
+const PENDING_DIR_PATH = path.join(__dirname, '..', 'uploads', 'pending');
 
 const PHOTO_LIMIT_PER_GUEST = 10;
 
@@ -180,7 +184,7 @@ router.post('/upload', function(req, res, next) {
       for (var j = 0; j < validated.length; j++) {
         var item     = validated[j];
         var filename = saveToDisk(item.file.buffer, item.mimeType);
-        await db.insertPhoto({
+        var insertedPhoto = await db.insertPhoto({
           filename:        filename,
           originalName:    item.file.originalname ? item.file.originalname.substring(0, 255) : null,
           mimeType:        item.mimeType,
@@ -188,6 +192,23 @@ router.post('/upload', function(req, res, next) {
           uploaderName:    uploaderName,
           uploaderMessage: uploaderMessage,
         });
+
+        // Non-blocking: upload to Drive in the background
+        (function(photoId, photoFilename, photoMime, photoOrigName) {
+          db.getSetting('google_drive_folder_id').then(function(folderUrl) {
+            if (!folderUrl) return null;
+            var folderId = extractFolderId(folderUrl);
+            var localPath = path.join(PENDING_DIR_PATH, photoFilename);
+            var displayName = photoOrigName || photoFilename;
+            return uploadToDrive(localPath, displayName, photoMime, folderId);
+          }).then(function(result) {
+            if (result && result.id) {
+              return db.updatePhotoDriveFileId(photoId, result.id);
+            }
+          }).catch(function(err) {
+            console.error('[Drive] Background upload failed:', err && err.message);
+          });
+        })(insertedPhoto._id, filename, item.mimeType, item.file.originalname || null);
       }
 
       var count = validated.length;

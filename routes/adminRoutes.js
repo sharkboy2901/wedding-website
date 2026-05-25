@@ -11,7 +11,7 @@ const router     = express.Router();
 const db                = require('../db/database');
 const { requireAdmin, redirectIfLoggedIn } = require('../middleware/auth');
 const { validateCsrfFromBody } = require('../middleware/csrf');
-const { uploadToDrive } = require('../lib/driveUpload');
+const { uploadToDrive, extractFolderId, normalizeFolderInput, streamFromDrive } = require('../lib/driveUpload');
 
 const IMAGES_DIR = path.join(__dirname, '..', 'public', 'images');
 
@@ -211,7 +211,29 @@ router.get('/photo/:id/image', requireAdmin, asyncHandler(async (req, res) => {
   if (!photo || photo.status !== 'pending') {
     return res.status(404).send('Not found');
   }
-  safeServeFile(res, PENDING_DIR, photo);
+
+  // Validate filename and mime_type before any file access
+  if (!SAFE_FILENAME_RE.test(photo.filename)) {
+    console.warn('[Admin] Suspicious filename blocked:', photo.filename);
+    return res.status(403).send('Forbidden');
+  }
+  if (!ALLOWED_SERVE_TYPES.has(photo.mime_type)) {
+    return res.status(403).send('Forbidden');
+  }
+
+  const localPath = path.join(PENDING_DIR, photo.filename);
+  // Path traversal check
+  if (!localPath.startsWith(PENDING_DIR + path.sep) && localPath !== PENDING_DIR) {
+    return res.status(403).send('Forbidden');
+  }
+
+  if (fs.existsSync(localPath)) {
+    safeServeFile(res, PENDING_DIR, photo);
+  } else if (photo.drive_file_id) {
+    await streamFromDrive(res, photo.drive_file_id, photo.mime_type);
+  } else {
+    return res.status(404).send('File not found on disk and no Drive backup available.');
+  }
 }));
 
 // -- PHOTO: APPROVE --
@@ -239,8 +261,9 @@ router.post('/photo/:id/approve', requireAdmin, asyncHandler(async (req, res) =>
   var successMsg = 'Photo approved and added to the gallery.';
   var folderId = await db.getSetting('google_drive_folder_id');
   if (folderId) {
+    var folderIdOnly = extractFolderId(folderId);
     var displayName = photo.original_name || photo.filename;
-    var driveResult = await uploadToDrive(dest, displayName, photo.mime_type, folderId)
+    var driveResult = await uploadToDrive(dest, displayName, photo.mime_type, folderIdOnly)
       .catch(function() { return null; });
     if (driveResult) {
       successMsg += ' Saved to Google Drive.';
@@ -468,11 +491,10 @@ router.post('/livestream', requireAdmin, asyncHandler(async (req, res) => {
 router.post('/settings/drive', requireAdmin, asyncHandler(async (req, res) => {
   var raw = (req.body.google_drive_folder_url || '').trim();
 
-  // Accept either a full folder URL or a bare folder ID
-  var match = raw.match(/\/folders\/([a-zA-Z0-9_-]+)/);
-  var folderId = match ? match[1] : raw;
+  // Always store the full canonical URL (accepts either a full URL or a bare folder ID)
+  var normalizedUrl = raw ? normalizeFolderInput(raw) : '';
 
-  await db.setSetting('google_drive_folder_id', folderId);
+  await db.setSetting('google_drive_folder_id', normalizedUrl);
   req.session.flash = { type: 'success', message: 'Google Drive settings saved.' };
   res.redirect('/admin/dashboard');
 }));
