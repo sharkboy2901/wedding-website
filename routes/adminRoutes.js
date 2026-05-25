@@ -8,9 +8,10 @@ const multer     = require('multer');
 const rateLimit  = require('express-rate-limit');
 const router     = express.Router();
 
-const db = require('../db/database');
+const db                = require('../db/database');
 const { requireAdmin, redirectIfLoggedIn } = require('../middleware/auth');
 const { validateCsrfFromBody } = require('../middleware/csrf');
+const { uploadToDrive } = require('../lib/driveUpload');
 
 const IMAGES_DIR = path.join(__dirname, '..', 'public', 'images');
 
@@ -182,9 +183,10 @@ router.get('/dashboard', requireAdmin, asyncHandler(async (req, res) => {
   }
 
   const siteSettings = {
-    livestream_visible:  allSettings.livestream_visible  || '1',
-    livestream_channel:  allSettings.livestream_channel  || (process.env.TWITCH_CHANNEL || ''),
-    livestream_homepage: allSettings.livestream_homepage || '0',
+    livestream_visible:       allSettings.livestream_visible       || '1',
+    livestream_channel:       allSettings.livestream_channel       || (process.env.TWITCH_CHANNEL || ''),
+    livestream_homepage:      allSettings.livestream_homepage      || '0',
+    google_drive_folder_id:   allSettings.google_drive_folder_id  || '',
   };
 
   const flash = req.session.flash || null;
@@ -197,7 +199,8 @@ router.get('/dashboard', requireAdmin, asyncHandler(async (req, res) => {
     siteSettings,
     siteImages,
     flash,
-    adminUsername: req.session.adminUsername,
+    adminUsername:   req.session.adminUsername,
+    driveConfigured: !!process.env.GOOGLE_SERVICE_ACCOUNT_JSON,
   });
 }));
 
@@ -231,7 +234,22 @@ router.post('/photo/:id/approve', requireAdmin, asyncHandler(async (req, res) =>
   }
   fs.renameSync(src, dest);
   await db.updatePhotoStatus(photo.id, 'approved');
-  req.session.flash = { type: 'success', message: 'Photo approved and added to the gallery.' };
+
+  // Upload to Google Drive if a folder is configured
+  var successMsg = 'Photo approved and added to the gallery.';
+  var folderId = await db.getSetting('google_drive_folder_id');
+  if (folderId) {
+    var displayName = photo.original_name || photo.filename;
+    var driveResult = await uploadToDrive(dest, displayName, photo.mime_type, folderId)
+      .catch(function() { return null; });
+    if (driveResult) {
+      successMsg += ' Saved to Google Drive.';
+    } else {
+      successMsg += ' (Google Drive upload failed — check Railway logs.)';
+    }
+  }
+
+  req.session.flash = { type: 'success', message: successMsg };
   res.redirect('/admin/dashboard');
 }));
 
@@ -442,6 +460,20 @@ router.post('/livestream', requireAdmin, asyncHandler(async (req, res) => {
   ]);
 
   req.session.flash = { type: 'success', message: 'Livestream settings saved.' };
+  res.redirect('/admin/dashboard');
+}));
+
+// -- GOOGLE DRIVE SETTINGS --
+
+router.post('/settings/drive', requireAdmin, asyncHandler(async (req, res) => {
+  var raw = (req.body.google_drive_folder_url || '').trim();
+
+  // Accept either a full folder URL or a bare folder ID
+  var match = raw.match(/\/folders\/([a-zA-Z0-9_-]+)/);
+  var folderId = match ? match[1] : raw;
+
+  await db.setSetting('google_drive_folder_id', folderId);
+  req.session.flash = { type: 'success', message: 'Google Drive settings saved.' };
   res.redirect('/admin/dashboard');
 }));
 

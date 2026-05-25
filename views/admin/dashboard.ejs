@@ -102,6 +102,53 @@
       </div>
     </section>
 
+    <!-- ── Google Drive Integration ─────────────────────────────────────── -->
+    <section class="admin-section" aria-labelledby="drive-heading">
+      <h2 class="admin-section-title" id="drive-heading">&#128194; Google Drive Backup</h2>
+      <div class="admin-settings-card">
+
+        <div class="admin-settings-row" style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+          <% if (driveConfigured) { %>
+            <span class="badge badge--approved">&#10003; Service account connected</span>
+          <% } else { %>
+            <span class="badge badge--warning">&#33; Service account not set</span>
+            <p class="admin-settings-hint" style="margin:0.5rem 0 0;">
+              Set the <code>GOOGLE_SERVICE_ACCOUNT_JSON</code> environment variable in Railway
+              (raw JSON or base64-encoded). The service account must have <em>Editor</em>
+              access on the target folder.
+            </p>
+          <% } %>
+        </div>
+
+        <form action="/admin/settings/drive" method="post" class="admin-settings-form" style="margin-top:1.25rem;">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <div class="admin-settings-row">
+            <label class="admin-settings-label" for="google_drive_folder_url">
+              Google Drive Folder URL <span class="optional">(or Folder ID)</span>
+            </label>
+            <input
+              type="text"
+              id="google_drive_folder_url"
+              name="google_drive_folder_url"
+              class="admin-settings-input"
+              value="<%= siteSettings.google_drive_folder_id %>"
+              placeholder="https://drive.google.com/drive/folders/… or just the folder ID"
+            >
+            <p class="admin-settings-hint">
+              Paste the full folder URL from your browser or just the folder ID.
+              Approved photos are automatically uploaded to this folder.
+            </p>
+          </div>
+
+          <div class="admin-settings-row">
+            <button type="submit" class="admin-btn admin-btn--primary">Save Drive Settings</button>
+          </div>
+        </form>
+
+      </div>
+    </section>
+
     <!-- ── Site Images ────────────────────────────────────────────────────── -->
     <section class="admin-section" aria-labelledby="site-images-heading">
       <h2 class="admin-section-title" id="site-images-heading">&#128444; Site Images</h2>
