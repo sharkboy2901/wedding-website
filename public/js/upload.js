@@ -20,14 +20,8 @@
 
   var currentFiles = []; // ordered array of File objects
 
-  // Sync currentFiles into the hidden file input via DataTransfer
-  function syncFileInput() {
-    try {
-      var dt = new DataTransfer();
-      currentFiles.forEach(function (f) { dt.items.add(f); });
-      fileInput.files = dt.files;
-    } catch (_) { /* older browsers: input managed by server form post */ }
-  }
+  // No-op kept for call-site compatibility — fetch submission no longer needs it
+  function syncFileInput() {}
 
   function renderPreviews() {
     previewGrid.innerHTML = '';
@@ -168,11 +162,32 @@
   });
 
   form.addEventListener('submit', function (e) {
-    syncFileInput(); // re-sync right before submission
-    if (currentFiles.length === 0) { e.preventDefault(); return; }
+    e.preventDefault();
+    if (currentFiles.length === 0) return;
+
     if (submitBtn) {
       submitBtn.disabled    = true;
       submitBtn.textContent = 'Uploading…';
     }
+
+    // Build FormData directly from currentFiles — no DataTransfer needed,
+    // so this works on all mobile browsers.
+    var fd = new FormData(form); // picks up _csrf, uploader_name, uploader_message
+    fd.delete('photos');
+    currentFiles.forEach(function (f) { fd.append('photos', f); });
+
+    fetch('/upload', { method: 'POST', body: fd })
+      .then(function (r) { return r.text(); })
+      .then(function (html) {
+        // Works for both success redirect (server redirects → fetch follows → success page HTML)
+        // and error (server renders upload page with error flash HTML).
+        document.open(); document.write(html); document.close();
+      })
+      .catch(function () {
+        if (submitBtn) {
+          submitBtn.disabled    = false;
+          submitBtn.textContent = 'Upload Photos';
+        }
+      });
   });
 })();
