@@ -34,13 +34,13 @@
       <% } else { %>
 
       <div class="upload-info">
-        <p>Share your photos from our wedding day! You can upload up to <%= MAX_FILES %> photos at once. All uploads are reviewed before appearing in the public gallery.</p>
+        <p>Share your photos from our wedding day! You can upload up to <%= MAX_FILES %> photos at once. All photos are reviewed and must be approved before they appear in the public gallery — only approved photos will be visible to other guests.</p>
         <ul class="upload-rules">
           <li>JPEG, PNG, or WebP images only</li>
           <li>Maximum file size: <%= MAX_SIZE_MB %> MB per photo</li>
           <li>Up to <%= MAX_FILES %> photos per submission</li>
           <li>Up to <%= photoLimit %> photos total per guest name<% if (remaining !== null) { %> &mdash; <strong><%= remaining %> remaining</strong><% } %></li>
-          <li>Photos are moderated before appearing publicly</li>
+          <li>Photos require approval before appearing in the gallery</li>
         </ul>
       </div>
 
@@ -95,6 +95,7 @@
             rows="3"
             placeholder="Add a caption or message for your photos..."
           ></textarea>
+          <p class="form-hint">Your caption will be displayed alongside your photos in the gallery once approved.</p>
         </div>
 
         <button type="submit" class="btn btn-primary btn--full" id="submit-btn">
