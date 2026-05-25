@@ -150,9 +150,10 @@
   });
 
   fileInput.addEventListener('change', function (e) {
-    if (e.target.files && e.target.files.length > 0) addFiles(e.target.files);
-    // Reset so the same file can be added back after removal
+    var files = Array.from(e.target.files || []);
+    // Reset input BEFORE addFiles so the subsequent syncFileInput() sticks
     try { fileInput.value = ''; } catch (_) {}
+    if (files.length > 0) addFiles(files);
   });
 
   // Drag and drop
@@ -166,9 +167,9 @@
     if (e.dataTransfer.files.length > 0) addFiles(e.dataTransfer.files);
   });
 
-  // Prevent double-submit
-  form.addEventListener('submit', function () {
-    if (currentFiles.length === 0) return;
+  form.addEventListener('submit', function (e) {
+    syncFileInput(); // re-sync right before submission
+    if (currentFiles.length === 0) { e.preventDefault(); return; }
     if (submitBtn) {
       submitBtn.disabled    = true;
       submitBtn.textContent = 'Uploading…';
