@@ -272,9 +272,16 @@ router.post('/photo/:id/approve', requireAdmin, asyncHandler(async (req, res) =>
     var driveErr = null;
     var driveResult = await uploadToDrive(dest, photo.original_name || photo.filename, photo.mime_type, extractFolderId(folderId))
       .catch(function(e) { driveErr = e; return null; });
-    successMsg += driveResult
-      ? ' Saved to Google Drive.'
-      : ' (Drive upload failed: ' + (driveErr && driveErr.message ? driveErr.message : 'check Railway logs') + ')';
+    if (driveResult) {
+      successMsg += ' Saved to Google Drive.';
+    } else {
+      var driveDetail = 'unknown error';
+      if (driveErr) {
+        driveDetail = driveErr.message || driveDetail;
+        if (driveErr.errors && driveErr.errors.length) driveDetail += ' — ' + driveErr.errors.map(function(e) { return e.message; }).join('; ');
+      }
+      successMsg += ' (Drive upload failed: ' + driveDetail + ')';
+    }
   }
 
   return ajaxOk(req, res, successMsg);
@@ -548,6 +555,64 @@ router.post('/settings/drive', requireAdmin, asyncHandler(async (req, res) => {
 
   await db.setSetting('google_drive_folder_id', normalizedUrl);
   req.session.flash = { type: 'success', message: 'Google Drive settings saved.' };
+  res.redirect('/admin/dashboard');
+}));
+
+// -- GOOGLE DRIVE: TEST CONNECTION --
+
+router.post('/settings/drive/test', requireAdmin, asyncHandler(async (req, res) => {
+  const { google } = require('googleapis');
+
+  // Re-run the same credential logic as driveUpload.js so the test is accurate
+  function buildDriveClient() {
+    const clientId     = process.env.GOOGLE_OAUTH_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET;
+    const refreshToken = process.env.GOOGLE_OAUTH_REFRESH_TOKEN;
+    if (clientId && clientSecret && refreshToken) {
+      try {
+        const oauth2 = new google.auth.OAuth2(clientId, clientSecret);
+        oauth2.setCredentials({ refresh_token: refreshToken });
+        return { drive: google.drive({ version: 'v3', auth: oauth2 }), mode: 'OAuth2' };
+      } catch (e) {
+        return { error: 'OAuth2 init failed: ' + e.message };
+      }
+    }
+    const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+    if (!raw) return { error: 'No credentials found. Set GOOGLE_SERVICE_ACCOUNT_JSON (or the three GOOGLE_OAUTH_* vars) in Railway.' };
+    try {
+      const json  = raw.trim().startsWith('{') ? raw : Buffer.from(raw, 'base64').toString('utf8');
+      const creds = JSON.parse(json);
+      const auth  = new google.auth.GoogleAuth({ credentials: creds, scopes: ['https://www.googleapis.com/auth/drive'] });
+      return { drive: google.drive({ version: 'v3', auth }), mode: 'Service Account (' + creds.client_email + ')' };
+    } catch (e) {
+      return { error: 'Service account JSON is invalid: ' + e.message };
+    }
+  }
+
+  var built = buildDriveClient();
+  if (built.error) {
+    req.session.flash = { type: 'error', message: 'Drive test failed — ' + built.error };
+    return res.redirect('/admin/dashboard');
+  }
+
+  var folderId = await db.getSetting('google_drive_folder_id');
+  var folderIdOnly = folderId ? extractFolderId(folderId) : null;
+
+  try {
+    // List 1 file — proves auth works and (if folderId given) that the folder is accessible
+    var params = { pageSize: 1, fields: 'files(id,name)', supportsAllDrives: true, includeItemsFromAllDrives: true };
+    if (folderIdOnly) params.q = '"' + folderIdOnly + '" in parents';
+    await built.drive.files.list(params);
+    var msg = 'Drive connection OK (' + built.mode + ').';
+    msg += folderIdOnly ? ' Folder is accessible.' : ' No folder set yet — paste a folder URL below and save.';
+    req.session.flash = { type: 'success', message: msg };
+  } catch (err) {
+    var detail = err.message || 'unknown error';
+    if (err.errors && err.errors.length) detail += ' — ' + err.errors.map(function(e) { return e.message; }).join('; ');
+    if (err.response && err.response.data && err.response.data.error_description) detail += ' — ' + err.response.data.error_description;
+    req.session.flash = { type: 'error', message: 'Drive test failed (' + built.mode + '): ' + detail };
+  }
+
   res.redirect('/admin/dashboard');
 }));
 

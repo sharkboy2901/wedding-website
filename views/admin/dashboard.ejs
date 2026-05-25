@@ -110,15 +110,20 @@
 
         <div class="admin-settings-row" style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
           <% if (driveConfigured) { %>
-            <span class="badge badge--approved">&#10003; Service account connected</span>
+            <span class="badge badge--approved">&#10003; Service account credentials set</span>
           <% } else { %>
-            <span class="badge badge--warning">&#33; Service account not set</span>
+            <span class="badge badge--warning">&#33; No credentials set</span>
             <p class="admin-settings-hint" style="margin:0.5rem 0 0;">
-              Set the <code>GOOGLE_SERVICE_ACCOUNT_JSON</code> environment variable in Railway
-              (raw JSON or base64-encoded). The service account must have <em>Editor</em>
-              access on the target folder.
+              Set <code>GOOGLE_SERVICE_ACCOUNT_JSON</code> in Railway (raw JSON or base64-encoded),
+              then share your Drive folder with the service account email and paste the folder URL below.
             </p>
           <% } %>
+          <form action="/admin/settings/drive/test" method="post" style="margin:0;">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button type="submit" class="admin-btn admin-btn--secondary" style="font-size:0.8rem;padding:0.3rem 0.75rem;">
+              &#9654; Test Connection
+            </button>
+          </form>
         </div>
 
         <form action="/admin/settings/drive" method="post" class="admin-settings-form" style="margin-top:1.25rem;">
