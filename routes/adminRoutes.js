@@ -263,12 +263,13 @@ router.post('/photo/:id/approve', requireAdmin, asyncHandler(async (req, res) =>
   if (folderId) {
     var folderIdOnly = extractFolderId(folderId);
     var displayName = photo.original_name || photo.filename;
+    var driveErr = null;
     var driveResult = await uploadToDrive(dest, displayName, photo.mime_type, folderIdOnly)
-      .catch(function() { return null; });
+      .catch(function(e) { driveErr = e; return null; });
     if (driveResult) {
       successMsg += ' Saved to Google Drive.';
     } else {
-      successMsg += ' (Google Drive upload failed — check Railway logs.)';
+      successMsg += ' (Google Drive upload failed: ' + (driveErr && driveErr.message ? driveErr.message : 'check Railway logs') + ')';
     }
   }
 
