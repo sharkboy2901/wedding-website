@@ -168,7 +168,7 @@ router.get('/', requireAdmin, (req, res) => res.redirect('/admin/dashboard'));
 router.get('/dashboard', requireAdmin, asyncHandler(async (req, res) => {
   const [pendingPhotos, approvedPhotos, photoStats, rsvpStats, allSettings] = await Promise.all([
     db.getPendingPhotos(),
-    db.getApprovedPhotos(),
+    db.getAllApprovedPhotos(),
     db.getPhotoStats(),
     db.getRsvpStats(),
     db.getAllSettings(),
@@ -393,6 +393,30 @@ router.post('/photo/:id/unfeature', requireAdmin, asyncHandler(async (req, res) 
   }
   await db.setPhotoFeatured(photo.id, false);
   req.session.flash = { type: 'success', message: 'Photo removed from home page feature.' };
+  res.redirect('/admin/dashboard');
+}));
+
+// -- PHOTO: HIDE / UNHIDE FROM PUBLIC GALLERY --
+
+router.post('/photo/:id/hide', requireAdmin, asyncHandler(async (req, res) => {
+  const photo = await db.getPhotoById(req.params.id);
+  if (!photo || photo.status !== 'approved') {
+    req.session.flash = { type: 'error', message: 'Photo not found or not approved.' };
+    return res.redirect('/admin/dashboard');
+  }
+  await db.setPhotoHidden(photo.id, true);
+  req.session.flash = { type: 'success', message: 'Photo hidden from the public gallery.' };
+  res.redirect('/admin/dashboard');
+}));
+
+router.post('/photo/:id/unhide', requireAdmin, asyncHandler(async (req, res) => {
+  const photo = await db.getPhotoById(req.params.id);
+  if (!photo || photo.status !== 'approved') {
+    req.session.flash = { type: 'error', message: 'Photo not found or not approved.' };
+    return res.redirect('/admin/dashboard');
+  }
+  await db.setPhotoHidden(photo.id, false);
+  req.session.flash = { type: 'success', message: 'Photo is now visible in the public gallery.' };
   res.redirect('/admin/dashboard');
 }));
 

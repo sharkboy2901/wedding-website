@@ -286,12 +286,15 @@
       <h2 class="admin-section-title" id="approved-heading">&#10003; Approved Photos</h2>
 
       <% if (approvedPhotos && approvedPhotos.length > 0) { %>
-        <p class="admin-section-note">Feature photos to show them on the home page. Unfeature or delete as needed.</p>
+        <p class="admin-section-note">Feature photos to highlight them on the home page. Use "Hide from Gallery" to keep a photo approved but invisible to guests — you can unhide it any time.</p>
         <div class="admin-photo-grid">
           <% approvedPhotos.forEach(function(photo) { %>
-            <div class="admin-photo-card admin-photo-card--approved<%= photo.featured ? ' admin-photo-card--featured' : '' %>">
+            <div class="admin-photo-card admin-photo-card--approved<%= photo.featured ? ' admin-photo-card--featured' : '' %><%= photo.hidden ? ' admin-photo-card--hidden' : '' %>">
               <% if (photo.featured) { %>
                 <div class="admin-featured-badge">&#9733; Featured on Home</div>
+              <% } %>
+              <% if (photo.hidden) { %>
+                <div class="admin-hidden-badge">&#128683; Hidden from guests</div>
               <% } %>
               <button type="button"
                       class="admin-photo-thumb admin-photo-preview-btn"
@@ -306,28 +309,43 @@
               <div class="admin-photo-info">
                 <div class="admin-photo-meta">
                   <strong><%= photo.uploader_name || 'Anonymous' %></strong>
-                  <span class="badge badge--approved">Approved</span><br>
+                  <% if (photo.hidden) { %>
+                    <span class="badge badge--hidden">&#128683; Hidden</span>
+                  <% } else { %>
+                    <span class="badge badge--approved">Approved</span>
+                  <% } %><br>
                   <span class="admin-photo-date"><%= photo.reviewed_at ? new Date(photo.reviewed_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}) : '' %></span>
                 </div>
                 <% if (photo.uploader_message) { %>
                   <p class="admin-photo-msg">"<%= photo.uploader_message %>"</p>
                 <% } %>
                 <div class="admin-photo-actions" style="flex-direction:column;gap:0.4rem;">
-                  <% if (!photo.featured) { %>
-                    <form action="/admin/photo/<%= photo.id %>/feature" method="post">
+                  <% if (!photo.hidden) { %>
+                    <% if (!photo.featured) { %>
+                      <form action="/admin/photo/<%= photo.id %>/feature" method="post">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <button type="submit" class="btn-feature btn--full-width">&#9733; Feature on Home</button>
+                      </form>
+                    <% } else { %>
+                      <form action="/admin/photo/<%= photo.id %>/unfeature" method="post">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <button type="submit" class="btn-unfeature btn--full-width">&#9734; Remove from Home</button>
+                      </form>
+                    <% } %>
+                    <form action="/admin/photo/<%= photo.id %>/hide" method="post">
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                      <button type="submit" class="btn-feature btn--full-width">&#9733; Feature on Home</button>
+                      <button type="submit" class="btn-hide btn--full-width">&#128683; Hide from Gallery</button>
                     </form>
                   <% } else { %>
-                    <form action="/admin/photo/<%= photo.id %>/unfeature" method="post">
+                    <form action="/admin/photo/<%= photo.id %>/unhide" method="post">
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                      <button type="submit" class="btn-unfeature btn--full-width">&#9734; Remove from Home</button>
+                      <button type="submit" class="btn-unhide btn--full-width">&#128065; Show in Gallery</button>
                     </form>
                   <% } %>
                   <form action="/admin/photo/<%= photo.id %>/delete" method="post">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <button type="submit" class="btn-reject btn--full-width btn-reject.btn--full-width"
-                            onclick="return confirm('Remove this photo from the public gallery?')">Delete</button>
+                    <button type="submit" class="btn-reject btn--full-width"
+                            onclick="return confirm('Permanently delete this photo?')">Delete</button>
                   </form>
                 </div>
               </div>

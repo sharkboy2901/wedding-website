@@ -1948,6 +1948,55 @@ p:last-child { margin-bottom: 0; }
   text-align: center;
 }
 
+.admin-photo-card--hidden {
+  opacity: 0.65;
+  border: 1.5px dashed #9e99b5;
+}
+.admin-photo-card--hidden:hover { opacity: 1; }
+
+.admin-hidden-badge {
+  background: #4a4560;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.6rem;
+  text-align: center;
+}
+
+.badge--hidden { background: #e8e6f0; color: #4a4560; }
+
+.btn-hide {
+  flex: 1;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius);
+  border: 1px dashed #9e99b5;
+  background: transparent;
+  color: #4a4560;
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.btn-hide:hover { background: #e8e6f0; }
+
+.btn-unhide {
+  flex: 1;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius);
+  border: none;
+  background: #e8e6f0;
+  color: #4a4560;
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-unhide:hover { background: #d4d0e8; }
+
 /* ═══════════════════════════════════════════════════════════════════════════
    ADMIN — Section subtitle
    ═══════════════════════════════════════════════════════════════════════════ */

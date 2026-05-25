@@ -36,17 +36,26 @@ async function insertPhoto({ filename, originalName, mimeType, fileSize, uploade
 }
 
 async function getApprovedPhotos() {
+  const photos = await photosDb.find({ status: 'approved', hidden: { $ne: true } }).sort({ reviewedAt: -1 });
+  return photos.map(normalisePhoto);
+}
+
+async function getAllApprovedPhotos() {
   const photos = await photosDb.find({ status: 'approved' }).sort({ reviewedAt: -1 });
   return photos.map(normalisePhoto);
 }
 
 async function getFeaturedPhotos() {
-  const photos = await photosDb.find({ status: 'approved', featured: true }).sort({ reviewedAt: -1 });
+  const photos = await photosDb.find({ status: 'approved', featured: true, hidden: { $ne: true } }).sort({ reviewedAt: -1 });
   return photos.map(normalisePhoto);
 }
 
 async function setPhotoFeatured(id, featured) {
   return photosDb.update({ _id: id }, { $set: { featured: !!featured } });
+}
+
+async function setPhotoHidden(id, hidden) {
+  return photosDb.update({ _id: id }, { $set: { hidden: !!hidden } });
 }
 
 async function getPendingPhotos() {
@@ -97,6 +106,7 @@ function normalisePhoto(doc) {
     file_size:        doc.fileSize,
     status:           doc.status,
     featured:         !!doc.featured,
+    hidden:           !!doc.hidden,
     uploader_name:    doc.uploaderName,
     uploader_message: doc.uploaderMessage,
     uploaded_at:      doc.uploadedAt,
@@ -191,8 +201,10 @@ async function ensureAdminExists(username, plainPassword) {
 module.exports = {
   insertPhoto,
   getApprovedPhotos,
+  getAllApprovedPhotos,
   getFeaturedPhotos,
   setPhotoFeatured,
+  setPhotoHidden,
   getPendingPhotos,
   getPhotoById,
   updatePhotoStatus,
