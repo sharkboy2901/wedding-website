@@ -176,12 +176,11 @@
     fd.delete('photos');
     currentFiles.forEach(function (f) { fd.append('photos', f); });
 
-    fetch('/upload', { method: 'POST', body: fd })
-      .then(function (r) { return r.text(); })
-      .then(function (html) {
-        // Works for both success redirect (server redirects → fetch follows → success page HTML)
-        // and error (server renders upload page with error flash HTML).
-        document.open(); document.write(html); document.close();
+    // redirect:'manual' stops fetch from silently consuming the session flash
+    // before the browser navigates.  Server always redirects (PRG pattern).
+    fetch('/upload', { method: 'POST', body: fd, redirect: 'manual' })
+      .then(function () {
+        window.location.replace('/upload');
       })
       .catch(function () {
         if (submitBtn) {

@@ -98,19 +98,12 @@ router.get('/upload', asyncHandler(async function(req, res) {
 router.post('/upload', function(req, res, next) {
   uploadMiddleware(req, res, async function(err) {
     var config = siteConfig();
-    var navConfig = await getNavConfig();
-    var livestreamVisible = navConfig.livestreamVisible;
 
-    function renderUpload(flash, photoCount) {
-      return res.render('upload', {
-        config:    config,
-        flash:     flash,
-        MAX_SIZE_MB:  MAX_SIZE_MB,
-        MAX_FILES:    MAX_FILES,
-        photoCount:   photoCount != null ? photoCount : null,
-        photoLimit:   PHOTO_LIMIT_PER_GUEST,
-        livestreamVisible: livestreamVisible,
-      });
+    // Post/Redirect/Get: always store result in session flash and redirect.
+    // This avoids document.write() on the client and prevents double-submit.
+    function flashAndRedirect(type, message) {
+      req.session.flash = { type: type, message: message };
+      return res.redirect('/upload');
     }
 
     // CSRF check (after multer has parsed the multipart body)
@@ -132,12 +125,18 @@ router.post('/upload', function(req, res, next) {
       } else if (err.message === 'INVALID_TYPE') {
         errMsg = 'Invalid file type. Only JPEG, PNG, and WebP images are accepted.';
       }
-      return renderUpload({ type: 'error', message: errMsg }, null);
+      return flashAndRedirect('error', errMsg);
     }
 
     var files = req.files || [];
+
+    // Log what the server actually received — visible in Railway logs for debugging.
+    console.log('[Upload] POST received — files:', files.length,
+                '| body fields:', Object.keys(req.body || {}).join(',') || '(none)',
+                '| content-type:', (req.headers['content-type'] || '').split(';')[0]);
+
     if (files.length === 0) {
-      return renderUpload({ type: 'error', message: 'Please select at least one photo to upload.' }, null);
+      return flashAndRedirect('error', 'Please select at least one photo to upload.');
     }
 
     var uploaderName    = req.body.uploader_name    ? req.body.uploader_name.trim().substring(0, 100)    : null;
@@ -148,28 +147,16 @@ router.post('/upload', function(req, res, next) {
     var remaining = PHOTO_LIMIT_PER_GUEST - existingCount;
 
     if (remaining <= 0) {
-      return res.status(400).render('upload', {
-        config:   config,
-        flash: {
-          type:    'error',
-          message: "You've already uploaded " + existingCount + " photo" + (existingCount !== 1 ? 's' : '') +
-            " — the maximum is " + PHOTO_LIMIT_PER_GUEST + " per guest. Thank you for sharing so many memories!",
-        },
-        MAX_SIZE_MB:  MAX_SIZE_MB,
-        MAX_FILES:    MAX_FILES,
-        photoCount:   existingCount,
-        photoLimit:   PHOTO_LIMIT_PER_GUEST,
-        livestreamVisible: livestreamVisible,
-      });
+      return flashAndRedirect('error',
+        "You've already uploaded " + existingCount + " photo" + (existingCount !== 1 ? 's' : '') +
+        " — the maximum is " + PHOTO_LIMIT_PER_GUEST + " per guest. Thank you for sharing so many memories!");
     }
 
     if (files.length > remaining) {
-      return renderUpload({
-        type: 'error',
-        message: 'You can only upload ' + remaining + ' more photo' + (remaining !== 1 ? 's' : '') +
-          ' (limit: ' + PHOTO_LIMIT_PER_GUEST + ' per guest). You selected ' + files.length +
-          ' — please remove ' + (files.length - remaining) + '.',
-      }, existingCount);
+      return flashAndRedirect('error',
+        'You can only upload ' + remaining + ' more photo' + (remaining !== 1 ? 's' : '') +
+        ' (limit: ' + PHOTO_LIMIT_PER_GUEST + ' per guest). You selected ' + files.length +
+        ' — please remove ' + (files.length - remaining) + '.');
     }
 
     // Validate all files via magic bytes before writing anything to disk
@@ -185,7 +172,7 @@ router.post('/upload', function(req, res, next) {
     }
 
     if (validationErrors.length > 0) {
-      return renderUpload({ type: 'error', message: validationErrors.join(' ') }, existingCount);
+      return flashAndRedirect('error', validationErrors.join(' '));
     }
 
     // All valid — save to disk then insert into DB
@@ -210,10 +197,10 @@ router.post('/upload', function(req, res, next) {
           ? 'Your photo has been uploaded! It will appear in the gallery once approved. Thank you!'
           : count + ' photos have been uploaded! They will appear in the gallery once approved. Thank you!',
       };
-      res.redirect('/upload');
+      return res.redirect('/upload');
     } catch (dbErr) {
       console.error('[Upload] DB error:', dbErr.message);
-      renderUpload({ type: 'error', message: 'Something went wrong saving your photos. Please try again.' }, existingCount);
+      return flashAndRedirect('error', 'Something went wrong saving your photos. Please try again.');
     }
   });
 });
