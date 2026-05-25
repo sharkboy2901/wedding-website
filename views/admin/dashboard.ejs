@@ -205,24 +205,46 @@
 
     <!-- ── Pending Photos ─────────────────────────────────────────────────── -->
     <section class="admin-section" aria-labelledby="pending-heading">
-      <h2 class="admin-section-title" id="pending-heading">
-        &#9203; Pending Photos
-        <% if (photoStats.pending > 0) { %>
-          <span class="badge badge--warning"><%= photoStats.pending %></span>
+      <div class="admin-section-header">
+        <h2 class="admin-section-title" id="pending-heading">
+          &#9203; Pending Photos
+          <% if (photoStats.pending > 0) { %>
+            <span class="badge badge--warning"><%= photoStats.pending %></span>
+          <% } %>
+        </h2>
+        <% if (pendingPhotos && pendingPhotos.length > 0) { %>
+          <div class="admin-bulk-controls" id="bulk-controls">
+            <button type="button" class="admin-btn admin-btn--secondary admin-btn--sm" id="select-all-btn">Select all</button>
+          </div>
         <% } %>
-      </h2>
+      </div>
 
       <% if (pendingPhotos && pendingPhotos.length > 0) { %>
-        <p class="admin-section-note">Review guest photos. Approve to add to the public gallery or reject to discard.</p>
-        <div class="admin-photo-grid">
+        <p class="admin-section-note">Review guest photos. Click a photo to preview it in full. Tick boxes and use the action bar to approve or reject in bulk.</p>
+
+        <!-- Hidden bulk action form -->
+        <form id="bulk-form" action="/admin/photos/bulk-action" method="post" style="display:none;">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <input type="hidden" name="action" id="bulk-action-input" value="">
+        </form>
+
+        <div class="admin-photo-grid" id="pending-grid">
           <% pendingPhotos.forEach(function(photo) { %>
-            <div class="admin-photo-card">
-              <div class="admin-photo-thumb">
+            <div class="admin-photo-card admin-photo-card--selectable" data-photo-id="<%= photo.id %>">
+              <label class="admin-photo-select-wrap" aria-label="Select photo by <%= photo.uploader_name || 'anonymous' %>">
+                <input type="checkbox" class="photo-checkbox" value="<%= photo.id %>">
+                <span class="admin-photo-checkmark" aria-hidden="true"></span>
+              </label>
+              <button type="button"
+                      class="admin-photo-thumb admin-photo-preview-btn"
+                      data-src="/admin/photo/<%= photo.id %>/image"
+                      data-caption="<%= photo.uploader_name || 'Anonymous' %><%= photo.uploaded_at ? ' · ' + new Date(photo.uploaded_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}) : '' %>"
+                      aria-label="Preview photo by <%= photo.uploader_name || 'anonymous' %>">
                 <img class="admin-photo-img"
                      src="/admin/photo/<%= photo.id %>/image"
                      alt="Photo by <%= photo.uploader_name || 'anonymous' %>"
                      loading="lazy">
-              </div>
+              </button>
               <div class="admin-photo-info">
                 <div class="admin-photo-meta">
                   <strong><%= photo.uploader_name || 'Anonymous' %></strong><br>
@@ -237,10 +259,9 @@
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <button type="submit" class="btn-approve btn--full-width">&#10003; Approve</button>
                   </form>
-                  <form action="/admin/photo/<%= photo.id %>/reject" method="post" style="flex:1;">
+                  <form action="/admin/photo/<%= photo.id %>/reject" method="post" style="flex:1;" class="reject-form">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <button type="submit" class="btn-reject btn--full-width"
-                            onclick="return confirm('Reject and delete this photo?')">&#10007; Reject</button>
+                    <button type="submit" class="btn-reject btn--full-width">&#10007; Reject</button>
                   </form>
                 </div>
               </div>
@@ -251,6 +272,14 @@
         <div class="admin-empty">No photos pending review.</div>
       <% } %>
     </section>
+
+    <!-- Bulk action bar (shown when ≥1 checkbox checked) -->
+    <div class="admin-bulk-bar" id="bulk-bar" hidden aria-live="polite">
+      <span class="admin-bulk-bar-count" id="bulk-bar-count">0 selected</span>
+      <button type="button" class="admin-btn admin-btn--sm btn-approve" id="bulk-approve-btn">&#10003; Approve selected</button>
+      <button type="button" class="admin-btn admin-btn--sm btn-reject"  id="bulk-reject-btn">&#10007; Reject selected</button>
+      <button type="button" class="admin-btn admin-btn--sm admin-btn--ghost" id="bulk-clear-btn">Clear</button>
+    </div>
 
     <!-- ── Approved Photos ────────────────────────────────────────────────── -->
     <section class="admin-section" aria-labelledby="approved-heading">
@@ -264,12 +293,16 @@
               <% if (photo.featured) { %>
                 <div class="admin-featured-badge">&#9733; Featured on Home</div>
               <% } %>
-              <div class="admin-photo-thumb">
+              <button type="button"
+                      class="admin-photo-thumb admin-photo-preview-btn"
+                      data-src="/uploads/approved/<%= encodeURIComponent(photo.filename) %>"
+                      data-caption="<%= photo.uploader_name || 'Anonymous' %><%= photo.reviewed_at ? ' · ' + new Date(photo.reviewed_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}) : '' %>"
+                      aria-label="Preview photo by <%= photo.uploader_name || 'anonymous' %>">
                 <img class="admin-photo-img"
-                     src="/uploads/approved/<%= photo.filename %>"
+                     src="/uploads/approved/<%= encodeURIComponent(photo.filename) %>"
                      alt="Photo by <%= photo.uploader_name || 'anonymous' %>"
                      loading="lazy">
-              </div>
+              </button>
               <div class="admin-photo-info">
                 <div class="admin-photo-meta">
                   <strong><%= photo.uploader_name || 'Anonymous' %></strong>
@@ -309,5 +342,17 @@
   </div>
 </main>
 
+<!-- Admin photo lightbox -->
+<div class="lightbox" id="admin-lightbox" hidden role="dialog" aria-modal="true" aria-label="Photo preview">
+  <div class="lightbox-inner">
+    <img class="lightbox-img" id="admin-lightbox-img" src="" alt="">
+    <p class="lightbox-caption" id="admin-lightbox-caption"></p>
+  </div>
+  <button class="lightbox-close" id="admin-lightbox-close" aria-label="Close preview">&#10005;</button>
+  <button class="lightbox-prev" id="admin-lightbox-prev" aria-label="Previous photo">&#8249;</button>
+  <button class="lightbox-next" id="admin-lightbox-next" aria-label="Next photo">&#8250;</button>
+</div>
+
+<script src="/js/admin.js?v=2"></script>
 </body>
 </html>

@@ -1197,6 +1197,110 @@ p:last-child { margin-bottom: 0; }
   border: 1px solid #C6E8D0;
 }
 
+/* Selectable pending photo cards */
+.admin-photo-card--selectable {
+  position: relative;
+}
+.admin-photo-card--selected {
+  outline: 3px solid var(--color-primary);
+  outline-offset: -3px;
+}
+
+/* Checkbox overlay in top-left corner of thumbnail */
+.admin-photo-select-wrap {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.admin-photo-select-wrap input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.admin-photo-checkmark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.9);
+  background: rgba(0,0,0,0.35);
+  transition: background 0.15s, border-color 0.15s;
+  backdrop-filter: blur(2px);
+}
+.admin-photo-select-wrap input:checked ~ .admin-photo-checkmark {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.admin-photo-select-wrap input:checked ~ .admin-photo-checkmark::after {
+  content: '✓';
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* Thumbnail as a clickable preview button */
+.admin-photo-preview-btn {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: zoom-in;
+  outline: none;
+}
+.admin-photo-preview-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Bulk action bar — sticky at viewport bottom */
+.admin-bulk-bar {
+  position: fixed;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border, #e2d9f3);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+  z-index: 200;
+  flex-wrap: wrap;
+  max-width: calc(100vw - 2rem);
+}
+.admin-bulk-bar[hidden] { display: none; }
+.admin-bulk-bar-count {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  padding-right: 0.25rem;
+}
+.admin-btn--ghost {
+  background: transparent;
+  border: 1px solid var(--color-border, #e2d9f3);
+  color: var(--color-text-muted);
+}
+.admin-btn--ghost:hover { background: var(--color-light); }
+
+/* Bulk controls in section header */
+.admin-bulk-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
 .btn--full-width {
   width: 100%;
 }

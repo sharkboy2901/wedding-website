@@ -294,6 +294,66 @@ router.post('/photo/:id/reject', requireAdmin, asyncHandler(async (req, res) => 
   res.redirect('/admin/dashboard');
 }));
 
+// -- PHOTOS: BULK APPROVE / REJECT --
+
+router.post('/photos/bulk-action', requireAdmin, asyncHandler(async (req, res) => {
+  if (!validateCsrfFromBody(req)) {
+    req.session.flash = { type: 'error', message: 'Invalid security token. Please try again.' };
+    return res.redirect('/admin/dashboard');
+  }
+
+  var action = req.body.action;
+  var ids    = req.body.photo_ids;
+
+  if (!ids || !['approve', 'reject'].includes(action)) {
+    req.session.flash = { type: 'error', message: 'Invalid bulk action.' };
+    return res.redirect('/admin/dashboard');
+  }
+
+  if (!Array.isArray(ids)) ids = [ids];
+  ids = ids.filter(function(id) { return typeof id === 'string' && id.trim(); });
+
+  var folderId = null;
+  if (action === 'approve') {
+    folderId = await db.getSetting('google_drive_folder_id');
+  }
+
+  var approved = 0, rejected = 0, skipped = 0;
+  for (var i = 0; i < ids.length; i++) {
+    var photo = await db.getPhotoById(ids[i]);
+    if (!photo || photo.status !== 'pending') { skipped++; continue; }
+
+    if (action === 'approve') {
+      if (!SAFE_FILENAME_RE.test(photo.filename)) { skipped++; continue; }
+      var src  = path.join(PENDING_DIR,  photo.filename);
+      var dest = path.join(APPROVED_DIR, photo.filename);
+      if (!fs.existsSync(src)) { skipped++; continue; }
+      fs.renameSync(src, dest);
+      await db.updatePhotoStatus(photo.id, 'approved');
+      if (folderId) {
+        var folderIdOnly  = extractFolderId(folderId);
+        var displayName   = photo.original_name || photo.filename;
+        var photoMime     = photo.mime_type;
+        var photoDest     = dest;
+        uploadToDrive(photoDest, displayName, photoMime, folderIdOnly).catch(function() {});
+      }
+      approved++;
+    } else {
+      safeDeleteFile(PENDING_DIR, photo.filename);
+      await db.updatePhotoStatus(photo.id, 'rejected');
+      rejected++;
+    }
+  }
+
+  var parts = [];
+  if (approved > 0) parts.push(approved + ' photo' + (approved !== 1 ? 's' : '') + ' approved');
+  if (rejected > 0) parts.push(rejected + ' photo' + (rejected !== 1 ? 's' : '') + ' rejected');
+  if (skipped  > 0) parts.push(skipped  + ' skipped (not found or already reviewed)');
+
+  req.session.flash = { type: 'success', message: parts.join(', ') + '.' };
+  res.redirect('/admin/dashboard');
+}));
+
 // -- PHOTO: DELETE APPROVED (remove from public gallery) --
 
 router.post('/photo/:id/delete', requireAdmin, asyncHandler(async (req, res) => {
