@@ -36,17 +36,26 @@ async function insertPhoto({ filename, originalName, mimeType, fileSize, uploade
 }
 
 async function getApprovedPhotos() {
+  const photos = await photosDb.find({ status: 'approved', hidden: { $ne: true } }).sort({ reviewedAt: -1 });
+  return photos.map(normalisePhoto);
+}
+
+async function getAllApprovedPhotos() {
   const photos = await photosDb.find({ status: 'approved' }).sort({ reviewedAt: -1 });
   return photos.map(normalisePhoto);
 }
 
 async function getFeaturedPhotos() {
-  const photos = await photosDb.find({ status: 'approved', featured: true }).sort({ reviewedAt: -1 });
+  const photos = await photosDb.find({ status: 'approved', featured: true, hidden: { $ne: true } }).sort({ reviewedAt: -1 });
   return photos.map(normalisePhoto);
 }
 
 async function setPhotoFeatured(id, featured) {
   return photosDb.update({ _id: id }, { $set: { featured: !!featured } });
+}
+
+async function setPhotoHidden(id, hidden) {
+  return photosDb.update({ _id: id }, { $set: { hidden: !!hidden } });
 }
 
 async function getPendingPhotos() {
@@ -81,9 +90,11 @@ async function getPhotoStats() {
  */
 async function getPhotoCountByGuest(uploaderName) {
   if (!uploaderName || !uploaderName.trim()) return 0;
-  const escaped = uploaderName.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const nameRe  = new RegExp('^' + escaped + '$', 'i');
-  return photosDb.count({ uploaderName: nameRe, status: { $ne: 'rejected' } });
+  const name   = uploaderName.trim().toLowerCase();
+  const photos = await photosDb.find({ status: { $ne: 'rejected' } });
+  return photos.filter(function(p) {
+    return (p.uploaderName || '').toLowerCase() === name;
+  }).length;
 }
 
 function normalisePhoto(doc) {
@@ -95,11 +106,17 @@ function normalisePhoto(doc) {
     file_size:        doc.fileSize,
     status:           doc.status,
     featured:         !!doc.featured,
+    hidden:           !!doc.hidden,
     uploader_name:    doc.uploaderName,
     uploader_message: doc.uploaderMessage,
     uploaded_at:      doc.uploadedAt,
     reviewed_at:      doc.reviewedAt,
+    drive_file_id:    doc.driveFileId || null,
   };
+}
+
+async function updatePhotoDriveFileId(id, driveFileId) {
+  return photosDb.update({ _id: id }, { $set: { driveFileId } });
 }
 
 // -- Site Settings operations --
@@ -184,11 +201,14 @@ async function ensureAdminExists(username, plainPassword) {
 module.exports = {
   insertPhoto,
   getApprovedPhotos,
+  getAllApprovedPhotos,
   getFeaturedPhotos,
   setPhotoFeatured,
+  setPhotoHidden,
   getPendingPhotos,
   getPhotoById,
   updatePhotoStatus,
+  updatePhotoDriveFileId,
   getPhotoStats,
   getPhotoCountByGuest,
   insertRsvp,

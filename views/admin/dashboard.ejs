@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard</title>
   <meta name="robots" content="noindex, nofollow">
+  <meta name="csrf-token" content="<%= csrfToken %>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
@@ -16,8 +17,7 @@
   <div class="admin-header-inner">
     <h1 class="admin-header-title">Admin Dashboard</h1>
     <nav class="admin-nav" aria-label="Admin navigation">
-      <a href="/admin/dashboard" class="admin-nav-link admin-nav-link--active">Photos</a>
-      <a href="/admin/rsvps" class="admin-nav-link">RSVPs</a>
+      <a href="/admin/dashboard" class="admin-nav-link admin-nav-link--active">Dashboard</a>
       <a href="/" class="admin-nav-link" target="_blank" rel="noopener noreferrer">View Site ↗</a>
       <a href="/admin/logout" class="admin-nav-link admin-nav-link--logout">Sign Out</a>
     </nav>
@@ -45,19 +45,11 @@
         <span class="admin-stat-num"><%= photoStats.rejected %></span>
         <span class="admin-stat-label">Rejected</span>
       </div>
-      <div class="admin-stat admin-stat--yes">
-        <span class="admin-stat-num"><%= rsvpStats.yes_count %></span>
-        <span class="admin-stat-label">Yes RSVPs</span>
-      </div>
-      <div class="admin-stat">
-        <span class="admin-stat-num"><%= rsvpStats.total_guests %></span>
-        <span class="admin-stat-label">Total Guests</span>
-      </div>
     </div>
 
     <!-- ── Livestream Settings ─────────────────────────────────────────────── -->
     <section class="admin-section" aria-labelledby="livestream-heading">
-      <h2 class="admin-section-title" id="livestream-heading">Livestream Settings</h2>
+      <h2 class="admin-section-title" id="livestream-heading">&#128250; Livestream Settings</h2>
       <div class="admin-settings-card">
         <form action="/admin/livestream" method="post" class="admin-settings-form">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -84,7 +76,7 @@
                 value="1"
                 <%= siteSettings.livestream_visible === '1' ? 'checked' : '' %>
               >
-              <span>Show "Watch Live" link &amp; page to guests</span>
+              <span>Show "Watch Live" link, tile &amp; page to guests</span>
             </label>
           </div>
 
@@ -96,17 +88,298 @@
                 value="1"
                 <%= siteSettings.livestream_homepage === '1' ? 'checked' : '' %>
               >
-              <span>Embed livestream player on home page</span>
+              <span>Embed livestream player directly on home page</span>
             </label>
           </div>
 
-          <div class="admin-settings-row">
+          <div class="admin-settings-row" style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;">
             <button type="submit" class="admin-btn admin-btn--primary">Save Livestream Settings</button>
+            <% if (siteSettings.livestream_visible === '1' && siteSettings.livestream_channel) { %>
+              <a href="/livestream" target="_blank" rel="noopener noreferrer"
+                 class="admin-btn admin-btn--secondary">Preview Livestream Page ↗</a>
+            <% } %>
           </div>
         </form>
       </div>
     </section>
 
+    <!-- ── Google Drive Integration ─────────────────────────────────────── -->
+    <section class="admin-section" aria-labelledby="drive-heading">
+      <h2 class="admin-section-title" id="drive-heading">&#128194; Google Drive Backup</h2>
+      <div class="admin-settings-card">
+
+        <div class="admin-settings-row" style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+          <% if (driveConfigured) { %>
+            <span class="badge badge--approved">&#10003; Service account credentials set</span>
+          <% } else { %>
+            <span class="badge badge--warning">&#33; No credentials set</span>
+            <p class="admin-settings-hint" style="margin:0.5rem 0 0;">
+              Set <code>GOOGLE_SERVICE_ACCOUNT_JSON</code> in Railway (raw JSON or base64-encoded),
+              then share your Drive folder with the service account email and paste the folder URL below.
+            </p>
+          <% } %>
+          <form action="/admin/settings/drive/test" method="post" style="margin:0;">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button type="submit" class="admin-btn admin-btn--secondary" style="font-size:0.8rem;padding:0.3rem 0.75rem;">
+              &#9654; Test Connection
+            </button>
+          </form>
+        </div>
+
+        <form action="/admin/settings/drive" method="post" class="admin-settings-form" style="margin-top:1.25rem;">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <div class="admin-settings-row">
+            <label class="admin-settings-label" for="google_drive_folder_url">
+              Google Drive Folder URL <span class="optional">(or Folder ID)</span>
+            </label>
+            <input
+              type="text"
+              id="google_drive_folder_url"
+              name="google_drive_folder_url"
+              class="admin-settings-input"
+              value="<%= siteSettings.google_drive_folder_id %>"
+              placeholder="https://drive.google.com/drive/folders/… or just the folder ID"
+            >
+            <p class="admin-settings-hint">
+              Paste the full folder URL from your browser or just the folder ID.
+              Approved photos are automatically uploaded to this folder.
+            </p>
+          </div>
+
+          <div class="admin-settings-row">
+            <button type="submit" class="admin-btn admin-btn--primary">Save Drive Settings</button>
+          </div>
+        </form>
+
+      </div>
+    </section>
+
     <!-- ── Site Images ────────────────────────────────────────────────────── -->
     <section class="admin-section" aria-labelledby="site-images-heading">
-      <h2 class="admin-section-title" id="site-images-heading">Site Ima
+      <h2 class="admin-section-title" id="site-images-heading">&#128444; Site Images</h2>
+      <p class="admin-section-note">Images available at <code>/images/&lt;filename&gt;</code>. You can upload multiple at once, replace an existing image in-place, or delete it.</p>
+
+      <!-- Upload new site images (multi-file) -->
+      <form action="/admin/site-image/upload" method="post" enctype="multipart/form-data"
+            class="admin-settings-card" style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;padding:1.25rem 1.5rem;">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <label class="admin-settings-label" style="margin:0;white-space:nowrap;">Upload Images</label>
+        <input type="file" name="site_images" accept="image/jpeg,image/png,image/webp,image/gif"
+               multiple required style="color:#c8c4d8;flex:1;min-width:200px;">
+        <button type="submit" class="admin-btn admin-btn--primary">Upload</button>
+      </form>
+
+      <!-- Existing site images grid -->
+      <% if (siteImages && siteImages.length > 0) { %>
+        <div class="admin-site-image-grid" style="margin-top:1rem;">
+          <% siteImages.forEach(function(img) { %>
+            <div class="admin-site-image-card">
+              <div class="admin-site-image-thumb">
+                <img src="/images/<%= encodeURIComponent(img) %>" alt="<%= img %>" loading="lazy">
+              </div>
+              <div class="admin-site-image-info">
+                <p class="admin-site-image-name" title="<%= img %>"><%= img %></p>
+                <div style="display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center;">
+                  <!-- Replace in-place -->
+                  <form action="/admin/site-image/<%= encodeURIComponent(img) %>/replace" method="post"
+                        enctype="multipart/form-data" class="replace-form" style="display:contents;">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <label class="admin-btn admin-btn--secondary admin-btn--sm replace-label" style="cursor:pointer;margin:0;">
+                      &#8635; Replace
+                      <input type="file" name="replacement"
+                             accept="image/jpeg,image/png,image/webp,image/gif"
+                             class="replace-input" style="display:none;"
+                             onchange="this.closest('form').submit()">
+                    </label>
+                  </form>
+                  <!-- Delete -->
+                  <form action="/admin/site-image/<%= encodeURIComponent(img) %>/delete" method="post" style="margin:0;">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button type="submit" class="admin-btn admin-btn--danger admin-btn--sm"
+                            onclick="return confirm('Delete <%= img %>?')">Delete</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <div class="admin-empty" style="margin-top:1rem;">No site images uploaded yet.</div>
+      <% } %>
+    </section>
+
+    <!-- ── Pending Photos ─────────────────────────────────────────────────── -->
+    <section class="admin-section" aria-labelledby="pending-heading">
+      <div class="admin-section-header">
+        <h2 class="admin-section-title" id="pending-heading">
+          &#9203; Pending Photos
+          <% if (photoStats.pending > 0) { %>
+            <span class="badge badge--warning"><%= photoStats.pending %></span>
+          <% } %>
+        </h2>
+        <% if (pendingPhotos && pendingPhotos.length > 0) { %>
+          <div class="admin-bulk-controls" id="bulk-controls">
+            <button type="button" class="admin-btn admin-btn--secondary admin-btn--sm" id="select-all-btn">Select all</button>
+          </div>
+        <% } %>
+      </div>
+
+      <% if (pendingPhotos && pendingPhotos.length > 0) { %>
+        <p class="admin-section-note">Review guest photos. Click a photo to preview it in full. Tick boxes and use the action bar to approve or reject in bulk.</p>
+
+        <!-- Hidden bulk action form -->
+        <form id="bulk-form" action="/admin/photos/bulk-action" method="post" style="display:none;">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <input type="hidden" name="action" id="bulk-action-input" value="">
+        </form>
+
+        <div class="admin-photo-grid" id="pending-grid">
+          <% pendingPhotos.forEach(function(photo) { %>
+            <div class="admin-photo-card admin-photo-card--selectable" data-photo-id="<%= photo.id %>">
+              <label class="admin-photo-select-wrap" aria-label="Select photo by <%= photo.uploader_name || 'anonymous' %>">
+                <input type="checkbox" class="photo-checkbox" value="<%= photo.id %>">
+                <span class="admin-photo-checkmark" aria-hidden="true"></span>
+              </label>
+              <button type="button"
+                      class="admin-photo-thumb admin-photo-preview-btn"
+                      data-src="/admin/photo/<%= photo.id %>/image"
+                      data-caption="<%= photo.uploader_name || 'Anonymous' %><%= photo.uploaded_at ? ' · ' + new Date(photo.uploaded_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}) : '' %>"
+                      aria-label="Preview photo by <%= photo.uploader_name || 'anonymous' %>">
+                <img class="admin-photo-img"
+                     src="/admin/photo/<%= photo.id %>/image"
+                     alt="Photo by <%= photo.uploader_name || 'anonymous' %>"
+                     loading="lazy">
+              </button>
+              <div class="admin-photo-info">
+                <div class="admin-photo-meta">
+                  <strong><%= photo.uploader_name || 'Anonymous' %></strong><br>
+                  <span class="admin-photo-date"><%= photo.uploaded_at ? new Date(photo.uploaded_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : 'Unknown date' %></span><br>
+                  <span class="admin-photo-size"><%= photo.file_size ? Math.round(photo.file_size/1024) + ' KB' : '' %></span>
+                </div>
+                <% if (photo.uploader_message) { %>
+                  <p class="admin-photo-msg">"<%= photo.uploader_message %>"</p>
+                <% } %>
+                <div class="admin-photo-actions">
+                  <form action="/admin/photo/<%= photo.id %>/approve" method="post" style="flex:1;" class="photo-action-form">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button type="submit" class="btn-approve btn--full-width">&#10003; Approve</button>
+                  </form>
+                  <form action="/admin/photo/<%= photo.id %>/reject" method="post" style="flex:1;" class="photo-action-form">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button type="submit" class="btn-reject btn--full-width">&#10007; Reject</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <div class="admin-empty">No photos pending review.</div>
+      <% } %>
+    </section>
+
+    <!-- Bulk action bar (shown when ≥1 checkbox checked) -->
+    <div class="admin-bulk-bar" id="bulk-bar" hidden aria-live="polite">
+      <span class="admin-bulk-bar-count" id="bulk-bar-count">0 selected</span>
+      <button type="button" class="admin-btn admin-btn--sm btn-approve" id="bulk-approve-btn">&#10003; Approve selected</button>
+      <button type="button" class="admin-btn admin-btn--sm btn-reject"  id="bulk-reject-btn">&#10007; Reject selected</button>
+      <button type="button" class="admin-btn admin-btn--sm admin-btn--ghost" id="bulk-clear-btn">Clear</button>
+    </div>
+
+    <!-- ── Approved Photos ────────────────────────────────────────────────── -->
+    <section class="admin-section" aria-labelledby="approved-heading">
+      <h2 class="admin-section-title" id="approved-heading">&#10003; Approved Photos</h2>
+
+      <% if (approvedPhotos && approvedPhotos.length > 0) { %>
+        <p class="admin-section-note">Feature photos to highlight them on the home page. Use "Hide from Gallery" to keep a photo approved but invisible to guests — you can unhide it any time.</p>
+        <div class="admin-photo-grid">
+          <% approvedPhotos.forEach(function(photo) { %>
+            <div class="admin-photo-card admin-photo-card--approved<%= photo.featured ? ' admin-photo-card--featured' : '' %><%= photo.hidden ? ' admin-photo-card--hidden' : '' %>"
+                 data-photo-id="<%= photo.id %>"
+                 data-featured="<%= photo.featured %>"
+                 data-hidden="<%= photo.hidden %>">
+              <% if (photo.featured) { %>
+                <div class="admin-featured-badge">&#9733; Featured on Home</div>
+              <% } %>
+              <% if (photo.hidden) { %>
+                <div class="admin-hidden-badge">&#128683; Hidden from guests</div>
+              <% } %>
+              <button type="button"
+                      class="admin-photo-thumb admin-photo-preview-btn"
+                      data-src="/uploads/approved/<%= encodeURIComponent(photo.filename) %>"
+                      data-caption="<%= photo.uploader_name || 'Anonymous' %><%= photo.reviewed_at ? ' · ' + new Date(photo.reviewed_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}) : '' %>"
+                      aria-label="Preview photo by <%= photo.uploader_name || 'anonymous' %>">
+                <img class="admin-photo-img"
+                     src="/uploads/approved/<%= encodeURIComponent(photo.filename) %>"
+                     alt="Photo by <%= photo.uploader_name || 'anonymous' %>"
+                     loading="lazy">
+              </button>
+              <div class="admin-photo-info">
+                <div class="admin-photo-meta">
+                  <strong><%= photo.uploader_name || 'Anonymous' %></strong>
+                  <% if (photo.hidden) { %>
+                    <span class="badge badge--hidden">&#128683; Hidden</span>
+                  <% } else { %>
+                    <span class="badge badge--approved">Approved</span>
+                  <% } %><br>
+                  <span class="admin-photo-date"><%= photo.reviewed_at ? new Date(photo.reviewed_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}) : '' %></span>
+                </div>
+                <% if (photo.uploader_message) { %>
+                  <p class="admin-photo-msg">"<%= photo.uploader_message %>"</p>
+                <% } %>
+                <div class="admin-photo-actions" style="flex-direction:column;gap:0.4rem;">
+                  <% if (!photo.hidden) { %>
+                    <% if (!photo.featured) { %>
+                      <form action="/admin/photo/<%= photo.id %>/feature" method="post" class="photo-action-form">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <button type="submit" class="btn-feature btn--full-width">&#9733; Feature on Home</button>
+                      </form>
+                    <% } else { %>
+                      <form action="/admin/photo/<%= photo.id %>/unfeature" method="post" class="photo-action-form">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <button type="submit" class="btn-unfeature btn--full-width">&#9734; Remove from Home</button>
+                      </form>
+                    <% } %>
+                    <form action="/admin/photo/<%= photo.id %>/hide" method="post" class="photo-action-form">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <button type="submit" class="btn-hide btn--full-width">&#128683; Hide from Gallery</button>
+                    </form>
+                  <% } else { %>
+                    <form action="/admin/photo/<%= photo.id %>/unhide" method="post" class="photo-action-form">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <button type="submit" class="btn-unhide btn--full-width">&#128065; Show in Gallery</button>
+                    </form>
+                  <% } %>
+                  <form action="/admin/photo/<%= photo.id %>/delete" method="post" class="photo-action-form">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button type="submit" class="btn-reject btn--full-width">Delete</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <div class="admin-empty">No approved photos yet. Approve photos from the Pending section above.</div>
+      <% } %>
+    </section>
+
+  </div>
+</main>
+
+<!-- Admin photo lightbox -->
+<div class="lightbox" id="admin-lightbox" hidden role="dialog" aria-modal="true" aria-label="Photo preview">
+  <div class="lightbox-inner">
+    <img class="lightbox-img" id="admin-lightbox-img" src="" alt="">
+    <p class="lightbox-caption" id="admin-lightbox-caption"></p>
+  </div>
+  <button class="lightbox-close" id="admin-lightbox-close" aria-label="Close preview">&#10005;</button>
+  <button class="lightbox-prev" id="admin-lightbox-prev" aria-label="Previous photo">&#8249;</button>
+  <button class="lightbox-next" id="admin-lightbox-next" aria-label="Next photo">&#8250;</button>
+</div>
+
+<div id="toast-container" aria-live="polite" aria-atomic="false"></div>
+<script src="/js/admin.js?v=3"></script>
+</body>
+</html>

@@ -1,69 +1,154 @@
 'use strict';
 
-/* ── Guest Photo Upload — drag-and-drop UI ────────────────────────────────── */
+/* ── Guest Photo Upload — multi-file drag-and-drop UI ────────────────────── */
 (function () {
-  const form       = document.getElementById('upload-form');
+  var form     = document.getElementById('upload-form');
   if (!form) return;
 
-  const fileInput  = document.getElementById('photo');
-  const dropZone   = document.getElementById('drop-zone');
-  const dzContent  = document.getElementById('drop-zone-content');
-  const dzPreview  = document.getElementById('drop-preview');
-  const previewImg = document.getElementById('preview-img');
-  const previewNm  = document.getElementById('preview-name');
-  const removeBtn  = document.getElementById('preview-remove');
-  const submitBtn  = document.getElementById('submit-btn');
+  var fileInput   = document.getElementById('photos');
+  var dropZone    = document.getElementById('drop-zone');
+  var dzContent   = document.getElementById('drop-zone-content');
+  var previewGrid = document.getElementById('preview-grid');
+  var submitBtn   = document.getElementById('submit-btn');
 
-  if (!fileInput || !dropZone) return;
+  if (!fileInput || !dropZone || !previewGrid) return;
 
-  // Read config from data attributes on the form element
-  const MAX_MB    = parseInt(form.getAttribute('data-max-mb') || '15', 10);
-  const MAX_BYTES = MAX_MB * 1024 * 1024;
-  const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
+  var MAX_MB    = parseInt(form.getAttribute('data-max-mb')    || '15', 10);
+  var MAX_FILES = parseInt(form.getAttribute('data-max-files') || '10', 10);
+  var MAX_BYTES = MAX_MB * 1024 * 1024;
+  var ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
-  function showPreview(file) {
-    if (!ALLOWED_TYPES.has(file.type)) {
-      alert('Invalid file type. Please choose a JPEG, PNG, or WebP image.');
-      clearSelection();
+  var currentFiles = []; // ordered array of File objects
+
+  // No-op kept for call-site compatibility — fetch submission no longer needs it
+  function syncFileInput() {}
+
+  function renderPreviews() {
+    previewGrid.innerHTML = '';
+
+    if (currentFiles.length === 0) {
+      previewGrid.hidden = true;
+      dzContent.hidden   = false;
       return;
     }
-    if (file.size > MAX_BYTES) {
-      alert('File is too large. Maximum size is ' + MAX_MB + ' MB.');
-      clearSelection();
-      return;
+
+    dzContent.hidden   = true;
+    previewGrid.hidden = false;
+
+    // Summary bar
+    var bar = document.createElement('div');
+    bar.className = 'preview-bar';
+
+    var countEl = document.createElement('span');
+    countEl.className   = 'preview-count';
+    countEl.textContent = currentFiles.length + ' photo' + (currentFiles.length !== 1 ? 's' : '') + ' selected';
+
+    var clearBtn = document.createElement('button');
+    clearBtn.type        = 'button';
+    clearBtn.className   = 'preview-clear-btn';
+    clearBtn.textContent = 'Clear all';
+    clearBtn.addEventListener('click', function (e) { e.stopPropagation(); clearAll(); });
+
+    bar.appendChild(countEl);
+    bar.appendChild(clearBtn);
+    previewGrid.appendChild(bar);
+
+    // Thumbnail grid
+    var grid = document.createElement('div');
+    grid.className = 'preview-thumbnails';
+
+    currentFiles.forEach(function (file, idx) {
+      var card = document.createElement('div');
+      card.className = 'preview-card';
+
+      var rmBtn = document.createElement('button');
+      rmBtn.type      = 'button';
+      rmBtn.className = 'preview-card-remove';
+      rmBtn.setAttribute('aria-label', 'Remove ' + file.name);
+      rmBtn.textContent = '×';
+      rmBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        currentFiles.splice(idx, 1);
+        syncFileInput();
+        renderPreviews();
+      });
+
+      var img = document.createElement('img');
+      img.className = 'preview-thumb';
+      img.alt       = file.name;
+      var reader    = new FileReader();
+      reader.onload = function (e) { img.src = e.target.result; };
+      reader.readAsDataURL(file);
+
+      var nameEl = document.createElement('span');
+      nameEl.className   = 'preview-card-name';
+      nameEl.textContent = file.name.length > 18 ? file.name.substring(0, 15) + '…' : file.name;
+
+      card.appendChild(rmBtn);
+      card.appendChild(img);
+      card.appendChild(nameEl);
+      grid.appendChild(card);
+    });
+
+    // "Add more" tile — only shown when below the limit
+    if (currentFiles.length < MAX_FILES) {
+      var addTile = document.createElement('button');
+      addTile.type      = 'button';
+      addTile.className = 'preview-add-more';
+      addTile.setAttribute('aria-label', 'Add more photos');
+      addTile.innerHTML = '+<span>Add more</span>';
+      addTile.addEventListener('click', function (e) { e.stopPropagation(); fileInput.click(); });
+      grid.appendChild(addTile);
     }
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      previewImg.src = e.target.result;
-      previewNm.textContent = file.name;
-      dzContent.hidden = true;
-      dzPreview.hidden = false;
-    };
-    reader.readAsDataURL(file);
+
+    previewGrid.appendChild(grid);
   }
 
-  function clearSelection() {
+  function clearAll() {
+    currentFiles = [];
     fileInput.value = '';
-    previewImg.src  = '';
-    previewNm.textContent = '';
-    dzContent.hidden = false;
-    dzPreview.hidden = true;
+    renderPreviews();
   }
 
-  // Click drop zone to open file picker
+  function addFiles(newFiles) {
+    var errors = [];
+    Array.from(newFiles).forEach(function (file) {
+      if (currentFiles.length >= MAX_FILES) {
+        errors.push('Maximum ' + MAX_FILES + ' photos per submission — extra files were skipped.');
+        return;
+      }
+      if (!ALLOWED_TYPES.has(file.type)) {
+        errors.push('“' + file.name + '” is not a JPEG, PNG, or WebP image.');
+        return;
+      }
+      if (file.size > MAX_BYTES) {
+        errors.push('“' + file.name + '” exceeds the ' + MAX_MB + ' MB limit.');
+        return;
+      }
+      // Deduplicate by name + size
+      var isDup = currentFiles.some(function (f) { return f.name === file.name && f.size === file.size; });
+      if (!isDup) currentFiles.push(file);
+    });
+    if (errors.length > 0) alert(errors.join('\n'));
+    syncFileInput();
+    renderPreviews();
+  }
+
+  // Open file picker on drop zone click (but not on remove/clear buttons)
   dropZone.addEventListener('click', function (e) {
-    if (e.target === removeBtn) return;
-    fileInput.click();
+    if (e.target.closest('.preview-card-remove') || e.target.closest('.preview-clear-btn') || e.target.closest('.preview-add-more')) return;
+    if (currentFiles.length < MAX_FILES) fileInput.click();
   });
   dropZone.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
   });
 
   fileInput.addEventListener('change', function (e) {
-    if (e.target.files && e.target.files[0]) showPreview(e.target.files[0]);
+    var files = Array.from(e.target.files || []);
+    // Reset input BEFORE addFiles so the subsequent syncFileInput() sticks
+    try { fileInput.value = ''; } catch (_) {}
+    if (files.length > 0) addFiles(files);
   });
-
-  removeBtn.addEventListener('click', function (e) { e.stopPropagation(); clearSelection(); });
 
   // Drag and drop
   ['dragenter', 'dragover'].forEach(function (ev) {
@@ -73,22 +158,35 @@
     dropZone.addEventListener(ev, function (e) { e.preventDefault(); dropZone.classList.remove('drag-over'); });
   });
   dropZone.addEventListener('drop', function (e) {
-    var file = e.dataTransfer.files[0];
-    if (file) {
-      try {
-        var dt = new DataTransfer();
-        dt.items.add(file);
-        fileInput.files = dt.files;
-      } catch (_) {}
-      showPreview(file);
-    }
+    if (e.dataTransfer.files.length > 0) addFiles(e.dataTransfer.files);
   });
 
-  // Prevent double-submit
-  form.addEventListener('submit', function () {
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (currentFiles.length === 0) return;
+
     if (submitBtn) {
-      submitBtn.disabled = true;
+      submitBtn.disabled    = true;
       submitBtn.textContent = 'Uploading…';
     }
+
+    // Build FormData directly from currentFiles — no DataTransfer needed,
+    // so this works on all mobile browsers.
+    var fd = new FormData(form); // picks up _csrf, uploader_name, uploader_message
+    fd.delete('photos');
+    currentFiles.forEach(function (f) { fd.append('photos', f); });
+
+    // redirect:'manual' stops fetch from silently consuming the session flash
+    // before the browser navigates.  Server always redirects (PRG pattern).
+    fetch('/upload', { method: 'POST', body: fd, redirect: 'manual' })
+      .then(function () {
+        window.location.replace('/upload');
+      })
+      .catch(function () {
+        if (submitBtn) {
+          submitBtn.disabled    = false;
+          submitBtn.textContent = 'Upload Photos';
+        }
+      });
   });
 })();

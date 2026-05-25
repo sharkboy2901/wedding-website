@@ -20,7 +20,7 @@
     var cap  = item.closest('.gallery-item').querySelector('.gallery-caption');
     lbImg.src    = img.src;
     lbImg.alt    = img.alt;
-    lbCap.innerHTML = cap ? cap.innerHTML : '';
+    lbCap.textContent = cap ? cap.textContent : '';
     lightbox.hidden = false;
     document.body.style.overflow = 'hidden';
     if (closeBtn) closeBtn.focus();

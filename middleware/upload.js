@@ -50,11 +50,13 @@ function detectMimeFromBuffer(buffer) {
 // Multer storage: memory first; we write to disk after full validation.
 const storage = multer.memoryStorage();
 
+const MAX_FILES = 10;
+
 const uploadMiddleware = multer({
   storage,
   limits: {
     fileSize: MAX_SIZE_BYTES,
-    files: 1,
+    files: MAX_FILES,
   },
   fileFilter: function(req, file, cb) {
     // First-pass: requires BOTH a matching MIME type AND a matching extension.
@@ -68,7 +70,7 @@ const uploadMiddleware = multer({
     }
     cb(null, true);
   },
-}).single('photo');
+}).array('photos', MAX_FILES);
 
 // saveToDisk: write validated buffer to the pending folder with a safe UUID filename.
 function saveToDisk(buffer, detectedMime) {
@@ -84,32 +86,26 @@ function saveToDisk(buffer, detectedMime) {
   return safeFilename;
 }
 
-// validateAndSave: full validation pipeline.
-// Returns { ok, filename, mimeType, error }
-function validateAndSave(file) {
-  // Belt-and-suspenders size check (multer already enforces this)
+// validateFile: magic-byte check only, no disk write.
+// Returns { ok, mimeType, error }
+function validateFile(file) {
   if (file.size > MAX_SIZE_BYTES) {
     return { ok: false, error: 'File too large. Maximum size is ' + MAX_SIZE_MB + ' MB.' };
   }
-
-  // Check real type via magic bytes -- client-supplied MIME/extension is ignored here
   var detectedMime = detectMimeFromBuffer(file.buffer);
-  if (!detectedMime) {
+  if (!detectedMime || !ALLOWED_MIME_TYPES.has(detectedMime)) {
     return { ok: false, error: 'Invalid file type. Only JPEG, PNG, and WebP images are accepted.' };
   }
-
-  // Double-check detected type is in our allowlist
-  if (!ALLOWED_MIME_TYPES.has(detectedMime)) {
-    return { ok: false, error: 'Invalid file type. Only JPEG, PNG, and WebP images are accepted.' };
-  }
-
-  var filename = saveToDisk(file.buffer, detectedMime);
-  return {
-    ok:       true,
-    filename: filename,
-    mimeType: detectedMime,
-    size:     file.size,
-  };
+  return { ok: true, mimeType: detectedMime };
 }
 
-module.exports = { uploadMiddleware, validateAndSave, MAX_SIZE_MB };
+// validateAndSave: full validation pipeline (kept for backward compat).
+// Returns { ok, filename, mimeType, error }
+function validateAndSave(file) {
+  var v = validateFile(file);
+  if (!v.ok) return v;
+  var filename = saveToDisk(file.buffer, v.mimeType);
+  return { ok: true, filename: filename, mimeType: v.mimeType, size: file.size };
+}
+
+module.exports = { uploadMiddleware, validateAndSave, validateFile, saveToDisk, MAX_SIZE_MB, MAX_FILES };

@@ -1,10 +1,14 @@
 'use strict';
 
 const express = require('express');
+const path    = require('path');
 const router  = express.Router();
 const db      = require('../db/database');
-const { uploadMiddleware, validateAndSave, MAX_SIZE_MB } = require('../middleware/upload');
+const { uploadMiddleware, validateFile, saveToDisk, MAX_SIZE_MB, MAX_FILES } = require('../middleware/upload');
 const { validateCsrfFromBody } = require('../middleware/csrf');
+const { uploadToDrive, extractFolderId } = require('../lib/driveUpload');
+
+const PENDING_DIR_PATH = path.join(__dirname, '..', 'uploads', 'pending');
 
 const PHOTO_LIMIT_PER_GUEST = 10;
 
@@ -63,13 +67,6 @@ router.get('/', asyncHandler(async function(req, res) {
   });
 }));
 
-// -- Our Story --
-
-router.get('/our-story', asyncHandler(async function(req, res) {
-  var navConfig = await getNavConfig();
-  res.render('story', { config: siteConfig(), livestreamVisible: navConfig.livestreamVisible });
-}));
-
 // -- Gallery --
 
 router.get('/gallery', asyncHandler(async function(req, res) {
@@ -80,71 +77,10 @@ router.get('/gallery', asyncHandler(async function(req, res) {
   res.render('gallery', { config: siteConfig(), photos: photos, livestreamVisible: navConfig.livestreamVisible });
 }));
 
-// -- RSVP --
-
-router.get('/rsvp', asyncHandler(async function(req, res) {
-  var flash = req.session.flash || null;
-  delete req.session.flash;
-  var navConfig = await getNavConfig();
-  res.render('rsvp', { config: siteConfig(), flash: flash, errors: [], formData: null, livestreamVisible: navConfig.livestreamVisible });
-}));
-
-router.post('/rsvp', asyncHandler(async function(req, res) {
-  var name        = req.body.name;
-  var email       = req.body.email;
-  var attending   = req.body.attending;
-  var guest_count = req.body.guest_count;
-  var dietary     = req.body.dietary;
-  var song        = req.body.song;
-  var message     = req.body.message;
-  var errors      = [];
-
-  if (!name || name.trim().length < 2)   errors.push('Please enter your full name.');
-  if (name && name.trim().length > 100)  errors.push('Name is too long (max 100 characters).');
-  if (email && email.trim().length > 0) {
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      errors.push('Please enter a valid email address.');
-    }
-  }
-  if (!['yes', 'no', 'maybe'].includes(attending)) {
-    errors.push('Please select whether you are attending.');
-  }
-  var guestNum = parseInt(guest_count, 10);
-  if (attending === 'yes' && (isNaN(guestNum) || guestNum < 1 || guestNum > 10)) {
-    errors.push('Please enter a valid number of guests (1-10).');
-  }
-
-  if (errors.length > 0) {
-    var navConfigErr = await getNavConfig();
-    return res.render('rsvp', {
-      config: siteConfig(),
-      flash: null,
-      errors: errors,
-      formData: { name: name, email: email, attending: attending, guest_count: guest_count, dietary: dietary, song: song, message: message },
-      livestreamVisible: navConfigErr.livestreamVisible,
-    });
-  }
-
-  await db.insertRsvp({
-    name:                name.trim().substring(0, 100),
-    email:               email ? email.trim().substring(0, 200) : null,
-    attending:           attending,
-    guestCount:          attending === 'yes' ? guestNum : 0,
-    dietaryRequirements: dietary ? dietary.trim().substring(0, 500) : null,
-    songRequest:         song ? song.trim().substring(0, 200) : null,
-    message:             message ? message.trim().substring(0, 1000) : null,
-  });
-
-  req.session.flash = {
-    type: 'success',
-    message: attending === 'yes'
-      ? "Thank you! We can't wait to celebrate with you."
-      : attending === 'no'
-      ? "Thank you for letting us know. You'll be in our thoughts."
-      : "Thank you! We'll keep a spot open for you.",
-  };
-  res.redirect('/rsvp');
-}));
+// -- RSVP removed — redirect to home --
+router.get('/rsvp', function(req, res) { res.redirect('/'); });
+router.post('/rsvp', function(req, res) { res.redirect('/'); });
+router.get('/our-story', function(req, res) { res.redirect('/'); });
 
 // -- Guest photo upload --
 
@@ -155,9 +91,10 @@ router.get('/upload', asyncHandler(async function(req, res) {
   res.render('upload', {
     config:     siteConfig(),
     flash:      flash,
-    MAX_SIZE_MB: MAX_SIZE_MB,
-    photoCount: null,
-    photoLimit: PHOTO_LIMIT_PER_GUEST,
+    MAX_SIZE_MB:  MAX_SIZE_MB,
+    MAX_FILES:    MAX_FILES,
+    photoCount:   null,
+    photoLimit:   PHOTO_LIMIT_PER_GUEST,
     livestreamVisible: navConfig.livestreamVisible,
   });
 }));
@@ -165,8 +102,13 @@ router.get('/upload', asyncHandler(async function(req, res) {
 router.post('/upload', function(req, res, next) {
   uploadMiddleware(req, res, async function(err) {
     var config = siteConfig();
-    var navConfig = await getNavConfig();
-    var livestreamVisible = navConfig.livestreamVisible;
+
+    // Post/Redirect/Get: always store result in session flash and redirect.
+    // This avoids document.write() on the client and prevents double-submit.
+    function flashAndRedirect(type, message) {
+      req.session.flash = { type: type, message: message };
+      return res.redirect('/upload');
+    }
 
     // CSRF check (after multer has parsed the multipart body)
     if (!validateCsrfFromBody(req)) {
@@ -181,91 +123,105 @@ router.post('/upload', function(req, res, next) {
     if (err) {
       var errMsg = 'Upload failed. Please try again.';
       if (err.code === 'LIMIT_FILE_SIZE') {
-        errMsg = 'File too large. Maximum size is ' + MAX_SIZE_MB + ' MB.';
+        errMsg = 'One or more files exceeded the ' + MAX_SIZE_MB + ' MB size limit.';
+      } else if (err.code === 'LIMIT_FILE_COUNT') {
+        errMsg = 'Too many files selected. Maximum is ' + MAX_FILES + ' photos per submission.';
       } else if (err.message === 'INVALID_TYPE') {
         errMsg = 'Invalid file type. Only JPEG, PNG, and WebP images are accepted.';
       }
-      return res.render('upload', {
-        config: config,
-        flash: { type: 'error', message: errMsg },
-        MAX_SIZE_MB: MAX_SIZE_MB,
-        photoCount: null,
-        photoLimit: PHOTO_LIMIT_PER_GUEST,
-        livestreamVisible: livestreamVisible,
-      });
+      return flashAndRedirect('error', errMsg);
     }
 
-    if (!req.file) {
-      return res.render('upload', {
-        config: config,
-        flash: { type: 'error', message: 'Please select a photo to upload.' },
-        MAX_SIZE_MB: MAX_SIZE_MB,
-        photoCount: null,
-        photoLimit: PHOTO_LIMIT_PER_GUEST,
-        livestreamVisible: livestreamVisible,
-      });
-    }
+    var files = req.files || [];
 
-    // Validate magic bytes
-    var result = validateAndSave(req.file);
-    if (!result.ok) {
-      return res.render('upload', {
-        config: config,
-        flash: { type: 'error', message: result.error },
-        MAX_SIZE_MB: MAX_SIZE_MB,
-        photoCount: null,
-        photoLimit: PHOTO_LIMIT_PER_GUEST,
-        livestreamVisible: livestreamVisible,
-      });
+    // Log what the server actually received — visible in Railway logs for debugging.
+    console.log('[Upload] POST received — files:', files.length,
+                '| body fields:', Object.keys(req.body || {}).join(',') || '(none)',
+                '| content-type:', (req.headers['content-type'] || '').split(';')[0]);
+
+    if (files.length === 0) {
+      return flashAndRedirect('error', 'Please select at least one photo to upload.');
     }
 
     var uploaderName    = req.body.uploader_name    ? req.body.uploader_name.trim().substring(0, 100)    : null;
     var uploaderMessage = req.body.uploader_message ? req.body.uploader_message.trim().substring(0, 500) : null;
 
-    // Enforce per-guest photo limit
-    if (uploaderName) {
-      var existingCount = await db.getPhotoCountByGuest(uploaderName);
-      if (existingCount >= PHOTO_LIMIT_PER_GUEST) {
-        return res.status(400).render('upload', {
-          config: config,
-          flash: {
-            type: 'error',
-            message: "You've already uploaded " + existingCount + " photo" + (existingCount !== 1 ? 's' : '') +
-              " — the maximum is " + PHOTO_LIMIT_PER_GUEST + " per guest. Thank you for sharing so many memories!",
-          },
-          MAX_SIZE_MB: MAX_SIZE_MB,
-          photoCount:  existingCount,
-          photoLimit:  PHOTO_LIMIT_PER_GUEST,
-          livestreamVisible: livestreamVisible,
-        });
+    // Check per-guest limit
+    var existingCount = uploaderName ? await db.getPhotoCountByGuest(uploaderName) : 0;
+    var remaining = PHOTO_LIMIT_PER_GUEST - existingCount;
+
+    if (remaining <= 0) {
+      return flashAndRedirect('error',
+        "You've already uploaded " + existingCount + " photo" + (existingCount !== 1 ? 's' : '') +
+        " — the maximum is " + PHOTO_LIMIT_PER_GUEST + " per guest. Thank you for sharing so many memories!");
+    }
+
+    if (files.length > remaining) {
+      return flashAndRedirect('error',
+        'You can only upload ' + remaining + ' more photo' + (remaining !== 1 ? 's' : '') +
+        ' (limit: ' + PHOTO_LIMIT_PER_GUEST + ' per guest). You selected ' + files.length +
+        ' — please remove ' + (files.length - remaining) + '.');
+    }
+
+    // Validate all files via magic bytes before writing anything to disk
+    var validationErrors = [];
+    var validated = [];
+    for (var i = 0; i < files.length; i++) {
+      var v = validateFile(files[i]);
+      if (!v.ok) {
+        validationErrors.push('Photo ' + (i + 1) + ' (' + (files[i].originalname || 'unknown') + '): ' + v.error);
+      } else {
+        validated.push({ file: files[i], mimeType: v.mimeType });
       }
     }
 
-    try {
-      await db.insertPhoto({
-        filename:     result.filename,
-        originalName: req.file.originalname ? req.file.originalname.substring(0, 255) : null,
-        mimeType:     result.mimeType,
-        fileSize:     result.size,
-        uploaderName:    uploaderName,
-        uploaderMessage: uploaderMessage,
-      });
+    if (validationErrors.length > 0) {
+      return flashAndRedirect('error', validationErrors.join(' '));
+    }
 
+    // All valid — save to disk then insert into DB
+    try {
+      for (var j = 0; j < validated.length; j++) {
+        var item     = validated[j];
+        var filename = saveToDisk(item.file.buffer, item.mimeType);
+        var insertedPhoto = await db.insertPhoto({
+          filename:        filename,
+          originalName:    item.file.originalname ? item.file.originalname.substring(0, 255) : null,
+          mimeType:        item.mimeType,
+          fileSize:        item.file.size,
+          uploaderName:    uploaderName,
+          uploaderMessage: uploaderMessage,
+        });
+
+        // Non-blocking: upload to Drive in the background
+        (function(photoId, photoFilename, photoMime, photoOrigName) {
+          db.getSetting('google_drive_folder_id').then(function(folderUrl) {
+            if (!folderUrl) return null;
+            var folderId = extractFolderId(folderUrl);
+            var localPath = path.join(PENDING_DIR_PATH, photoFilename);
+            var displayName = photoOrigName || photoFilename;
+            return uploadToDrive(localPath, displayName, photoMime, folderId);
+          }).then(function(result) {
+            if (result && result.id) {
+              return db.updatePhotoDriveFileId(photoId, result.id);
+            }
+          }).catch(function(err) {
+            console.error('[Drive] Background upload failed:', err && err.message);
+          });
+        })(insertedPhoto._id, filename, item.mimeType, item.file.originalname || null);
+      }
+
+      var count = validated.length;
       req.session.flash = {
-        type: 'success',
-        message: 'Your photo has been uploaded! It will appear in the gallery once approved. Thank you!',
+        type:    'success',
+        message: count === 1
+          ? 'Your photo has been uploaded! It will appear in the gallery once approved. Thank you!'
+          : count + ' photos have been uploaded! They will appear in the gallery once approved. Thank you!',
       };
-      res.redirect('/upload');
+      return res.redirect('/upload');
     } catch (dbErr) {
       console.error('[Upload] DB error:', dbErr.message);
-      res.render('upload', {
-        config: config,
-        flash: { type: 'error', message: 'Something went wrong saving your photo. Please try again.' },
-        MAX_SIZE_MB: MAX_SIZE_MB,
-        photoCount: null,
-        photoLimit: PHOTO_LIMIT_PER_GUEST,
-        livestreamVisible: livestreamVisible,
-      });
+      return flashAndRedirect('error', 'Something went wrong saving your photos. Please try again.');
     }
   });
 });
@@ -288,6 +244,32 @@ router.get('/livestream', asyncHandler(async function(req, res) {
 
   var channel = channelSetting || process.env.TWITCH_CHANNEL || null;
   res.render('livestream', { config: siteConfig(), channel: channel, livestreamVisible: livestreamVisible });
+}));
+
+// -- API: site status (consumed by static index.html) --
+router.get('/api/site-status', asyncHandler(async function(req, res) {
+  var [visibleSetting, channelSetting, homepageSetting] = await Promise.all([
+    db.getSetting('livestream_visible'),
+    db.getSetting('livestream_channel'),
+    db.getSetting('livestream_homepage'),
+  ]);
+  res.json({
+    livestreamVisible:  (visibleSetting === null || visibleSetting === '1'),
+    livestreamChannel:  channelSetting || process.env.TWITCH_CHANNEL || null,
+    livestreamHomepage: (homepageSetting === '1'),
+  });
+}));
+
+// -- API: featured guest photos (consumed by static index.html) --
+router.get('/api/featured-photos', asyncHandler(async function(req, res) {
+  var photos = await db.getFeaturedPhotos();
+  res.json(photos.map(function(p) {
+    return {
+      id:           p._id,
+      filename:     p.filename,
+      uploaderName: p.uploader_name || null,
+    };
+  }));
 }));
 
 module.exports = router;
