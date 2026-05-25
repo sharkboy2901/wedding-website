@@ -172,7 +172,7 @@
             <div class="admin-photo-card">
               <div class="admin-photo-thumb">
                 <img class="admin-photo-img"
-                     src="/admin/photo/<%= photo._id %>/image"
+                     src="/admin/photo/<%= photo.id %>/image"
                      alt="Photo by <%= photo.uploader_name || 'anonymous' %>"
                      loading="lazy">
               </div>
@@ -186,11 +186,11 @@
                   <p class="admin-photo-msg">"<%= photo.uploader_message %>"</p>
                 <% } %>
                 <div class="admin-photo-actions">
-                  <form action="/admin/photo/<%= photo._id %>/approve" method="post" style="flex:1;">
+                  <form action="/admin/photo/<%= photo.id %>/approve" method="post" style="flex:1;">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <button type="submit" class="btn-approve btn--full-width">&#10003; Approve</button>
                   </form>
-                  <form action="/admin/photo/<%= photo._id %>/reject" method="post" style="flex:1;">
+                  <form action="/admin/photo/<%= photo.id %>/reject" method="post" style="flex:1;">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <button type="submit" class="btn-reject btn--full-width"
                             onclick="return confirm('Reject and delete this photo?')">&#10007; Reject</button>
@@ -234,17 +234,17 @@
                 <% } %>
                 <div class="admin-photo-actions" style="flex-direction:column;gap:0.4rem;">
                   <% if (!photo.featured) { %>
-                    <form action="/admin/photo/<%= photo._id %>/feature" method="post">
+                    <form action="/admin/photo/<%= photo.id %>/feature" method="post">
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                       <button type="submit" class="btn-feature btn--full-width">&#9733; Feature on Home</button>
                     </form>
                   <% } else { %>
-                    <form action="/admin/photo/<%= photo._id %>/unfeature" method="post">
+                    <form action="/admin/photo/<%= photo.id %>/unfeature" method="post">
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                       <button type="submit" class="btn-unfeature btn--full-width">&#9734; Remove from Home</button>
                     </form>
                   <% } %>
-                  <form action="/admin/photo/<%= photo._id %>/delete" method="post">
+                  <form action="/admin/photo/<%= photo.id %>/delete" method="post">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <button type="submit" class="btn-reject btn--full-width btn-reject.btn--full-width"
                             onclick="return confirm('Remove this photo from the public gallery?')">Delete</button>
