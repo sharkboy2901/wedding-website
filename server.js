@@ -129,9 +129,15 @@ app.use(function(err, req, res, next) {  // eslint-disable-line no-unused-vars
     console.warn('[Auth] ADMIN_PASSWORD not set -- admin login disabled until configured.');
   }
 
-  app.listen(PORT, function() {
+  const server = app.listen(PORT, function() {
     console.log('[Server] Running on http://localhost:' + PORT);
     console.log('[Server] NODE_ENV = ' + (process.env.NODE_ENV || 'development'));
     console.log('[Server] Admin login: /admin/login');
+  });
+
+  // Graceful shutdown — Railway sends SIGTERM when replacing a deployment.
+  // Without this, npm reports "command failed" and Railway fires a crash alert.
+  process.on('SIGTERM', function() {
+    server.close(function() { process.exit(0); });
   });
 }());
