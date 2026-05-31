@@ -65,6 +65,10 @@
       opacity: 0; transition: opacity 1.4s ease-in-out;
     }
     .hero-slide.active { opacity: 1; }
+    /* The opening photo has the couple left-of-centre; nudge the focal point
+       so they sit in the middle when the sides are cropped on portrait phones.
+       (No effect on wide desktop screens, where the full width is already shown.) */
+    .hero-slide:first-child { background-position: 34% center; }
     .hero-overlay {
       position: absolute; inset: 0;
       background:
