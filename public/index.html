@@ -55,8 +55,9 @@
 
     /* ─── HERO ────────────────────────────────── */
     #hero {
-      position: relative; height: 100vh; overflow: hidden;
+      position: relative; min-height: 100vh; overflow: hidden;
       display: flex; align-items: center; justify-content: center;
+      padding: 96px 20px 60px;
     }
     .hero-slides { position: absolute; inset: 0; }
     .hero-slide {
@@ -97,7 +98,7 @@
     }
     .hero-names {
       font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(4.6rem, 13vw, 11rem);
+      font-size: clamp(3.6rem, min(13vw, 17vh), 11rem);
       font-weight: 400; line-height: 0.92;
       text-shadow: 0 4px 34px rgba(0,0,0,0.38);
       letter-spacing: -0.005em;
@@ -528,6 +529,21 @@
       .moments-grid { grid-template-columns: 1fr; }
       .moments-upload-box { padding: 28px 20px; }
       .live-cta-card { padding: 36px 24px; }
+    }
+    /* Short viewports (laptops / landscape) — keep the whole hero on screen */
+    @media (max-height: 780px) {
+      .hero-eyebrow { margin-bottom: 16px; }
+      .hero-divider { margin: 16px 0 12px; }
+      .countdown { margin-top: 22px; }
+      .cd-unit { padding: 15px 30px; }
+      .cd-num { font-size: 2.9rem; }
+    }
+    @media (max-height: 620px) {
+      .hero-eyebrow { margin-bottom: 12px; }
+      .hero-divider { margin: 12px 0 10px; }
+      .countdown { margin-top: 16px; }
+      .cd-unit { padding: 11px 24px; }
+      .cd-num { font-size: 2.4rem; }
     }
   </style>
 </head>
