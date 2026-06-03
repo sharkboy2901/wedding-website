@@ -5,6 +5,8 @@ const path   = require('path');
 const fs     = require('fs');
 const { v4: uuidv4 } = require('uuid');
 
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
+
 // Allowed types (allowlist)
 const ALLOWED_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const ALLOWED_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp']);
@@ -81,7 +83,7 @@ function saveToDisk(buffer, detectedMime) {
   };
   var ext          = extMap[detectedMime];
   var safeFilename = uuidv4() + ext;
-  var dest         = path.join(__dirname, '..', 'uploads', 'pending', safeFilename);
+  var dest         = path.join(DATA_DIR, 'uploads', 'pending', safeFilename);
   fs.writeFileSync(dest, buffer);
   return safeFilename;
 }

@@ -12,8 +12,9 @@ const { csrfMiddleware } = require('./middleware/csrf');
 const adminRouter        = require('./routes/adminRoutes');
 const publicRouter       = require('./routes/publicRoutes');
 
-const app  = express();
-const PORT = process.env.PORT || 3000;
+const app     = express();
+const PORT    = process.env.PORT || 3000;
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
 
 // -- Trust Railway's reverse proxy so req.ip reflects the real client IP --
 app.set('trust proxy', 1);
@@ -45,7 +46,7 @@ app.set('views', path.join(__dirname, 'views'));
 
 // -- Static files (served before session/CSRF — no auth overhead for assets) --
 // Serve approved guest photos (pending dir is NOT public)
-app.use('/uploads/approved', express.static(path.join(__dirname, 'uploads', 'approved'), {
+app.use('/uploads/approved', express.static(path.join(DATA_DIR, 'uploads', 'approved'), {
   index:    false,
   dotfiles: 'deny',
   maxAge:   '1h',
@@ -114,9 +115,9 @@ app.use(function(err, req, res, next) {  // eslint-disable-line no-unused-vars
 
 // -- Bootstrap & start --
 (async function() {
-  // Ensure upload directories exist
+  // Ensure upload directories exist (under DATA_DIR for persistence across deploys)
   ['uploads/pending', 'uploads/approved'].forEach(function(dir) {
-    const p = path.join(__dirname, dir);
+    const p = path.join(DATA_DIR, dir);
     if (!fs.existsSync(p)) fs.mkdirSync(p, { recursive: true });
   });
 

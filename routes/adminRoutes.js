@@ -8,11 +8,13 @@ const multer     = require('multer');
 const rateLimit  = require('express-rate-limit');
 const router     = express.Router();
 
+const archiver  = require('archiver');
+
 const db                = require('../db/database');
 const { requireAdmin, redirectIfLoggedIn } = require('../middleware/auth');
 const { validateCsrfFromBody } = require('../middleware/csrf');
-const { uploadToDrive, extractFolderId, normalizeFolderInput, streamFromDrive } = require('../lib/driveUpload');
 
+const DATA_DIR   = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
 const IMAGES_DIR = path.join(__dirname, '..', 'public', 'images');
 
 // Magic byte detection for site images (JPEG, PNG, WebP, GIF)
@@ -57,8 +59,8 @@ const loginLimiter = rateLimit({
   },
 });
 
-const PENDING_DIR  = path.join(__dirname, '..', 'uploads', 'pending');
-const APPROVED_DIR = path.join(__dirname, '..', 'uploads', 'approved');
+const PENDING_DIR  = path.join(DATA_DIR, 'uploads', 'pending');
+const APPROVED_DIR = path.join(DATA_DIR, 'uploads', 'approved');
 
 // Prevent caching of admin pages
 router.use((req, res, next) => {
@@ -150,7 +152,7 @@ router.get('/login', redirectIfLoggedIn, (req, res) => {
 });
 
 router.post('/login', loginLimiter, redirectIfLoggedIn, asyncHandler(async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, remember_me } = req.body;
   if (!username || !password) {
     req.session.flash = { type: 'error', message: 'Username and password are required.' };
     return res.redirect('/admin/login');
@@ -165,6 +167,10 @@ router.post('/login', loginLimiter, redirectIfLoggedIn, asyncHandler(async (req,
   if (!match) {
     req.session.flash = { type: 'error', message: 'Invalid username or password.' };
     return res.redirect('/admin/login');
+  }
+  // Extend session to 30 days if "Remember me" checked, else keep default (2 h)
+  if (remember_me === 'on') {
+    req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days in ms
   }
   req.session.adminLoggedIn = true;
   req.session.adminUsername = admin.username;
@@ -199,10 +205,9 @@ router.get('/dashboard', requireAdmin, asyncHandler(async (req, res) => {
   }
 
   const siteSettings = {
-    livestream_visible:       allSettings.livestream_visible       || '1',
-    livestream_channel:       allSettings.livestream_channel       || (process.env.TWITCH_CHANNEL || ''),
-    livestream_homepage:      allSettings.livestream_homepage      || '0',
-    google_drive_folder_id:   allSettings.google_drive_folder_id  || process.env.GOOGLE_DRIVE_FOLDER_ID || '',
+    livestream_visible:  allSettings.livestream_visible  || '1',
+    livestream_channel:  allSettings.livestream_channel  || (process.env.TWITCH_CHANNEL || ''),
+    livestream_homepage: allSettings.livestream_homepage || '0',
   };
 
   const flash = req.session.flash || null;
@@ -215,8 +220,7 @@ router.get('/dashboard', requireAdmin, asyncHandler(async (req, res) => {
     siteSettings,
     siteImages,
     flash,
-    adminUsername:   req.session.adminUsername,
-    driveConfigured: !!process.env.GOOGLE_SERVICE_ACCOUNT_JSON,
+    adminUsername: req.session.adminUsername,
   });
 }));
 
@@ -245,10 +249,8 @@ router.get('/photo/:id/image', requireAdmin, asyncHandler(async (req, res) => {
 
   if (fs.existsSync(localPath)) {
     safeServeFile(res, PENDING_DIR, photo);
-  } else if (photo.drive_file_id) {
-    await streamFromDrive(res, photo.drive_file_id, photo.mime_type);
   } else {
-    return res.status(404).send('File not found on disk and no Drive backup available.');
+    return res.status(404).send('File not found on disk.');
   }
 }));
 
@@ -265,26 +267,7 @@ router.post('/photo/:id/approve', requireAdmin, asyncHandler(async (req, res) =>
 
   fs.renameSync(src, dest);
   await db.updatePhotoStatus(photo.id, 'approved');
-
-  var successMsg = 'Photo approved and added to the gallery.';
-  var folderId = (await db.getSetting('google_drive_folder_id')) || process.env.GOOGLE_DRIVE_FOLDER_ID || null;
-  if (folderId) {
-    var driveErr = null;
-    var driveResult = await uploadToDrive(dest, photo.original_name || photo.filename, photo.mime_type, extractFolderId(folderId))
-      .catch(function(e) { driveErr = e; return null; });
-    if (driveResult) {
-      successMsg += ' Saved to Google Drive.';
-    } else {
-      var driveDetail = 'unknown error';
-      if (driveErr) {
-        driveDetail = driveErr.message || driveDetail;
-        if (driveErr.errors && driveErr.errors.length) driveDetail += ' — ' + driveErr.errors.map(function(e) { return e.message; }).join('; ');
-      }
-      successMsg += ' (Drive upload failed: ' + driveDetail + ')';
-    }
-  }
-
-  return ajaxOk(req, res, successMsg);
+  return ajaxOk(req, res, 'Photo approved and added to the gallery.');
 }));
 
 // -- PHOTO: REJECT (pending only, file deleted) --
@@ -311,11 +294,6 @@ router.post('/photos/bulk-action', requireAdmin, asyncHandler(async (req, res) =
   if (!Array.isArray(ids)) ids = [ids];
   ids = ids.filter(function(id) { return typeof id === 'string' && id.trim(); });
 
-  var folderId = null;
-  if (action === 'approve') {
-    folderId = await db.getSetting('google_drive_folder_id');
-  }
-
   var approved = 0, rejected = 0, skipped = 0;
   for (var i = 0; i < ids.length; i++) {
     var photo = await db.getPhotoById(ids[i]);
@@ -328,13 +306,6 @@ router.post('/photos/bulk-action', requireAdmin, asyncHandler(async (req, res) =
       if (!fs.existsSync(src)) { skipped++; continue; }
       fs.renameSync(src, dest);
       await db.updatePhotoStatus(photo.id, 'approved');
-      if (folderId) {
-        var folderIdOnly  = extractFolderId(folderId);
-        var displayName   = photo.original_name || photo.filename;
-        var photoMime     = photo.mime_type;
-        var photoDest     = dest;
-        uploadToDrive(photoDest, displayName, photoMime, folderIdOnly).catch(function() {});
-      }
       approved++;
     } else {
       safeDeleteFile(PENDING_DIR, photo.filename);
@@ -545,83 +516,47 @@ router.post('/livestream', requireAdmin, asyncHandler(async (req, res) => {
   res.redirect('/admin/dashboard');
 }));
 
-// -- GOOGLE DRIVE SETTINGS --
+// -- PHOTOS: DOWNLOAD ALL APPROVED (as zip) --
 
-router.post('/settings/drive', requireAdmin, asyncHandler(async (req, res) => {
-  var raw = (req.body.google_drive_folder_url || '').trim();
+router.get('/photos/download-all', requireAdmin, asyncHandler(async (req, res) => {
+  const approvedPhotos = await db.getAllApprovedPhotos();
 
-  // Always store the full canonical URL (accepts either a full URL or a bare folder ID)
-  var normalizedUrl = raw ? normalizeFolderInput(raw) : '';
-
-  await db.setSetting('google_drive_folder_id', normalizedUrl);
-  req.session.flash = { type: 'success', message: 'Google Drive settings saved.' };
-  res.redirect('/admin/dashboard');
-}));
-
-// -- GOOGLE DRIVE: TEST CONNECTION --
-
-router.post('/settings/drive/test', requireAdmin, asyncHandler(async (req, res) => {
-  const { google } = require('googleapis');
-
-  // Mirror the same priority as driveUpload.js: OAuth2 first (personal Gmail), service account fallback (Shared Drives)
-  function buildDriveClient() {
-    // 1. OAuth2 (required for personal Google Drive — service accounts lack storage quota)
-    const clientId     = process.env.GOOGLE_OAUTH_CLIENT_ID;
-    const clientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET;
-    const refreshToken = process.env.GOOGLE_OAUTH_REFRESH_TOKEN;
-    if (clientId && clientSecret && refreshToken) {
-      try {
-        const oauth2 = new google.auth.OAuth2(clientId, clientSecret);
-        oauth2.setCredentials({ refresh_token: refreshToken });
-        return { drive: google.drive({ version: 'v3', auth: oauth2 }), mode: 'OAuth2 (personal account)' };
-      } catch (e) {
-        return { error: 'OAuth2 init failed: ' + e.message };
+  // Build list of files that actually exist on disk before sending any headers
+  var toAdd = [];
+  if (approvedPhotos && approvedPhotos.length > 0) {
+    for (var i = 0; i < approvedPhotos.length; i++) {
+      var photo = approvedPhotos[i];
+      if (!SAFE_FILENAME_RE.test(photo.filename)) continue;
+      var filePath = path.join(APPROVED_DIR, photo.filename);
+      if (!filePath.startsWith(APPROVED_DIR + path.sep) && filePath !== APPROVED_DIR) continue;
+      if (fs.existsSync(filePath)) {
+        toAdd.push({ filePath: filePath, name: photo.original_name || photo.filename });
       }
     }
-    // 2. Service account (Google Workspace Shared Drives only)
-    const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
-    if (raw) {
-      try {
-        const json  = raw.trim().startsWith('{') ? raw : Buffer.from(raw, 'base64').toString('utf8');
-        const creds = JSON.parse(json);
-        const auth  = new google.auth.GoogleAuth({ credentials: creds, scopes: ['https://www.googleapis.com/auth/drive'] });
-        return { drive: google.drive({ version: 'v3', auth }), mode: 'Service Account (' + creds.client_email + ') — WARNING: cannot upload to personal Drive' };
-      } catch (e) {
-        return { error: 'Service account JSON is invalid: ' + e.message };
-      }
-    }
-    return { error: 'No Drive credentials found. Set GOOGLE_OAUTH_CLIENT_ID + GOOGLE_OAUTH_CLIENT_SECRET + GOOGLE_OAUTH_REFRESH_TOKEN in Railway.' };
   }
 
-  var built = buildDriveClient();
-  if (built.error) {
-    req.session.flash = { type: 'error', message: 'Drive test failed — ' + built.error };
+  if (toAdd.length === 0) {
+    req.session.flash = { type: 'error', message: 'No approved photo files found on disk.' };
     return res.redirect('/admin/dashboard');
   }
 
-  var folderId = (await db.getSetting('google_drive_folder_id')) || process.env.GOOGLE_DRIVE_FOLDER_ID || null;
-  var folderIdOnly = folderId ? extractFolderId(folderId) : null;
+  const dateStr = new Date().toISOString().slice(0, 10);
+  res.setHeader('Content-Type', 'application/zip');
+  res.setHeader('Content-Disposition', 'attachment; filename="approved-photos-' + dateStr + '.zip"');
+  res.setHeader('Cache-Control', 'no-store');
 
-  try {
-    var params = { pageSize: 1, fields: 'files(id,name)', supportsAllDrives: true, includeItemsFromAllDrives: true };
-    if (folderIdOnly) params.q = '"' + folderIdOnly + '" in parents';
-    await built.drive.files.list(params);
-    var msg = 'Drive connection OK (' + built.mode + ').';
-    msg += folderIdOnly ? ' Folder is accessible.' : ' No folder set yet — paste a folder URL below and save.';
-    req.session.flash = { type: 'success', message: msg };
-  } catch (err) {
-    var detail = err.message || 'unknown error';
-    if (err.errors && err.errors.length) detail += ' — ' + err.errors.map(function(e) { return e.message; }).join('; ');
-    if (err.response && err.response.data && err.response.data.error_description) detail += ' — ' + err.response.data.error_description;
-    var hint = detail.indexOf('invalid_grant') !== -1
-      ? ' The OAuth2 refresh token has expired or been revoked. Run scripts/refresh-drive-token.js to get a new one, then update GOOGLE_OAUTH_REFRESH_TOKEN in Railway.'
-      : detail.indexOf('notFound') !== -1 || detail.indexOf('404') !== -1
-      ? ' Tip: share the Drive folder with the service account email address.'
-      : '';
-    req.session.flash = { type: 'error', message: 'Drive test failed (' + built.mode + '): ' + detail + hint };
+  const archive = archiver('zip', { zlib: { level: 6 } });
+  archive.on('error', function(err) {
+    console.error('[Download All] Archive error:', err.message);
+    if (!res.headersSent) res.status(500).send('Archive failed.');
+  });
+  archive.pipe(res);
+
+  for (var j = 0; j < toAdd.length; j++) {
+    archive.file(toAdd[j].filePath, { name: toAdd[j].name });
   }
 
-  res.redirect('/admin/dashboard');
+  await archive.finalize();
 }));
 
 // -- RSVPs: LIST --

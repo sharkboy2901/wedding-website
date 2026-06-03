@@ -103,58 +103,6 @@
       </div>
     </section>
 
-    <!-- ── Google Drive Integration ─────────────────────────────────────── -->
-    <section class="admin-section" aria-labelledby="drive-heading">
-      <h2 class="admin-section-title" id="drive-heading">&#128194; Google Drive Backup</h2>
-      <div class="admin-settings-card">
-
-        <div class="admin-settings-row" style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
-          <% if (driveConfigured) { %>
-            <span class="badge badge--approved">&#10003; Service account credentials set</span>
-          <% } else { %>
-            <span class="badge badge--warning">&#33; No credentials set</span>
-            <p class="admin-settings-hint" style="margin:0.5rem 0 0;">
-              Set <code>GOOGLE_SERVICE_ACCOUNT_JSON</code> in Railway (raw JSON or base64-encoded),
-              then share your Drive folder with the service account email and paste the folder URL below.
-            </p>
-          <% } %>
-          <form action="/admin/settings/drive/test" method="post" style="margin:0;">
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <button type="submit" class="admin-btn admin-btn--secondary" style="font-size:0.8rem;padding:0.3rem 0.75rem;">
-              &#9654; Test Connection
-            </button>
-          </form>
-        </div>
-
-        <form action="/admin/settings/drive" method="post" class="admin-settings-form" style="margin-top:1.25rem;">
-          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-
-          <div class="admin-settings-row">
-            <label class="admin-settings-label" for="google_drive_folder_url">
-              Google Drive Folder URL <span class="optional">(or Folder ID)</span>
-            </label>
-            <input
-              type="text"
-              id="google_drive_folder_url"
-              name="google_drive_folder_url"
-              class="admin-settings-input"
-              value="<%= siteSettings.google_drive_folder_id %>"
-              placeholder="https://drive.google.com/drive/folders/… or just the folder ID"
-            >
-            <p class="admin-settings-hint">
-              Paste the full folder URL from your browser or just the folder ID.
-              Approved photos are automatically uploaded to this folder.
-            </p>
-          </div>
-
-          <div class="admin-settings-row">
-            <button type="submit" class="admin-btn admin-btn--primary">Save Drive Settings</button>
-          </div>
-        </form>
-
-      </div>
-    </section>
-
     <!-- ── Site Images ────────────────────────────────────────────────────── -->
     <section class="admin-section" aria-labelledby="site-images-heading">
       <h2 class="admin-section-title" id="site-images-heading">&#128444; Site Images</h2>
@@ -289,7 +237,12 @@
 
     <!-- ── Approved Photos ────────────────────────────────────────────────── -->
     <section class="admin-section" aria-labelledby="approved-heading">
-      <h2 class="admin-section-title" id="approved-heading">&#10003; Approved Photos</h2>
+      <div class="admin-section-header">
+        <h2 class="admin-section-title" id="approved-heading">&#10003; Approved Photos</h2>
+        <% if (approvedPhotos && approvedPhotos.length > 0) { %>
+          <a href="/admin/photos/download-all" class="admin-btn admin-btn--secondary admin-btn--sm">&#8659; Download All Approved</a>
+        <% } %>
+      </div>
 
       <% if (approvedPhotos && approvedPhotos.length > 0) { %>
         <p class="admin-section-note">Feature photos to highlight them on the home page. Use "Hide from Gallery" to keep a photo approved but invisible to guests — you can unhide it any time.</p>

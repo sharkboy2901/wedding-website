@@ -1,0 +1,13 @@
+@echo off
+cd /d "%~dp0"
+echo Removing stale git lock if present...
+if exist ".git\index.lock" del /f ".git\index.lock"
+echo Staging all changes...
+git add -A
+echo Committing...
+git commit -m "Persistent storage, download all, remember me, remove Drive"
+echo Pushing...
+git push origin main
+echo.
+echo Done! Press any key to close.
+pause

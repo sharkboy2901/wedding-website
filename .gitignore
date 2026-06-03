@@ -5,3 +5,11 @@ uploads/approved/
 *.db
 .env
 npm-debug.log*
+
+# Removed Drive integration
+lib/driveUpload.js
+scripts/refresh-drive-token.js
+fix-drive.bat
+fix-git-lock.bat
+git-push.ps1
+push.ps1
