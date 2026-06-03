@@ -202,7 +202,7 @@ router.get('/dashboard', requireAdmin, asyncHandler(async (req, res) => {
     livestream_visible:       allSettings.livestream_visible       || '1',
     livestream_channel:       allSettings.livestream_channel       || (process.env.TWITCH_CHANNEL || ''),
     livestream_homepage:      allSettings.livestream_homepage      || '0',
-    google_drive_folder_id:   allSettings.google_drive_folder_id  || '',
+    google_drive_folder_id:   allSettings.google_drive_folder_id  || process.env.GOOGLE_DRIVE_FOLDER_ID || '',
   };
 
   const flash = req.session.flash || null;
@@ -267,7 +267,7 @@ router.post('/photo/:id/approve', requireAdmin, asyncHandler(async (req, res) =>
   await db.updatePhotoStatus(photo.id, 'approved');
 
   var successMsg = 'Photo approved and added to the gallery.';
-  var folderId = await db.getSetting('google_drive_folder_id');
+  var folderId = (await db.getSetting('google_drive_folder_id')) || process.env.GOOGLE_DRIVE_FOLDER_ID || null;
   if (folderId) {
     var driveErr = null;
     var driveResult = await uploadToDrive(dest, photo.original_name || photo.filename, photo.mime_type, extractFolderId(folderId))
@@ -599,7 +599,7 @@ router.post('/settings/drive/test', requireAdmin, asyncHandler(async (req, res) 
     return res.redirect('/admin/dashboard');
   }
 
-  var folderId = await db.getSetting('google_drive_folder_id');
+  var folderId = (await db.getSetting('google_drive_folder_id')) || process.env.GOOGLE_DRIVE_FOLDER_ID || null;
   var folderIdOnly = folderId ? extractFolderId(folderId) : null;
 
   try {
