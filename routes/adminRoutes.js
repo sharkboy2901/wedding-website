@@ -563,21 +563,9 @@ router.post('/settings/drive', requireAdmin, asyncHandler(async (req, res) => {
 router.post('/settings/drive/test', requireAdmin, asyncHandler(async (req, res) => {
   const { google } = require('googleapis');
 
-  // Mirror the same priority as driveUpload.js: service account first, OAuth2 fallback
+  // Mirror the same priority as driveUpload.js: OAuth2 first (personal Gmail), service account fallback (Shared Drives)
   function buildDriveClient() {
-    // 1. Service account (preferred — credentials never expire)
-    const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
-    if (raw) {
-      try {
-        const json  = raw.trim().startsWith('{') ? raw : Buffer.from(raw, 'base64').toString('utf8');
-        const creds = JSON.parse(json);
-        const auth  = new google.auth.GoogleAuth({ credentials: creds, scopes: ['https://www.googleapis.com/auth/drive'] });
-        return { drive: google.drive({ version: 'v3', auth }), mode: 'Service Account (' + creds.client_email + ')' };
-      } catch (e) {
-        return { error: 'Service account JSON is invalid: ' + e.message };
-      }
-    }
-    // 2. OAuth2 refresh token (fallback for personal Gmail)
+    // 1. OAuth2 (required for personal Google Drive — service accounts lack storage quota)
     const clientId     = process.env.GOOGLE_OAUTH_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET;
     const refreshToken = process.env.GOOGLE_OAUTH_REFRESH_TOKEN;
@@ -585,12 +573,24 @@ router.post('/settings/drive/test', requireAdmin, asyncHandler(async (req, res) 
       try {
         const oauth2 = new google.auth.OAuth2(clientId, clientSecret);
         oauth2.setCredentials({ refresh_token: refreshToken });
-        return { drive: google.drive({ version: 'v3', auth: oauth2 }), mode: 'OAuth2' };
+        return { drive: google.drive({ version: 'v3', auth: oauth2 }), mode: 'OAuth2 (personal account)' };
       } catch (e) {
         return { error: 'OAuth2 init failed: ' + e.message };
       }
     }
-    return { error: 'No credentials found. Set GOOGLE_SERVICE_ACCOUNT_JSON in Railway environment variables.' };
+    // 2. Service account (Google Workspace Shared Drives only)
+    const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+    if (raw) {
+      try {
+        const json  = raw.trim().startsWith('{') ? raw : Buffer.from(raw, 'base64').toString('utf8');
+        const creds = JSON.parse(json);
+        const auth  = new google.auth.GoogleAuth({ credentials: creds, scopes: ['https://www.googleapis.com/auth/drive'] });
+        return { drive: google.drive({ version: 'v3', auth }), mode: 'Service Account (' + creds.client_email + ') — WARNING: cannot upload to personal Drive' };
+      } catch (e) {
+        return { error: 'Service account JSON is invalid: ' + e.message };
+      }
+    }
+    return { error: 'No Drive credentials found. Set GOOGLE_OAUTH_CLIENT_ID + GOOGLE_OAUTH_CLIENT_SECRET + GOOGLE_OAUTH_REFRESH_TOKEN in Railway.' };
   }
 
   var built = buildDriveClient();
@@ -614,7 +614,7 @@ router.post('/settings/drive/test', requireAdmin, asyncHandler(async (req, res) 
     if (err.errors && err.errors.length) detail += ' — ' + err.errors.map(function(e) { return e.message; }).join('; ');
     if (err.response && err.response.data && err.response.data.error_description) detail += ' — ' + err.response.data.error_description;
     var hint = detail.indexOf('invalid_grant') !== -1
-      ? ' Tip: OAuth2 token is expired/revoked. Remove GOOGLE_OAUTH_* env vars from Railway so the service account is used.'
+      ? ' The OAuth2 refresh token has expired or been revoked. Run scripts/refresh-drive-token.js to get a new one, then update GOOGLE_OAUTH_REFRESH_TOKEN in Railway.'
       : detail.indexOf('notFound') !== -1 || detail.indexOf('404') !== -1
       ? ' Tip: share the Drive folder with the service account email address.'
       : '';
