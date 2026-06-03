@@ -563,8 +563,21 @@ router.post('/settings/drive', requireAdmin, asyncHandler(async (req, res) => {
 router.post('/settings/drive/test', requireAdmin, asyncHandler(async (req, res) => {
   const { google } = require('googleapis');
 
-  // Re-run the same credential logic as driveUpload.js so the test is accurate
+  // Mirror the same priority as driveUpload.js: service account first, OAuth2 fallback
   function buildDriveClient() {
+    // 1. Service account (preferred — credentials never expire)
+    const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+    if (raw) {
+      try {
+        const json  = raw.trim().startsWith('{') ? raw : Buffer.from(raw, 'base64').toString('utf8');
+        const creds = JSON.parse(json);
+        const auth  = new google.auth.GoogleAuth({ credentials: creds, scopes: ['https://www.googleapis.com/auth/drive'] });
+        return { drive: google.drive({ version: 'v3', auth }), mode: 'Service Account (' + creds.client_email + ')' };
+      } catch (e) {
+        return { error: 'Service account JSON is invalid: ' + e.message };
+      }
+    }
+    // 2. OAuth2 refresh token (fallback for personal Gmail)
     const clientId     = process.env.GOOGLE_OAUTH_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET;
     const refreshToken = process.env.GOOGLE_OAUTH_REFRESH_TOKEN;
@@ -577,16 +590,7 @@ router.post('/settings/drive/test', requireAdmin, asyncHandler(async (req, res) 
         return { error: 'OAuth2 init failed: ' + e.message };
       }
     }
-    const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
-    if (!raw) return { error: 'No credentials found. Set GOOGLE_SERVICE_ACCOUNT_JSON (or the three GOOGLE_OAUTH_* vars) in Railway.' };
-    try {
-      const json  = raw.trim().startsWith('{') ? raw : Buffer.from(raw, 'base64').toString('utf8');
-      const creds = JSON.parse(json);
-      const auth  = new google.auth.GoogleAuth({ credentials: creds, scopes: ['https://www.googleapis.com/auth/drive'] });
-      return { drive: google.drive({ version: 'v3', auth }), mode: 'Service Account (' + creds.client_email + ')' };
-    } catch (e) {
-      return { error: 'Service account JSON is invalid: ' + e.message };
-    }
+    return { error: 'No credentials found. Set GOOGLE_SERVICE_ACCOUNT_JSON in Railway environment variables.' };
   }
 
   var built = buildDriveClient();
@@ -599,7 +603,6 @@ router.post('/settings/drive/test', requireAdmin, asyncHandler(async (req, res) 
   var folderIdOnly = folderId ? extractFolderId(folderId) : null;
 
   try {
-    // List 1 file — proves auth works and (if folderId given) that the folder is accessible
     var params = { pageSize: 1, fields: 'files(id,name)', supportsAllDrives: true, includeItemsFromAllDrives: true };
     if (folderIdOnly) params.q = '"' + folderIdOnly + '" in parents';
     await built.drive.files.list(params);
@@ -610,7 +613,12 @@ router.post('/settings/drive/test', requireAdmin, asyncHandler(async (req, res) 
     var detail = err.message || 'unknown error';
     if (err.errors && err.errors.length) detail += ' — ' + err.errors.map(function(e) { return e.message; }).join('; ');
     if (err.response && err.response.data && err.response.data.error_description) detail += ' — ' + err.response.data.error_description;
-    req.session.flash = { type: 'error', message: 'Drive test failed (' + built.mode + '): ' + detail };
+    var hint = detail.indexOf('invalid_grant') !== -1
+      ? ' Tip: OAuth2 token is expired/revoked. Remove GOOGLE_OAUTH_* env vars from Railway so the service account is used.'
+      : detail.indexOf('notFound') !== -1 || detail.indexOf('404') !== -1
+      ? ' Tip: share the Drive folder with the service account email address.'
+      : '';
+    req.session.flash = { type: 'error', message: 'Drive test failed (' + built.mode + '): ' + detail + hint };
   }
 
   res.redirect('/admin/dashboard');
