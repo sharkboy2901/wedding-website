@@ -144,6 +144,7 @@
     .cd-num {
       font-family: 'Cormorant Garamond', serif;
       font-size: 4rem; font-weight: 300; line-height: 1; color: var(--gold);
+      font-variant-numeric: tabular-nums;
     }
     .cd-lbl { font-size: 0.62rem; letter-spacing: 0.24em; font-weight: 600; margin-top: 9px; opacity: 0.7; text-transform: uppercase; }
 
@@ -545,9 +546,39 @@
       .cd-unit { padding: 11px 24px; }
       .cd-num { font-size: 2.4rem; }
     }
+
+    /* ── Reduced motion ─────────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+      .strip { animation: none; }
+      .hero-slide { transition: opacity 0.3s ease; }
+      .strip-photo { transition: none; }
+      .detail-card { transition: none; }
+      .btn-gold,
+      .btn-outline { transition: none; }
+      .hero-arrow { transition: none; }
+    }
+
+    /* ── Skip-to-content link ───────────────────── */
+    .skip-to-content {
+      position: absolute;
+      top: -100%;
+      left: 0;
+      padding: 0.75rem 1.25rem;
+      background: var(--brown);
+      color: var(--cream);
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      z-index: 9999;
+      border-radius: 0 0 4px 0;
+      transition: top 0.15s;
+    }
+    .skip-to-content:focus { top: 0; }
   </style>
 </head>
 <body>
+
+<a href="#story" class="skip-to-content">Skip to main content</a>
 
 <!-- ── NAV ──────────────────────────────────────── -->
 <nav>
@@ -587,8 +618,8 @@
     </div>
   </div>
 
-  <button class="hero-arrow left"  id="heroPrev">&#8249;</button>
-  <button class="hero-arrow right" id="heroNext">&#8250;</button>
+  <button class="hero-arrow left"  id="heroPrev" aria-label="Previous photo">&#8249;</button>
+  <button class="hero-arrow right" id="heroNext" aria-label="Next photo">&#8250;</button>
   <div class="hero-dots" id="heroDots"></div>
 </section>
 
@@ -1245,7 +1276,7 @@
 
 <!-- ── LIGHTBOX ───────────────────────────────── -->
 <div class="lightbox" id="lightbox">
-  <button class="lightbox-close" id="lbClose">&times;</button>
+  <button class="lightbox-close" id="lbClose" aria-label="Close lightbox">&times;</button>
   <img id="lbImg" src="" alt="" />
 </div>
 
@@ -1295,6 +1326,7 @@
 
     const d = document.createElement('button');
     d.className = 'hero-dot' + (i === 0 ? ' active' : '');
+    d.setAttribute('aria-label', 'Go to photo ' + (i + 1));
     d.addEventListener('click', () => go(i));
     dotsEl.appendChild(d);
   });
@@ -1313,7 +1345,8 @@
 
   document.getElementById('heroNext').addEventListener('click', () => go(current + 1));
   document.getElementById('heroPrev').addEventListener('click', () => go(current - 1));
-  timer = setTimeout(() => go(1), 5500);
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!prefersReducedMotion) timer = setTimeout(() => go(1), 5500);
 
   // ── Story section photos ─────────────────────
   document.getElementById('storyPhotoA').src = '/images/site-story-1.jpg';

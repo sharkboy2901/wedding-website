@@ -11,5 +11,24 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    /* Skip-to-content link for keyboard navigation */
+    .skip-to-content {
+      position: absolute;
+      top: -100%;
+      left: 0;
+      padding: 0.75rem 1.25rem;
+      background: var(--brown, #3d2b1f);
+      color: var(--cream, #f5ede0);
+      font-family: var(--font-sans, 'Montserrat', sans-serif);
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      z-index: 9999;
+      border-radius: 0 0 4px 0;
+      transition: top 0.15s;
+    }
+    .skip-to-content:focus { top: 0; }
+  </style>
 </head>
 <body>
