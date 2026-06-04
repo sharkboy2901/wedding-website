@@ -574,10 +574,136 @@
       transition: top 0.15s;
     }
     .skip-to-content:focus { top: 0; }
+
+    /* ═══════════════════════════════════════════════════
+       v1.0.2 — Visual Design Upgrade
+       ═══════════════════════════════════════════════════ */
+
+    /* Scroll-progress bar (the "surprise") */
+    .scroll-bar {
+      position: fixed; top: 0; left: 0; z-index: 1001;
+      height: 3px; width: 0%;
+      background: linear-gradient(90deg, #9a7030, var(--gold), #f0d890, var(--gold), #9a7030);
+      background-size: 300% 100%;
+      animation: bar-shimmer 4s linear infinite;
+      pointer-events: none; will-change: width;
+    }
+    @keyframes bar-shimmer { from { background-position:0 0; } to { background-position:300% 0; } }
+
+    /* Scroll-reveal — sections rise up as they enter viewport */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.9s cubic-bezier(0.22,1,0.36,1),
+                  transform 0.9s cubic-bezier(0.22,1,0.36,1);
+    }
+    .reveal.in-view  { opacity: 1; transform: none; }
+    .rd1 { transition-delay: 0.07s; }
+    .rd2 { transition-delay: 0.14s; }
+    .rd3 { transition-delay: 0.21s; }
+    .rd4 { transition-delay: 0.28s; }
+
+    /* Detail card children stagger when parent gets .in-view */
+    .details-grid .detail-card {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.8s cubic-bezier(0.22,1,0.36,1),
+                  transform 0.8s cubic-bezier(0.22,1,0.36,1),
+                  box-shadow 0.35s cubic-bezier(0.22,1,0.36,1);
+    }
+    .details-grid.in-view .detail-card           { opacity: 1; transform: none; }
+    .details-grid.in-view .detail-card:nth-child(1) { transition-delay: 0.04s; }
+    .details-grid.in-view .detail-card:nth-child(2) { transition-delay: 0.11s; }
+    .details-grid.in-view .detail-card:nth-child(3) { transition-delay: 0.18s; }
+    .details-grid.in-view .detail-card:nth-child(4) { transition-delay: 0.25s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { opacity:1!important; transform:none!important; transition:none!important; }
+      .details-grid .detail-card { opacity:1!important; transform:none!important; transition: box-shadow 0.35s ease!important; }
+      .scroll-bar { animation:none; }
+    }
+
+    /* ── Hero enhancements ─────────────────────── */
+    /* Warmer cinematic overlay */
+    .hero-overlay {
+      background:
+        radial-gradient(ellipse at 50% 40%, rgba(0,0,0,0) 22%, rgba(18,7,0,0.46) 100%),
+        linear-gradient(to bottom, rgba(18,7,0,0.24) 0%, rgba(18,7,0,0.40) 50%, rgba(18,7,0,0.72) 100%);
+    }
+    /* Richer name shadow */
+    .hero-names { text-shadow: 0 2px 22px rgba(0,0,0,0.48), 0 6px 72px rgba(0,0,0,0.22); }
+    /* Gold-tinted divider lines */
+    .hero-divider::before { background: linear-gradient(to right,  transparent, rgba(184,148,90,0.75)); }
+    .hero-divider::after  { background: linear-gradient(to left,   transparent, rgba(184,148,90,0.75)); }
+    /* Glass countdown — gold border */
+    .countdown {
+      background: rgba(10,5,0,0.56);
+      backdrop-filter: blur(22px) saturate(1.3);
+      -webkit-backdrop-filter: blur(22px) saturate(1.3);
+      border: 1px solid rgba(184,148,90,0.34);
+      box-shadow: 0 14px 54px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.10);
+    }
+    .cd-unit { border-right-color: rgba(184,148,90,0.22); }
+    .cd-lbl  { letter-spacing: 0.22em; }
+
+    /* ── Nav underline sweep ───────────────────── */
+    .nav-links a { position: relative; }
+    .nav-links a::after {
+      content: '';
+      position: absolute; bottom: -3px; left: 50%;
+      width: 0; height: 1px;
+      background: var(--gold);
+      transition: width 0.32s ease, left 0.32s ease;
+    }
+    .nav-links a:hover::after { width: 100%; left: 0; }
+
+    /* ── Story section ─────────────────────────── */
+    .story-quote { font-size: 1.46rem; line-height: 1.88; }
+
+    /* ── Detail cards — inset gold bar on hover ─── */
+    .detail-card {
+      box-shadow: 0 6px 28px rgba(61,43,31,0.09), inset 0 3px 0 transparent;
+    }
+    .detail-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 26px 58px rgba(61,43,31,0.16), inset 0 3px 0 var(--gold);
+    }
+    .details-grid { gap: 26px; }
+
+    /* ── Schedule ─────────────────────────────── */
+    .t-event { margin-bottom: 64px; }
+    .t-icon { transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), box-shadow 0.3s ease; }
+    .t-event:hover .t-icon { transform: scale(1.14); box-shadow: 0 4px 22px rgba(184,148,90,0.3); }
+
+    /* ── Button shimmer ─────────────────────────── */
+    .btn-gold  { position: relative; overflow: hidden; }
+    .btn-gold::before {
+      content: '';
+      position: absolute; top: 0; left: -100%;
+      width: 50%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+      transform: skewX(-22deg);
+      transition: left 0.55s ease;
+      pointer-events: none;
+    }
+    .btn-gold:hover::before { left: 180%; }
+
+    /* ── Photos strip — more cinematic ─────────── */
+    #photos { background: #120904; }
+    .strip-photo { border-radius: 5px; }
+
+    /* ── Guest moments link ─────────────────────── */
+    .moments-gallery-link {
+      border-bottom: 1px solid rgba(184,148,90,0.35);
+      padding-bottom: 2px;
+      transition: border-color 0.22s, color 0.22s;
+    }
+    .moments-gallery-link:hover { border-color: var(--gold); }
   </style>
 </head>
 <body>
 
+<div class="scroll-bar" id="scrollBar" aria-hidden="true"></div>
 <a href="#story" class="skip-to-content">Skip to main content</a>
 
 <!-- ── NAV ──────────────────────────────────────── -->
@@ -887,7 +1013,7 @@
       <circle cx="14"  cy="-20" r="1.8" fill="white" stroke="#ccc0b0" stroke-width="0.5"/>
     </g>
   </svg>
-  <div class="story-inner">
+  <div class="story-inner reveal">
     <div class="story-photos">
       <div class="dots-deco" id="dotsDeco"></div>
       <img id="storyPhotoA" class="story-photo-a" alt="Matthew and Kristine" />
@@ -952,9 +1078,9 @@
       <circle cx="16"  cy="-22" r="2.1" fill="white" stroke="#ccc0b0" stroke-width="0.55"/>
     </g>
   </svg>
-  <h2 class="section-title">Wedding Details</h2>
-  <div class="section-rule"></div>
-  <div class="details-grid">
+  <h2 class="section-title reveal">Wedding Details</h2>
+  <div class="section-rule reveal rd1"></div>
+  <div class="details-grid reveal rd2">
     <div class="detail-card">
       <div class="detail-label">Date</div>
       <div class="detail-main">6th June,<br>2026</div>
@@ -1022,12 +1148,12 @@
     <ellipse cx="22" cy="106" rx="5" ry="7.5" fill="rgba(42,68,22,0.92)" stroke="#1e4010" stroke-width="0.7"/>
     <ellipse cx="30" cy="145" rx="5" ry="7.5" fill="rgba(42,68,22,0.92)" stroke="#1e4010" stroke-width="0.7"/>
   </svg>
-  <h2 class="section-title">The Day</h2>
-  <div class="section-rule"></div>
-  <p class="section-sub">A timeline of our celebration</p>
+  <h2 class="section-title reveal">The Day</h2>
+  <div class="section-rule reveal rd1"></div>
+  <p class="section-sub reveal rd2">A timeline of our celebration</p>
   <div class="schedule-inner">
     <div class="timeline-axis"></div>
-    <div class="t-event">
+    <div class="t-event reveal rd1">
       <div class="t-left">
         <div class="t-time">3:00 PM</div>
         <div class="t-name">Civil Wedding Ceremony</div>
@@ -1038,15 +1164,15 @@
     </div>
     <div class="t-event">
       <div class="t-left"></div>
-      <div class="t-icon">&#128247;</div>
-      <div class="t-right">
+      <div class="t-icon reveal rd2">&#128247;</div>
+      <div class="t-right reveal rd2">
         <div class="t-time">5:00 PM</div>
         <div class="t-name">Mġarr Church Photos</div>
         <div class="t-desc">Meeting guests for photographs at the church</div>
       </div>
     </div>
     <div class="t-event">
-      <div class="t-left">
+      <div class="t-left reveal rd3">
         <div class="t-time">6:00 PM</div>
         <div class="t-name">Reception at Da&nbsp;Manuele</div>
         <div class="t-desc">Trattoria Da Manuele &middot; intimate dinner &amp; drinks</div>
@@ -1057,7 +1183,7 @@
     <div class="t-event">
       <div class="t-left"></div>
       <div class="t-icon">&#127874;</div>
-      <div class="t-right">
+      <div class="t-right reveal rd4">
         <div class="t-time">8:30 PM</div>
         <div class="t-name">Cake &amp; Celebrations</div>
         <div class="t-desc">Cake cutting, music &amp; dancing</div>
@@ -1068,8 +1194,8 @@
 
 <!-- ── PHOTO AUTO-SCROLL ──────────────────────── -->
 <section id="photos">
-  <h2 class="section-title">Our Photos</h2>
-  <div class="section-rule" style="margin-bottom:56px;"></div>
+  <h2 class="section-title reveal">Our Photos</h2>
+  <div class="section-rule reveal rd1" style="margin-bottom:56px;"></div>
   <div class="strip-wrap">
     <div class="strip" id="photoStrip"></div>
   </div>
@@ -1260,9 +1386,9 @@
       <circle cx="16"  cy="-21" r="2.1" fill="white" stroke="#ccc0b0" stroke-width="0.55"/>
     </g>
   </svg>
-  <h2 class="section-title">Guest Moments</h2>
-  <div class="section-rule"></div>
-  <div class="moments-upload-box">
+  <h2 class="section-title reveal">Guest Moments</h2>
+  <div class="section-rule reveal rd1"></div>
+  <div class="moments-upload-box reveal rd2">
     <p>Captured a beautiful moment at our wedding? We'd love to see it.<br>
        Upload your photos and they may be featured right here for everyone to enjoy.</p>
     <a href="/upload" class="btn-gold">Share Your Photo</a>
@@ -1451,6 +1577,36 @@
       }
     })
     .catch(() => {});
+
+  // ── Scroll-progress bar ───────────────────────
+  const scrollBar = document.getElementById('scrollBar');
+  if (scrollBar) {
+    window.addEventListener('scroll', function() {
+      var pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100;
+      scrollBar.style.width = Math.min(pct, 100) + '%';
+    }, { passive: true });
+  }
+
+  // ── Scroll-reveal (IntersectionObserver) ─────
+  if (!prefersReducedMotion && 'IntersectionObserver' in window) {
+    var revealObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -48px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(function(el) {
+      revealObserver.observe(el);
+    });
+  } else {
+    // Fallback: show everything immediately
+    document.querySelectorAll('.reveal').forEach(function(el) {
+      el.classList.add('in-view');
+    });
+  }
 </script>
 </body>
 </html>
