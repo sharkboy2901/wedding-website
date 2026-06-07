@@ -21,7 +21,16 @@
         </div>
       <% } else { %>
         <div class="gallery-grid" role="list">
+          <% var seenNotes = {}; %>
           <% photos.forEach(function(photo) { %>
+            <%
+              // Show a guest's note only once. When someone uploads several photos
+              // in one go the same caption is stored on every photo, so collapse
+              // duplicates (per uploader name + note) to a single caption.
+              var noteKey = (photo.uploader_name || '').trim().toLowerCase() + '||' + (photo.uploader_message || '').trim();
+              var showMsg = !!photo.uploader_message && !seenNotes[noteKey];
+              if (showMsg) { seenNotes[noteKey] = true; }
+            %>
             <div class="gallery-item" role="listitem">
               <button class="gallery-thumb-btn" aria-label="View photo<% if (photo.uploader_name) { %> by <%= photo.uploader_name %><% } %>">
                 <img
@@ -31,10 +40,10 @@
                   loading="lazy"
                 >
               </button>
-              <% if (photo.uploader_name || photo.uploader_message) { %>
+              <% if (photo.uploader_name || showMsg) { %>
                 <div class="gallery-caption">
                   <% if (photo.uploader_name) { %><span class="gallery-name"><%= photo.uploader_name %></span><% } %>
-                  <% if (photo.uploader_message) { %><p class="gallery-msg"><%= photo.uploader_message %></p><% } %>
+                  <% if (showMsg) { %><p class="gallery-msg"><%= photo.uploader_message %></p><% } %>
                 </div>
               <% } %>
             </div>
