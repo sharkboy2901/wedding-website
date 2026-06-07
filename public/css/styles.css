@@ -779,52 +779,35 @@ p:last-child { margin-bottom: 0; }
   margin-bottom: 1rem;
 }
 
-/* ── Gallery: elegant mosaic grid (class added by gallery.js) ────────────────
-   A CSS-grid masonry that sizes each tile to the photo's real shape — some
-   taller, some wider (landscape photos span two columns) — for a varied,
-   creative arrangement. No motion; photos gently enlarge on hover and open
-   full-size on click. The plain column layout above is the no-JS fallback. */
-.gallery-grid--mosaic {
+/* ── Gallery: gliding slideshow wall (class added by gallery.js) ─────────────
+   Every photo is present at once in an equal-size tile grid. Every few seconds
+   gallery.js reshuffles the order and the tiles glide to their new spots (the
+   whole wall "rotates" its contents). Equal sizes keep the glide clean; the
+   plain column layout above is the no-JS fallback, and full uncropped photos
+   open in the lightbox on click. */
+.gallery-grid--slideshow {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-auto-rows: 10px;
-  gap: 18px;
-  grid-auto-flow: row dense;
-  align-items: start;
+  gap: 12px;
 }
-@media (min-width: 768px)  { .gallery-grid--mosaic { grid-template-columns: repeat(3, 1fr); } }
-@media (min-width: 1100px) { .gallery-grid--mosaic { grid-template-columns: repeat(4, 1fr); } }
-.gallery-grid--mosaic .gallery-item { margin-bottom: 0; }
-.gallery-grid--mosaic .gallery-item--wide { grid-column: span 2; }
+@media (min-width: 600px)  { .gallery-grid--slideshow { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1000px) { .gallery-grid--slideshow { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 1300px) { .gallery-grid--slideshow { grid-template-columns: repeat(5, 1fr); } }
 
-/* ── Gallery: drifting photos ───────────────────────────────────────────────
-   Every photo stays present in the mosaic at once, and each one slowly drifts
-   around its spot (a small looping orbit + gentle rotation), staggered so the
-   whole gallery feels alive and "moving around". Pauses on hover; runs on every
-   device (desktop, tablet, phone). */
-.gallery-item {
-  animation: gallery-drift-a 9s ease-in-out infinite;
+.gallery-grid--slideshow .gallery-item {
+  margin: 0;
+  aspect-ratio: 1 / 1;
 }
-.gallery-item:nth-child(4n+1) { animation: gallery-drift-a 9s  ease-in-out infinite; animation-delay: -0.6s; }
-.gallery-item:nth-child(4n+2) { animation: gallery-drift-b 11s ease-in-out infinite; animation-delay: -2.2s; }
-.gallery-item:nth-child(4n+3) { animation: gallery-drift-a 8s  ease-in-out infinite; animation-delay: -3.5s; }
-.gallery-item:nth-child(4n)   { animation: gallery-drift-b 12s ease-in-out infinite; animation-delay: -1.3s; }
-.gallery-item:hover { animation-play-state: paused; }
-
-@keyframes gallery-drift-a {
-  0%   { transform: translate(0, 0)      rotate(-2deg); }
-  25%  { transform: translate(7px, -7px)  rotate(1.5deg); }
-  50%  { transform: translate(10px, 3px)  rotate(2.5deg); }
-  75%  { transform: translate(3px, 9px)   rotate(-1deg); }
-  100% { transform: translate(0, 0)      rotate(-2deg); }
+.gallery-grid--slideshow .gallery-thumb-btn {
+  width: 100%;
+  height: 100%;
 }
-@keyframes gallery-drift-b {
-  0%   { transform: translate(0, 0)        rotate(2deg); }
-  25%  { transform: translate(-7px, 7px)    rotate(-1.5deg); }
-  50%  { transform: translate(-10px, -3px)  rotate(-2.5deg); }
-  75%  { transform: translate(-3px, -9px)   rotate(1deg); }
-  100% { transform: translate(0, 0)        rotate(2deg); }
+.gallery-grid--slideshow .gallery-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
+.gallery-grid--slideshow .gallery-caption { display: none; } /* shown in the lightbox */
 
 .gallery-thumb-btn {
   display: block;
@@ -2306,11 +2289,4 @@ p:last-child { margin-bottom: 0; }
     transition: none;
   }
 
-  /* Exception: keep the gentle drift running on every device, even when reduced
-     motion is requested — a deliberate, slow decorative movement the couple has
-     chosen. Higher specificity than the '*' reset lets these win. */
-  .gallery-item:nth-child(4n+1) { animation: gallery-drift-a 9s  ease-in-out infinite !important; animation-delay: -0.6s !important; }
-  .gallery-item:nth-child(4n+2) { animation: gallery-drift-b 11s ease-in-out infinite !important; animation-delay: -2.2s !important; }
-  .gallery-item:nth-child(4n+3) { animation: gallery-drift-a 8s  ease-in-out infinite !important; animation-delay: -3.5s !important; }
-  .gallery-item:nth-child(4n)   { animation: gallery-drift-b 12s ease-in-out infinite !important; animation-delay: -1.3s !important; }
 }

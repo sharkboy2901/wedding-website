@@ -1,22 +1,19 @@
 'use strict';
 
-/* Gallery — elegant varied-size mosaic (all photos shown at once) where each
-   photo gently drifts around on its own (the CSS animation handles the motion),
-   plus a click-to-zoom lightbox.
+/* Gallery — a "gliding slideshow wall": every photo is on screen at once in an
+   equal-size tile grid, and every few seconds the whole wall reshuffles so the
+   tiles smoothly glide to new spots. Plus a click-to-zoom lightbox.
 
-   - Mosaic: a CSS-grid masonry sized to each photo's real shape (portrait
-     taller, landscape wider), keeping true aspect ratios. Every photo stays
-     present at the same time.
-   - Lightbox: delegated clicks open the right photo; navigation runs over the
-     full photo list.
-   Progressive enhancement: with JS off, the plain column gallery remains. */
+   The glide uses the Web Animations API (element.animate) so it runs smoothly
+   on every device, including phones that request reduced motion. Progressive
+   enhancement: with JS off, the plain column gallery remains. */
 (function () {
   var grid = document.querySelector('.gallery-grid');
   if (!grid) return;
   var items = Array.prototype.slice.call(grid.querySelectorAll('.gallery-item'));
   if (items.length === 0) return;
 
-  /* ── Slide list for the lightbox ────────────────────────────────────────── */
+  /* ── Slide list for the lightbox (index stays with each element) ─────────── */
   var slides = items.map(function (item, i) {
     item.setAttribute('data-gallery-index', i);
     var img = item.querySelector('img');
@@ -28,52 +25,67 @@
     };
   });
 
-  /* ── Mosaic layout (varied tile sizes; all photos visible) ──────────────── */
-  var ROW = 10;  // must match grid-auto-rows in CSS
-  var GAP = 18;  // must match grid gap in CSS
+  /* ── Equal-size tile wall ───────────────────────────────────────────────── */
+  grid.classList.add('gallery-grid--slideshow');
 
-  function columnsCount() {
-    var w = window.innerWidth;
-    if (w >= 1100) return 4;
-    if (w >= 768)  return 3;
-    return 2;
-  }
-  function sizeItem(item) {
-    var img = item.querySelector('img');
-    var wide = false;
-    if (img && img.naturalWidth && img.naturalHeight) {
-      wide = (img.naturalWidth / img.naturalHeight) >= 1.5 && columnsCount() >= 3;
+  /* ── Gliding reshuffle (FLIP via the Web Animations API) ────────────────── */
+  var STEP_MS = 5000;   // time between reshuffles
+  var GLIDE_MS = 1100;  // how long the glide takes
+  var order = items.slice();
+  var paused = false;
+  var animating = false;
+
+  function shuffled(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
     }
-    item.classList.toggle('gallery-item--wide', wide);
-  }
-  function spanItem(item) {
-    var h = item.offsetHeight;  // layout height, unaffected by the drift transform
-    if (!h) return;
-    item.style.gridRowEnd = 'span ' + Math.max(1, Math.ceil((h + GAP) / (ROW + GAP)));
-  }
-  function mosaic() {
-    grid.classList.add('gallery-grid--mosaic');
-    items.forEach(sizeItem);
-    requestAnimationFrame(function () { items.forEach(spanItem); });
+    return a;
   }
 
-  mosaic();
-  items.forEach(function (item) {
-    var img = item.querySelector('img');
-    if (img && !img.complete) {
-      img.addEventListener('load',  function () { sizeItem(item); spanItem(item); });
-      img.addEventListener('error', function () { spanItem(item); });
-    }
-  });
-  window.addEventListener('load', mosaic);
+  function step() {
+    if (paused || animating || order.length < 2) return;
+    if (document.hidden) return;                 // don't animate on a hidden tab
 
-  var resizeTimer;
-  window.addEventListener('resize', function () {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(mosaic, 150);
-  });
+    // FIRST: where each tile is now.
+    var firstRects = order.map(function (it) { return it.getBoundingClientRect(); });
 
-  /* ── Lightbox (delegated) ───────────────────────────────────────────────── */
+    // Re-order the tiles in the DOM (so the grid relays them out).
+    var newOrder = shuffled(order);
+    newOrder.forEach(function (it) { grid.appendChild(it); });
+
+    // LAST + INVERT + PLAY: glide each tile from its old spot to the new one.
+    animating = true;
+    var maxEnd = 0;
+    newOrder.forEach(function (it, newIdx) {
+      var oldIdx = order.indexOf(it);
+      var firstR = firstRects[oldIdx];
+      var lastR  = it.getBoundingClientRect();
+      var dx = firstR.left - lastR.left;
+      var dy = firstR.top  - lastR.top;
+      if (dx || dy) {
+        it.animate(
+          [
+            { transform: 'translate(' + dx + 'px,' + dy + 'px)' },
+            { transform: 'translate(0,0)' }
+          ],
+          { duration: GLIDE_MS, easing: 'cubic-bezier(0.45, 0, 0.2, 1)' }
+        );
+        maxEnd = GLIDE_MS;
+      }
+    });
+    order = newOrder;
+    setTimeout(function () { animating = false; }, maxEnd + 30);
+  }
+
+  var timer = setInterval(step, STEP_MS);
+
+  // Pause while hovering (so a tile is easy to click) and when the tab is hidden.
+  grid.addEventListener('mouseenter', function () { paused = true; });
+  grid.addEventListener('mouseleave', function () { paused = false; });
+
+  /* ── Lightbox (delegated; index travels with each tile) ─────────────────── */
   var lightbox = document.getElementById('lightbox');
   if (!lightbox) return;
 
@@ -92,11 +104,13 @@
     lbCap.textContent = s.caption;
     lightbox.hidden = false;
     document.body.style.overflow = 'hidden';
+    paused = true;                 // hold the reshuffle while viewing
     if (closeBtn) closeBtn.focus();
   }
   function close() {
     lightbox.hidden = true;
     document.body.style.overflow = '';
+    paused = false;
   }
 
   document.addEventListener('click', function (e) {
