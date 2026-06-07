@@ -779,42 +779,23 @@ p:last-child { margin-bottom: 0; }
   margin-bottom: 1rem;
 }
 
-/* ── Gallery: spinning photo ring ───────────────────────────────────────────
-   gallery.js arranges every photo evenly around a circle and the whole ring
-   slowly rotates, carrying the photos around together. The plain column layout
-   above is the no-JS fallback. */
-.gallery-ring {
-  position: relative;
-  width: min(92vw, 640px);
-  margin: 1.5rem auto 0;
-  aspect-ratio: 1 / 1;
-  columns: auto;          /* neutralise the fallback column layout */
-  overflow: visible;
+/* ── Gallery: elegant mosaic grid (class added by gallery.js) ────────────────
+   A CSS-grid masonry that sizes each tile to the photo's real shape — some
+   taller, some wider (landscape photos span two columns) — for a varied,
+   creative arrangement. No motion; photos gently enlarge on hover and open
+   full-size on click. The plain column layout above is the no-JS fallback. */
+.gallery-grid--mosaic {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: 10px;
+  gap: 18px;
+  grid-auto-flow: row dense;
+  align-items: start;
 }
-.gallery-ring-rotor {
-  position: absolute;
-  inset: 0;
-  transform-origin: 50% 50%;
-  animation: gallery-ring-spin 70s linear infinite;
-}
-.gallery-ring:hover .gallery-ring-rotor { animation-play-state: paused; }
-
-.gallery-ring .gallery-item {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin: 0;
-  width: var(--ring-item, 130px);
-}
-/* Captions are shown in the lightbox (opened on click) instead of on the
-   spinning thumbnails, where they'd be unreadable. */
-.gallery-ring .gallery-caption { display: none; }
-.gallery-ring .gallery-thumb { box-shadow: var(--shadow); }
-
-@keyframes gallery-ring-spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
+@media (min-width: 768px)  { .gallery-grid--mosaic { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1100px) { .gallery-grid--mosaic { grid-template-columns: repeat(4, 1fr); } }
+.gallery-grid--mosaic .gallery-item { margin-bottom: 0; }
+.gallery-grid--mosaic .gallery-item--wide { grid-column: span 2; }
 
 .gallery-thumb-btn {
   display: block;
@@ -833,11 +814,12 @@ p:last-child { margin-bottom: 0; }
   height: auto;
   object-fit: cover;
   border-radius: var(--radius);
-  transition: transform 0.2s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .gallery-thumb-btn:hover .gallery-thumb,
 .gallery-thumb-btn:focus .gallery-thumb {
-  transform: scale(1.02);
+  transform: scale(1.04);
+  box-shadow: var(--shadow-lg);
 }
 .gallery-thumb-btn:focus { outline: 3px solid var(--color-primary); outline-offset: 2px; }
 
@@ -2294,10 +2276,4 @@ p:last-child { margin-bottom: 0; }
   :focus-visible {
     transition: none;
   }
-
-  /* Exception: keep the spinning photo ring turning on every device, even when
-     reduced motion is requested. It's a deliberate, slow decorative rotation
-     the couple has chosen as part of the gallery's look. Higher specificity
-     than the '*' reset lets it win. */
-  .gallery-ring-rotor { animation: gallery-ring-spin 70s linear infinite !important; }
 }
