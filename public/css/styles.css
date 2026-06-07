@@ -797,31 +797,33 @@ p:last-child { margin-bottom: 0; }
 .gallery-grid--mosaic .gallery-item { margin-bottom: 0; }
 .gallery-grid--mosaic .gallery-item--wide { grid-column: span 2; }
 
-/* ── Gallery: auto-scrolling wall ───────────────────────────────────────────
-   gallery.js wraps the mosaic in this viewport and stacks a second identical
-   copy beneath it, then slowly scrolls the pair upward and loops seamlessly —
-   the same varied-size photos, gently moving on their own. Pauses on hover;
-   soft fade at the top/bottom edges. */
-.gallery-scroller {
-  position: relative;
-  height: min(80vh, 860px);
-  overflow: hidden;
-  margin-top: 1rem;
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 5%, #000 95%, transparent 100%);
-          mask-image: linear-gradient(to bottom, transparent 0, #000 5%, #000 95%, transparent 100%);
+/* ── Gallery: drifting photos ───────────────────────────────────────────────
+   Every photo stays present in the mosaic at once, and each one slowly drifts
+   around its spot (a small looping orbit + gentle rotation), staggered so the
+   whole gallery feels alive and "moving around". Pauses on hover; runs on every
+   device (desktop, tablet, phone). */
+.gallery-item {
+  animation: gallery-drift-a 9s ease-in-out infinite;
 }
-.gallery-scroll-track {
-  display: flex;
-  flex-direction: column;
-  animation: gallery-scroll-wall var(--scroll-dur, 60s) linear infinite;
-  will-change: transform;
-}
-.gallery-scroll-track > .gallery-grid:first-child { margin-bottom: 18px; }
-.gallery-scroller:hover .gallery-scroll-track { animation-play-state: paused; }
+.gallery-item:nth-child(4n+1) { animation: gallery-drift-a 9s  ease-in-out infinite; animation-delay: -0.6s; }
+.gallery-item:nth-child(4n+2) { animation: gallery-drift-b 11s ease-in-out infinite; animation-delay: -2.2s; }
+.gallery-item:nth-child(4n+3) { animation: gallery-drift-a 8s  ease-in-out infinite; animation-delay: -3.5s; }
+.gallery-item:nth-child(4n)   { animation: gallery-drift-b 12s ease-in-out infinite; animation-delay: -1.3s; }
+.gallery-item:hover { animation-play-state: paused; }
 
-@keyframes gallery-scroll-wall {
-  from { transform: translateY(0); }
-  to   { transform: translateY(calc(-1 * var(--scroll-distance, 1000px))); }
+@keyframes gallery-drift-a {
+  0%   { transform: translate(0, 0)      rotate(-2deg); }
+  25%  { transform: translate(7px, -7px)  rotate(1.5deg); }
+  50%  { transform: translate(10px, 3px)  rotate(2.5deg); }
+  75%  { transform: translate(3px, 9px)   rotate(-1deg); }
+  100% { transform: translate(0, 0)      rotate(-2deg); }
+}
+@keyframes gallery-drift-b {
+  0%   { transform: translate(0, 0)        rotate(2deg); }
+  25%  { transform: translate(-7px, 7px)    rotate(-1.5deg); }
+  50%  { transform: translate(-10px, -3px)  rotate(-2.5deg); }
+  75%  { transform: translate(-3px, -9px)   rotate(1deg); }
+  100% { transform: translate(0, 0)        rotate(2deg); }
 }
 
 .gallery-thumb-btn {
@@ -2304,10 +2306,11 @@ p:last-child { margin-bottom: 0; }
     transition: none;
   }
 
-  /* Exception: keep the gallery wall gently scrolling on every device, even
-     when reduced motion is requested — a deliberate, slow decorative scroll
-     the couple has chosen. Higher specificity than the '*' reset lets it win. */
-  .gallery-scroll-track {
-    animation: gallery-scroll-wall var(--scroll-dur, 60s) linear infinite !important;
-  }
+  /* Exception: keep the gentle drift running on every device, even when reduced
+     motion is requested — a deliberate, slow decorative movement the couple has
+     chosen. Higher specificity than the '*' reset lets these win. */
+  .gallery-item:nth-child(4n+1) { animation: gallery-drift-a 9s  ease-in-out infinite !important; animation-delay: -0.6s !important; }
+  .gallery-item:nth-child(4n+2) { animation: gallery-drift-b 11s ease-in-out infinite !important; animation-delay: -2.2s !important; }
+  .gallery-item:nth-child(4n+3) { animation: gallery-drift-a 8s  ease-in-out infinite !important; animation-delay: -3.5s !important; }
+  .gallery-item:nth-child(4n)   { animation: gallery-drift-b 12s ease-in-out infinite !important; animation-delay: -1.3s !important; }
 }
