@@ -61,7 +61,7 @@
   if (items.length === 0) return;
 
   var ROW = 10;  // must match grid-auto-rows in CSS
-  var GAP = 14;  // must match grid gap in CSS
+  var GAP = 18;  // must match grid gap in CSS
 
   function columnsCount() {
     var w = window.innerWidth;
