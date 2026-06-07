@@ -779,6 +779,34 @@ p:last-child { margin-bottom: 0; }
   margin-bottom: 1rem;
 }
 
+/* ── Gallery: gentle ambient float ──────────────────────────────────────────
+   Each card (photo + its caption together) slowly drifts and tilts to give the
+   gallery a soft, living feel. Staggered durations/delays keep it organic, and
+   it pauses while you hover so a card is easy to click. Disabled when the
+   visitor prefers reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .gallery-item {
+    animation: gallery-float-a 7s ease-in-out infinite;
+    transform-origin: center center;
+  }
+  .gallery-item:nth-child(4n+1) { animation: gallery-float-a 7s   ease-in-out infinite; animation-delay: -0.6s; }
+  .gallery-item:nth-child(4n+2) { animation: gallery-float-b 8.4s ease-in-out infinite; animation-delay: -2.2s; }
+  .gallery-item:nth-child(4n+3) { animation: gallery-float-a 6.6s ease-in-out infinite; animation-delay: -3.5s; }
+  .gallery-item:nth-child(4n)   { animation: gallery-float-b 9s   ease-in-out infinite; animation-delay: -1.3s; }
+  .gallery-item:hover { animation-play-state: paused; }
+}
+
+@keyframes gallery-float-a {
+  0%   { transform: translateY(0)    rotate(-0.9deg); }
+  50%  { transform: translateY(-9px) rotate(0.9deg); }
+  100% { transform: translateY(0)    rotate(-0.9deg); }
+}
+@keyframes gallery-float-b {
+  0%   { transform: translateY(0)    rotate(0.9deg); }
+  50%  { transform: translateY(-7px) rotate(-0.9deg); }
+  100% { transform: translateY(0)    rotate(0.9deg); }
+}
+
 .gallery-thumb-btn {
   display: block;
   width: 100%;
