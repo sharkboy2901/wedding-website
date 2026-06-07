@@ -774,6 +774,22 @@ p:last-child { margin-bottom: 0; }
 @media (min-width: 768px)  { .gallery-grid { columns: 3; } }
 @media (min-width: 1100px) { .gallery-grid { columns: 4; } }
 
+/* Mosaic upgrade (class added by gallery.js): a CSS-grid masonry that gives
+   each photo a tile sized to its real shape — some taller, some wider — for a
+   creative, varied arrangement. display:grid makes the column rules above inert. */
+.gallery-grid--mosaic {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: 10px;
+  gap: 14px;
+  grid-auto-flow: row dense;
+  align-items: start;
+}
+@media (min-width: 768px)  { .gallery-grid--mosaic { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1100px) { .gallery-grid--mosaic { grid-template-columns: repeat(4, 1fr); } }
+.gallery-grid--mosaic .gallery-item { margin-bottom: 0; }
+.gallery-grid--mosaic .gallery-item--wide { grid-column: span 2; }
+
 .gallery-item {
   break-inside: avoid;
   margin-bottom: 1rem;
