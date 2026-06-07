@@ -63,6 +63,20 @@ async function getPendingPhotos() {
   return photos.map(normalisePhoto);
 }
 
+// Photos the admin chose not to approve (status 'rejected' kept internally).
+// Files for these are preserved in the not-approved folder so they can be
+// downloaded; nothing is permanently deleted on decline/remove.
+async function getNotApprovedPhotos() {
+  const photos = await photosDb.find({ status: 'rejected' }).sort({ reviewedAt: -1 });
+  return photos.map(normalisePhoto);
+}
+
+// Permanently remove a single photo's DB record (used only by the "reset
+// counter" action, and only for entries whose file no longer exists on disk).
+async function deletePhotoRecord(id) {
+  return photosDb.remove({ _id: id }, {});
+}
+
 async function getPhotoById(id) {
   const photo = await photosDb.findOne({ _id: id });
   return photo ? normalisePhoto(photo) : null;
@@ -206,6 +220,8 @@ module.exports = {
   setPhotoFeatured,
   setPhotoHidden,
   getPendingPhotos,
+  getNotApprovedPhotos,
+  deletePhotoRecord,
   getPhotoById,
   updatePhotoStatus,
   updatePhotoDriveFileId,

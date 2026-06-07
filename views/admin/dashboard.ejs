@@ -43,7 +43,7 @@
       </div>
       <div class="admin-stat">
         <span class="admin-stat-num"><%= photoStats.rejected %></span>
-        <span class="admin-stat-label">Rejected</span>
+        <span class="admin-stat-label">Not Approved</span>
       </div>
     </div>
 
@@ -174,7 +174,7 @@
       </div>
 
       <% if (pendingPhotos && pendingPhotos.length > 0) { %>
-        <p class="admin-section-note">Review guest photos. Click a photo to preview it in full. Tick boxes and use the action bar to approve or reject in bulk.</p>
+        <p class="admin-section-note">Review guest photos. Click a photo to preview it in full. Tick boxes and use the action bar to approve or decline in bulk. Declined photos are kept in the Not Approved section (never deleted) so you can still download them.</p>
 
         <!-- Hidden bulk action form -->
         <form id="bulk-form" action="/admin/photos/bulk-action" method="post" style="display:none;">
@@ -215,7 +215,7 @@
                   </form>
                   <form action="/admin/photo/<%= photo.id %>/reject" method="post" style="flex:1;" class="photo-action-form">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <button type="submit" class="btn-reject btn--full-width">&#10007; Reject</button>
+                    <button type="submit" class="btn-reject btn--full-width">&#10007; Decline</button>
                   </form>
                 </div>
               </div>
@@ -231,7 +231,7 @@
     <div class="admin-bulk-bar" id="bulk-bar" hidden aria-live="polite">
       <span class="admin-bulk-bar-count" id="bulk-bar-count">0 selected</span>
       <button type="button" class="admin-btn admin-btn--sm btn-approve" id="bulk-approve-btn">&#10003; Approve selected</button>
-      <button type="button" class="admin-btn admin-btn--sm btn-reject"  id="bulk-reject-btn">&#10007; Reject selected</button>
+      <button type="button" class="admin-btn admin-btn--sm btn-reject"  id="bulk-reject-btn">&#10007; Decline selected</button>
       <button type="button" class="admin-btn admin-btn--sm admin-btn--ghost" id="bulk-clear-btn">Clear</button>
     </div>
 
@@ -306,7 +306,7 @@
                   <% } %>
                   <form action="/admin/photo/<%= photo.id %>/delete" method="post" class="photo-action-form">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <button type="submit" class="btn-reject btn--full-width">Delete</button>
+                    <button type="submit" class="btn-reject btn--full-width">Remove</button>
                   </form>
                 </div>
               </div>
@@ -315,6 +315,83 @@
         </div>
       <% } else { %>
         <div class="admin-empty">No approved photos yet. Approve photos from the Pending section above.</div>
+      <% } %>
+    </section>
+
+    <!-- ── Not Approved Photos (admin only — never shown in the public gallery) ── -->
+    <%
+      var orphanWord    = notApprovedOrphans !== 1 ? 'entries' : 'entry';
+      var orphanThem    = notApprovedOrphans !== 1 ? 'them' : 'it';
+      var resetConfirm  = 'Reset the Not Approved counter? This only clears ' + notApprovedOrphans +
+                          ' old/test ' + orphanWord + ' whose photo is no longer stored. '
+                          + 'Photos that still have files are kept, not deleted.';
+    %>
+    <section class="admin-section" aria-labelledby="not-approved-heading">
+      <div class="admin-section-header">
+        <h2 class="admin-section-title" id="not-approved-heading">
+          &#9866; Not Approved
+          <% if (notApprovedPhotos && notApprovedPhotos.length > 0) { %>
+            <span class="badge badge--hidden"><%= notApprovedPhotos.length %></span>
+          <% } %>
+        </h2>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
+          <% if (notApprovedDownloadable > 0) { %>
+            <a href="/admin/photos/download-all-unapproved" class="admin-btn admin-btn--secondary admin-btn--sm">&#8659; Download All Not Approved</a>
+          <% } %>
+          <% if (notApprovedOrphans > 0) { %>
+            <form action="/admin/photos/reset-unapproved" method="post" style="margin:0;"
+                  onsubmit="return confirm(this.getAttribute('data-confirm'));"
+                  data-confirm="<%= resetConfirm %>">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button type="submit" class="admin-btn admin-btn--ghost admin-btn--sm">&#8634; Reset counter</button>
+            </form>
+          <% } %>
+        </div>
+      </div>
+
+      <p class="admin-section-note">
+        These photos were not approved. They are kept here for your reference and download only &mdash;
+        guests never see them in the public gallery. Nothing is permanently deleted.
+        <% if (notApprovedOrphans > 0) { %>
+          <br><strong><%= notApprovedOrphans %></strong> older/test <%= orphanWord %> no longer <%= notApprovedOrphans !== 1 ? 'have' : 'has' %> a stored photo &mdash; use &ldquo;Reset counter&rdquo; to clear <%= orphanThem %>.
+        <% } %>
+      </p>
+
+      <% if (notApprovedPhotos && notApprovedPhotos.length > 0) { %>
+        <div class="admin-photo-grid">
+          <% notApprovedPhotos.forEach(function(photo) { %>
+            <div class="admin-photo-card admin-photo-card--hidden" data-photo-id="<%= photo.id %>">
+              <% if (photo.file_exists) { %>
+                <button type="button"
+                        class="admin-photo-thumb admin-photo-preview-btn"
+                        data-src="/admin/photo/<%= photo.id %>/image"
+                        data-caption="<%= photo.uploader_name || 'Anonymous' %><%= photo.reviewed_at ? ' · ' + new Date(photo.reviewed_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}) : '' %>"
+                        aria-label="Preview photo by <%= photo.uploader_name || 'anonymous' %>">
+                  <img class="admin-photo-img"
+                       src="/admin/photo/<%= photo.id %>/image"
+                       alt="Not-approved photo by <%= photo.uploader_name || 'anonymous' %>"
+                       loading="lazy">
+                </button>
+              <% } else { %>
+                <div class="admin-photo-thumb" style="display:flex;align-items:center;justify-content:center;text-align:center;padding:1rem;color:var(--color-text-muted);">
+                  <span style="font-size:0.8rem;line-height:1.4;">&#128247;<br>Photo no longer stored<br><small>(old / test entry)</small></span>
+                </div>
+              <% } %>
+              <div class="admin-photo-info">
+                <div class="admin-photo-meta">
+                  <strong><%= photo.uploader_name || 'Anonymous' %></strong>
+                  <span class="badge badge--hidden">Not Approved</span><br>
+                  <span class="admin-photo-date"><%= photo.reviewed_at ? new Date(photo.reviewed_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}) : '' %></span>
+                </div>
+                <% if (photo.uploader_message) { %>
+                  <p class="admin-photo-msg">"<%= photo.uploader_message %>"</p>
+                <% } %>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <div class="admin-empty">No not-approved photos.</div>
       <% } %>
     </section>
 

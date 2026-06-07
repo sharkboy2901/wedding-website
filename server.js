@@ -116,7 +116,7 @@ app.use(function(err, req, res, next) {  // eslint-disable-line no-unused-vars
 // -- Bootstrap & start --
 (async function() {
   // Ensure upload directories exist (under DATA_DIR for persistence across deploys)
-  ['uploads/pending', 'uploads/approved'].forEach(function(dir) {
+  ['uploads/pending', 'uploads/approved', 'uploads/not-approved'].forEach(function(dir) {
     const p = path.join(DATA_DIR, dir);
     if (!fs.existsSync(p)) fs.mkdirSync(p, { recursive: true });
   });

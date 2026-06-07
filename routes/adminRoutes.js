@@ -59,8 +59,9 @@ const loginLimiter = rateLimit({
   },
 });
 
-const PENDING_DIR  = path.join(DATA_DIR, 'uploads', 'pending');
-const APPROVED_DIR = path.join(DATA_DIR, 'uploads', 'approved');
+const PENDING_DIR      = path.join(DATA_DIR, 'uploads', 'pending');
+const APPROVED_DIR     = path.join(DATA_DIR, 'uploads', 'approved');
+const NOT_APPROVED_DIR = path.join(DATA_DIR, 'uploads', 'not-approved');
 
 // Prevent caching of admin pages
 router.use((req, res, next) => {
@@ -125,14 +126,28 @@ function safeServeFile(res, dir, photo) {
   res.sendFile(filePath);
 }
 
-// Safe file-delete helper
-function safeDeleteFile(dir, filename) {
-  if (!SAFE_FILENAME_RE.test(filename)) return;
-  const filePath = path.join(dir, filename);
-  if (!filePath.startsWith(dir + path.sep) && filePath !== dir) return;
-  if (fs.existsSync(filePath)) {
-    fs.unlinkSync(filePath);
-  }
+// Safe file-move helper — preserves the image instead of deleting it.
+// Used when a photo is declined or removed: the file is moved to the
+// not-approved folder so it can still be downloaded later. Returns true on
+// a successful move, false if the source is missing or the name is unsafe.
+function safeMoveFile(srcDir, destDir, filename) {
+  if (!SAFE_FILENAME_RE.test(filename)) return false;
+  const src  = path.join(srcDir, filename);
+  const dest = path.join(destDir, filename);
+  if (!src.startsWith(srcDir + path.sep))   return false;
+  if (!dest.startsWith(destDir + path.sep)) return false;
+  if (!fs.existsSync(src)) return false;
+  if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
+  fs.renameSync(src, dest);
+  return true;
+}
+
+// Does a not-approved photo's file still exist on disk?
+function notApprovedFileExists(filename) {
+  if (!SAFE_FILENAME_RE.test(filename)) return false;
+  const filePath = path.join(NOT_APPROVED_DIR, filename);
+  if (!filePath.startsWith(NOT_APPROVED_DIR + path.sep)) return false;
+  return fs.existsSync(filePath);
 }
 
 // CSV cell escaper (prevents formula injection)
@@ -188,13 +203,23 @@ router.get('/logout', (req, res) => {
 router.get('/', requireAdmin, (req, res) => res.redirect('/admin/dashboard'));
 
 router.get('/dashboard', requireAdmin, asyncHandler(async (req, res) => {
-  const [pendingPhotos, approvedPhotos, photoStats, rsvpStats, allSettings] = await Promise.all([
+  const [pendingPhotos, approvedPhotos, notApprovedPhotosRaw, photoStats, rsvpStats, allSettings] = await Promise.all([
     db.getPendingPhotos(),
     db.getAllApprovedPhotos(),
+    db.getNotApprovedPhotos(),
     db.getPhotoStats(),
     db.getRsvpStats(),
     db.getAllSettings(),
   ]);
+
+  // Flag whether each not-approved photo's file is still on disk. Old/test
+  // entries (declined before files were preserved) have no file and can be
+  // cleared with the "reset" action; entries with files can be downloaded.
+  const notApprovedPhotos = notApprovedPhotosRaw.map(function(p) {
+    return Object.assign({}, p, { file_exists: notApprovedFileExists(p.filename) });
+  });
+  const notApprovedDownloadable = notApprovedPhotos.filter(function(p) { return p.file_exists; }).length;
+  const notApprovedOrphans      = notApprovedPhotos.length - notApprovedDownloadable;
 
   // Enumerate site-*.* and photo-*.* images from public/images/
   var siteImages = [];
@@ -215,6 +240,9 @@ router.get('/dashboard', requireAdmin, asyncHandler(async (req, res) => {
   res.render('admin/dashboard', {
     pendingPhotos,
     approvedPhotos,
+    notApprovedPhotos,
+    notApprovedDownloadable,
+    notApprovedOrphans,
     photoStats,
     rsvpStats,
     siteSettings,
@@ -228,7 +256,9 @@ router.get('/dashboard', requireAdmin, asyncHandler(async (req, res) => {
 
 router.get('/photo/:id/image', requireAdmin, asyncHandler(async (req, res) => {
   const photo = await db.getPhotoById(req.params.id);
-  if (!photo || photo.status !== 'pending') {
+  // Serve pending photos (awaiting review) and not-approved photos (status
+  // 'rejected', files preserved). Approved photos are served via /uploads/approved.
+  if (!photo || (photo.status !== 'pending' && photo.status !== 'rejected')) {
     return res.status(404).send('Not found');
   }
 
@@ -241,14 +271,15 @@ router.get('/photo/:id/image', requireAdmin, asyncHandler(async (req, res) => {
     return res.status(403).send('Forbidden');
   }
 
-  const localPath = path.join(PENDING_DIR, photo.filename);
+  const dir = photo.status === 'pending' ? PENDING_DIR : NOT_APPROVED_DIR;
+  const localPath = path.join(dir, photo.filename);
   // Path traversal check
-  if (!localPath.startsWith(PENDING_DIR + path.sep) && localPath !== PENDING_DIR) {
+  if (!localPath.startsWith(dir + path.sep) && localPath !== dir) {
     return res.status(403).send('Forbidden');
   }
 
   if (fs.existsSync(localPath)) {
-    safeServeFile(res, PENDING_DIR, photo);
+    safeServeFile(res, dir, photo);
   } else {
     return res.status(404).send('File not found on disk.');
   }
@@ -270,15 +301,16 @@ router.post('/photo/:id/approve', requireAdmin, asyncHandler(async (req, res) =>
   return ajaxOk(req, res, 'Photo approved and added to the gallery.');
 }));
 
-// -- PHOTO: REJECT (pending only, file deleted) --
+// -- PHOTO: DECLINE (pending only; file preserved in not-approved folder) --
 
 router.post('/photo/:id/reject', requireAdmin, asyncHandler(async (req, res) => {
   const photo = await db.getPhotoById(req.params.id);
   if (!photo)                      return ajaxErr(req, res, 404, 'Photo not found.');
   if (photo.status !== 'pending')  return ajaxErr(req, res, 400, 'Photo is not in a pending state.');
-  safeDeleteFile(PENDING_DIR, photo.filename);
+  // Move (not delete) so it stays downloadable from the Not Approved section.
+  safeMoveFile(PENDING_DIR, NOT_APPROVED_DIR, photo.filename);
   await db.updatePhotoStatus(photo.id, 'rejected');
-  return ajaxOk(req, res, 'Photo rejected and removed.');
+  return ajaxOk(req, res, 'Photo moved to Not Approved.');
 }));
 
 // -- PHOTOS: BULK APPROVE / REJECT --
@@ -308,7 +340,8 @@ router.post('/photos/bulk-action', requireAdmin, asyncHandler(async (req, res) =
       await db.updatePhotoStatus(photo.id, 'approved');
       approved++;
     } else {
-      safeDeleteFile(PENDING_DIR, photo.filename);
+      // Move (not delete) so declined photos stay downloadable.
+      safeMoveFile(PENDING_DIR, NOT_APPROVED_DIR, photo.filename);
       await db.updatePhotoStatus(photo.id, 'rejected');
       rejected++;
     }
@@ -316,22 +349,23 @@ router.post('/photos/bulk-action', requireAdmin, asyncHandler(async (req, res) =
 
   var parts = [];
   if (approved > 0) parts.push(approved + ' photo' + (approved !== 1 ? 's' : '') + ' approved');
-  if (rejected > 0) parts.push(rejected + ' photo' + (rejected !== 1 ? 's' : '') + ' rejected');
+  if (rejected > 0) parts.push(rejected + ' photo' + (rejected !== 1 ? 's' : '') + ' moved to Not Approved');
   if (skipped  > 0) parts.push(skipped  + ' skipped (not found or already reviewed)');
 
   var msg = parts.join(', ') + '.';
   return ajaxOk(req, res, msg);
 }));
 
-// -- PHOTO: DELETE APPROVED (remove from public gallery) --
+// -- PHOTO: REMOVE APPROVED (take out of public gallery; file preserved) --
 
 router.post('/photo/:id/delete', requireAdmin, asyncHandler(async (req, res) => {
   const photo = await db.getPhotoById(req.params.id);
   if (!photo)                       return ajaxErr(req, res, 404, 'Photo not found.');
-  if (photo.status !== 'approved')  return ajaxErr(req, res, 400, 'Only approved photos can be deleted this way.');
-  safeDeleteFile(APPROVED_DIR, photo.filename);
+  if (photo.status !== 'approved')  return ajaxErr(req, res, 400, 'Only approved photos can be removed this way.');
+  // Move (not delete) into the not-approved folder so it stays downloadable.
+  safeMoveFile(APPROVED_DIR, NOT_APPROVED_DIR, photo.filename);
   await db.updatePhotoStatus(photo.id, 'rejected');
-  return ajaxOk(req, res, 'Photo deleted.');
+  return ajaxOk(req, res, 'Photo removed from the gallery (moved to Not Approved).');
 }));
 
 // -- PHOTO: FEATURE / UNFEATURE --
@@ -557,6 +591,78 @@ router.get('/photos/download-all', requireAdmin, asyncHandler(async (req, res) =
   }
 
   await archive.finalize();
+}));
+
+// -- PHOTOS: DOWNLOAD ALL NOT-APPROVED (as zip) --
+
+router.get('/photos/download-all-unapproved', requireAdmin, asyncHandler(async (req, res) => {
+  const notApproved = await db.getNotApprovedPhotos();
+
+  var toAdd = [];
+  if (notApproved && notApproved.length > 0) {
+    for (var i = 0; i < notApproved.length; i++) {
+      var photo = notApproved[i];
+      if (!SAFE_FILENAME_RE.test(photo.filename)) continue;
+      var filePath = path.join(NOT_APPROVED_DIR, photo.filename);
+      if (!filePath.startsWith(NOT_APPROVED_DIR + path.sep) && filePath !== NOT_APPROVED_DIR) continue;
+      if (fs.existsSync(filePath)) {
+        toAdd.push({ filePath: filePath, name: photo.original_name || photo.filename });
+      }
+    }
+  }
+
+  if (toAdd.length === 0) {
+    req.session.flash = { type: 'error', message: 'No not-approved photo files found on disk.' };
+    return res.redirect('/admin/dashboard');
+  }
+
+  const dateStr = new Date().toISOString().slice(0, 10);
+  res.setHeader('Content-Type', 'application/zip');
+  res.setHeader('Content-Disposition', 'attachment; filename="not-approved-photos-' + dateStr + '.zip"');
+  res.setHeader('Cache-Control', 'no-store');
+
+  const archive = archiver('zip', { zlib: { level: 6 } });
+  archive.on('error', function(err) {
+    console.error('[Download Not-Approved] Archive error:', err.message);
+    if (!res.headersSent) res.status(500).send('Archive failed.');
+  });
+  archive.pipe(res);
+
+  for (var j = 0; j < toAdd.length; j++) {
+    archive.file(toAdd[j].filePath, { name: toAdd[j].name });
+  }
+
+  await archive.finalize();
+}));
+
+// -- PHOTOS: RESET NOT-APPROVED COUNTER --
+// Safely clears only the old/test entries whose image file no longer exists
+// on disk. Entries that still have a stored file (i.e. real not-approved
+// photos you can still download) are left untouched — so this can never
+// delete an actual uploaded image.
+
+router.post('/photos/reset-unapproved', requireAdmin, asyncHandler(async (req, res) => {
+  const notApproved = await db.getNotApprovedPhotos();
+  var removed = 0, kept = 0;
+  for (var i = 0; i < notApproved.length; i++) {
+    var photo = notApproved[i];
+    if (notApprovedFileExists(photo.filename)) {
+      kept++;                       // real file present — preserve it
+    } else {
+      await db.deletePhotoRecord(photo.id);
+      removed++;
+    }
+  }
+
+  var msg;
+  if (removed === 0) {
+    msg = 'Nothing to reset — no old/test entries found.';
+  } else {
+    msg = 'Reset complete: cleared ' + removed + ' old entr' + (removed !== 1 ? 'ies' : 'y') + '.';
+    if (kept > 0) msg += ' Kept ' + kept + ' not-approved photo' + (kept !== 1 ? 's' : '') + ' that still have files.';
+  }
+  req.session.flash = { type: 'success', message: msg };
+  res.redirect('/admin/dashboard');
 }));
 
 // -- RSVPs: LIST --

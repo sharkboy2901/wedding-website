@@ -96,7 +96,7 @@
     }
 
     html += '<form action="/admin/photo/' + esc(id) + '/delete" method="post" class="photo-action-form">' + csrfField +
-            '<button type="submit" class="btn-reject btn--full-width">Delete</button></form>';
+            '<button type="submit" class="btn-reject btn--full-width">Remove</button></form>';
 
     actionsDiv.innerHTML = html;
     actionsDiv.querySelectorAll('.photo-action-form').forEach(attachActionForm);
@@ -151,12 +151,13 @@
       var card   = form.closest('.admin-photo-card');
       var origTxt = btn ? btn.textContent : '';
 
-      // Confirm destructive actions
+      // Confirm potentially surprising actions. Nothing is permanently deleted —
+      // declined/removed photos are moved to the Not Approved section.
       if (/\/reject$/.test(url)) {
-        if (!confirm('Reject and permanently delete this photo? This cannot be undone.')) return;
+        if (!confirm('Move this photo to Not Approved? It will be kept (not deleted) and you can still download it.')) return;
       }
       if (/\/delete$/.test(url)) {
-        if (!confirm('Permanently delete this photo? This cannot be undone.')) return;
+        if (!confirm('Remove this photo from the gallery? It will be moved to Not Approved (kept, not deleted).')) return;
       }
 
       if (btn) { btn.disabled = true; btn.textContent = '…'; }
@@ -175,10 +176,10 @@
           return;
         }
 
-        // -- Approved section: delete → remove card --
+        // -- Approved section: remove → remove card (moved to Not Approved) --
         if (/\/delete$/.test(url)) {
           if (card) fadeRemove(card);
-          showToast('success', data.message || 'Deleted.');
+          showToast('success', data.message || 'Removed.');
           return;
         }
 
@@ -253,7 +254,7 @@
     var checked = getCheckboxes().filter(function (cb) { return cb.checked; });
     if (checked.length === 0) return;
     if (action === 'reject') {
-      if (!confirm('Reject and permanently delete ' + checked.length + ' photo' + (checked.length !== 1 ? 's' : '') + '? This cannot be undone.')) return;
+      if (!confirm('Move ' + checked.length + ' photo' + (checked.length !== 1 ? 's' : '') + ' to Not Approved? They will be kept (not deleted) and remain downloadable.')) return;
     }
 
     var ids = checked.map(function (cb) { return cb.value; });
