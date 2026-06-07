@@ -48,66 +48,47 @@
   });
 })();
 
-/* Gallery Mosaic — varied tile sizes based on each photo's natural shape.
-   Progressive enhancement: turns the column layout into a CSS-grid masonry so
-   portrait photos are taller, landscape photos are wider (spanning two
-   columns), giving an organic "bigger / smaller" arrangement. Each image keeps
-   its true aspect ratio (no cropping). Falls back to the plain layout if JS
-   is off. */
+/* Gallery Ring — arrange every photo evenly around a circle and let the whole
+   ring rotate slowly (the CSS animation does the spinning). Progressive
+   enhancement: if JS is off, the plain column gallery remains. */
 (function () {
   var grid = document.querySelector('.gallery-grid');
   if (!grid) return;
   var items = Array.prototype.slice.call(grid.querySelectorAll('.gallery-item'));
   if (items.length === 0) return;
 
-  var ROW = 10;  // must match grid-auto-rows in CSS
-  var GAP = 18;  // must match grid gap in CSS
-
-  function columnsCount() {
-    var w = window.innerWidth;
-    if (w >= 1100) return 4;
-    if (w >= 768)  return 3;
-    return 2;
-  }
-
-  // Wide tiles for clearly landscape photos — but only when there are enough
-  // columns that a 2-column tile still leaves room for variety.
-  function sizeItem(item) {
-    var img = item.querySelector('img');
-    var wide = false;
-    if (img && img.naturalWidth && img.naturalHeight) {
-      var ratio = img.naturalWidth / img.naturalHeight;
-      wide = ratio >= 1.5 && columnsCount() >= 3;
-    }
-    item.classList.toggle('gallery-item--wide', wide);
-  }
-
-  // Row span = how many base rows this tile's real height occupies.
-  function spanItem(item) {
-    var h = item.offsetHeight; // layout height, unaffected by the float transform
-    if (!h) return;
-    var span = Math.max(1, Math.ceil((h + GAP) / (ROW + GAP)));
-    item.style.gridRowEnd = 'span ' + span;
-  }
+  // Move all photos into a rotor element that CSS spins.
+  grid.classList.add('gallery-ring');
+  var rotor = document.createElement('div');
+  rotor.className = 'gallery-ring-rotor';
+  items.forEach(function (it) { rotor.appendChild(it); });
+  grid.appendChild(rotor);
 
   function layout() {
-    grid.classList.add('gallery-grid--mosaic');
-    items.forEach(sizeItem);
-    // Measure after the new column widths have been applied.
-    requestAnimationFrame(function () { items.forEach(spanItem); });
+    var W = grid.clientWidth;
+    if (!W) return;
+    var n = items.length;
+
+    // Item size shrinks as the photo count grows so they don't overlap; radius
+    // is a fixed fraction of the ring so photos sit comfortably inside it.
+    var R = W * 0.33;
+    var maxSize = Math.min(150, W * 0.30);
+    var size = Math.min(maxSize, (2 * Math.PI * R / n) * 0.85);
+    size = Math.max(46, size);
+    if (R + size * 0.62 > W / 2) R = W / 2 - size * 0.62;  // keep inside the box
+
+    grid.style.setProperty('--ring-item', size + 'px');
+
+    items.forEach(function (it, i) {
+      var theta = (360 / n) * i;
+      it.style.width = size + 'px';
+      // Centre the item on the ring centre, swing out to the rim at its angle.
+      it.style.transform =
+        'translate(-50%, -50%) rotate(' + theta + 'deg) translate(0, ' + (-R) + 'px)';
+    });
   }
 
   layout();
-
-  // Re-measure each image once it has actually loaded (heights then accurate).
-  items.forEach(function (item) {
-    var img = item.querySelector('img');
-    if (img && !img.complete) {
-      img.addEventListener('load',  function () { sizeItem(item); spanItem(item); });
-      img.addEventListener('error', function () { spanItem(item); });
-    }
-  });
-
   window.addEventListener('load', layout);
 
   var resizeTimer;

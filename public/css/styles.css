@@ -774,51 +774,46 @@ p:last-child { margin-bottom: 0; }
 @media (min-width: 768px)  { .gallery-grid { columns: 3; } }
 @media (min-width: 1100px) { .gallery-grid { columns: 4; } }
 
-/* Mosaic upgrade (class added by gallery.js): a CSS-grid masonry that gives
-   each photo a tile sized to its real shape — some taller, some wider — for a
-   creative, varied arrangement. display:grid makes the column rules above inert. */
-.gallery-grid--mosaic {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-auto-rows: 10px;
-  gap: 18px;
-  grid-auto-flow: row dense;
-  align-items: start;
-}
-@media (min-width: 768px)  { .gallery-grid--mosaic { grid-template-columns: repeat(3, 1fr); } }
-@media (min-width: 1100px) { .gallery-grid--mosaic { grid-template-columns: repeat(4, 1fr); } }
-.gallery-grid--mosaic .gallery-item { margin-bottom: 0; }
-.gallery-grid--mosaic .gallery-item--wide { grid-column: span 2; }
-
 .gallery-item {
   break-inside: avoid;
   margin-bottom: 1rem;
 }
 
-/* ── Gallery: gentle ambient float ──────────────────────────────────────────
-   Each card (photo + its caption together) slowly drifts and tilts to give the
-   gallery a soft, living feel on every device — desktop, tablet and mobile.
-   Staggered durations/delays keep it organic, and it pauses while you hover so
-   a card is easy to click. */
-.gallery-item {
-  animation: gallery-float-a 7s ease-in-out infinite;
-  transform-origin: center center;
+/* ── Gallery: spinning photo ring ───────────────────────────────────────────
+   gallery.js arranges every photo evenly around a circle and the whole ring
+   slowly rotates, carrying the photos around together. The plain column layout
+   above is the no-JS fallback. */
+.gallery-ring {
+  position: relative;
+  width: min(92vw, 640px);
+  margin: 1.5rem auto 0;
+  aspect-ratio: 1 / 1;
+  columns: auto;          /* neutralise the fallback column layout */
+  overflow: visible;
 }
-.gallery-item:nth-child(4n+1) { animation: gallery-float-a 7s   ease-in-out infinite; animation-delay: -0.6s; }
-.gallery-item:nth-child(4n+2) { animation: gallery-float-b 8.4s ease-in-out infinite; animation-delay: -2.2s; }
-.gallery-item:nth-child(4n+3) { animation: gallery-float-a 6.6s ease-in-out infinite; animation-delay: -3.5s; }
-.gallery-item:nth-child(4n)   { animation: gallery-float-b 9s   ease-in-out infinite; animation-delay: -1.3s; }
-.gallery-item:hover { animation-play-state: paused; }
+.gallery-ring-rotor {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+  animation: gallery-ring-spin 70s linear infinite;
+}
+.gallery-ring:hover .gallery-ring-rotor { animation-play-state: paused; }
 
-/* Rotation only — a gentle back-and-forth tilt (no drifting/bobbing) so every
-   photo and its caption gets gently shown off. */
-@keyframes gallery-float-a {
-  0%,100% { transform: rotate(-3deg); }
-  50%     { transform: rotate(3deg); }
+.gallery-ring .gallery-item {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: 0;
+  width: var(--ring-item, 130px);
 }
-@keyframes gallery-float-b {
-  0%,100% { transform: rotate(3deg); }
-  50%     { transform: rotate(-3deg); }
+/* Captions are shown in the lightbox (opened on click) instead of on the
+   spinning thumbnails, where they'd be unreadable. */
+.gallery-ring .gallery-caption { display: none; }
+.gallery-ring .gallery-thumb { box-shadow: var(--shadow); }
+
+@keyframes gallery-ring-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
 .gallery-thumb-btn {
@@ -2300,12 +2295,9 @@ p:last-child { margin-bottom: 0; }
     transition: none;
   }
 
-  /* Exception: keep the gentle gallery float running on every device, even
-     when reduced motion is requested. It's a deliberate, slow, decorative
-     drift that the couple has chosen as part of the gallery's look. The
-     higher specificity (.gallery-item vs *) lets these win over the resets. */
-  .gallery-item:nth-child(4n+1) { animation: gallery-float-a 7s   ease-in-out infinite !important; animation-delay: -0.6s !important; }
-  .gallery-item:nth-child(4n+2) { animation: gallery-float-b 8.4s ease-in-out infinite !important; animation-delay: -2.2s !important; }
-  .gallery-item:nth-child(4n+3) { animation: gallery-float-a 6.6s ease-in-out infinite !important; animation-delay: -3.5s !important; }
-  .gallery-item:nth-child(4n)   { animation: gallery-float-b 9s   ease-in-out infinite !important; animation-delay: -1.3s !important; }
+  /* Exception: keep the spinning photo ring turning on every device, even when
+     reduced motion is requested. It's a deliberate, slow decorative rotation
+     the couple has chosen as part of the gallery's look. Higher specificity
+     than the '*' reset lets it win. */
+  .gallery-ring-rotor { animation: gallery-ring-spin 70s linear infinite !important; }
 }
