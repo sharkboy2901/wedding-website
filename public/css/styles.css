@@ -797,20 +797,18 @@ p:last-child { margin-bottom: 0; }
 
 /* ── Gallery: gentle ambient float ──────────────────────────────────────────
    Each card (photo + its caption together) slowly drifts and tilts to give the
-   gallery a soft, living feel. Staggered durations/delays keep it organic, and
-   it pauses while you hover so a card is easy to click. Disabled when the
-   visitor prefers reduced motion. */
-@media (prefers-reduced-motion: no-preference) {
-  .gallery-item {
-    animation: gallery-float-a 7s ease-in-out infinite;
-    transform-origin: center center;
-  }
-  .gallery-item:nth-child(4n+1) { animation: gallery-float-a 7s   ease-in-out infinite; animation-delay: -0.6s; }
-  .gallery-item:nth-child(4n+2) { animation: gallery-float-b 8.4s ease-in-out infinite; animation-delay: -2.2s; }
-  .gallery-item:nth-child(4n+3) { animation: gallery-float-a 6.6s ease-in-out infinite; animation-delay: -3.5s; }
-  .gallery-item:nth-child(4n)   { animation: gallery-float-b 9s   ease-in-out infinite; animation-delay: -1.3s; }
-  .gallery-item:hover { animation-play-state: paused; }
+   gallery a soft, living feel on every device — desktop, tablet and mobile.
+   Staggered durations/delays keep it organic, and it pauses while you hover so
+   a card is easy to click. */
+.gallery-item {
+  animation: gallery-float-a 7s ease-in-out infinite;
+  transform-origin: center center;
 }
+.gallery-item:nth-child(4n+1) { animation: gallery-float-a 7s   ease-in-out infinite; animation-delay: -0.6s; }
+.gallery-item:nth-child(4n+2) { animation: gallery-float-b 8.4s ease-in-out infinite; animation-delay: -2.2s; }
+.gallery-item:nth-child(4n+3) { animation: gallery-float-a 6.6s ease-in-out infinite; animation-delay: -3.5s; }
+.gallery-item:nth-child(4n)   { animation: gallery-float-b 9s   ease-in-out infinite; animation-delay: -1.3s; }
+.gallery-item:hover { animation-play-state: paused; }
 
 @keyframes gallery-float-a {
   0%   { transform: translateY(0)    rotate(-0.9deg); }
@@ -2301,4 +2299,13 @@ p:last-child { margin-bottom: 0; }
   :focus-visible {
     transition: none;
   }
+
+  /* Exception: keep the gentle gallery float running on every device, even
+     when reduced motion is requested. It's a deliberate, slow, decorative
+     drift that the couple has chosen as part of the gallery's look. The
+     higher specificity (.gallery-item vs *) lets these win over the resets. */
+  .gallery-item:nth-child(4n+1) { animation: gallery-float-a 7s   ease-in-out infinite !important; animation-delay: -0.6s !important; }
+  .gallery-item:nth-child(4n+2) { animation: gallery-float-b 8.4s ease-in-out infinite !important; animation-delay: -2.2s !important; }
+  .gallery-item:nth-child(4n+3) { animation: gallery-float-a 6.6s ease-in-out infinite !important; animation-delay: -3.5s !important; }
+  .gallery-item:nth-child(4n)   { animation: gallery-float-b 9s   ease-in-out infinite !important; animation-delay: -1.3s !important; }
 }
