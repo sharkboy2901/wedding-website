@@ -810,19 +810,15 @@ p:last-child { margin-bottom: 0; }
 .gallery-item:nth-child(4n)   { animation: gallery-float-b 9s   ease-in-out infinite; animation-delay: -1.3s; }
 .gallery-item:hover { animation-play-state: paused; }
 
+/* Rotation only — a gentle back-and-forth tilt (no drifting/bobbing) so every
+   photo and its caption gets gently shown off. */
 @keyframes gallery-float-a {
-  0%   { transform: translate(-5px,  0)    rotate(-3deg); }
-  25%  { transform: translate(4px,  -9px)  rotate(2deg); }
-  50%  { transform: translate(7px,  -4px)  rotate(3.5deg); }
-  75%  { transform: translate(1px,  -11px) rotate(-1.5deg); }
-  100% { transform: translate(-5px,  0)    rotate(-3deg); }
+  0%,100% { transform: rotate(-3deg); }
+  50%     { transform: rotate(3deg); }
 }
 @keyframes gallery-float-b {
-  0%   { transform: translate(5px,   0)    rotate(3deg); }
-  25%  { transform: translate(-4px, -8px)  rotate(-2deg); }
-  50%  { transform: translate(-7px, -3px)  rotate(-3.5deg); }
-  75%  { transform: translate(-1px, -10px) rotate(1.5deg); }
-  100% { transform: translate(5px,   0)    rotate(3deg); }
+  0%,100% { transform: rotate(3deg); }
+  50%     { transform: rotate(-3deg); }
 }
 
 .gallery-thumb-btn {

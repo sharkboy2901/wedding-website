@@ -71,6 +71,15 @@ router.get('/gallery', asyncHandler(async function(req, res) {
     db.getApprovedPhotos(),
     getNavConfig(),
   ]);
+  // Shuffle so the gallery shows a fresh order on every refresh (Fisher–Yates).
+  // The per-guest note de-duplication in the view works on whatever order we
+  // pass, so each note still appears exactly once.
+  for (var i = photos.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = photos[i]; photos[i] = photos[j]; photos[j] = tmp;
+  }
+  // Don't let the browser cache the page, so a refresh always re-shuffles.
+  res.setHeader('Cache-Control', 'no-store');
   res.render('gallery', { config: siteConfig(), photos: photos, livestreamVisible: navConfig.livestreamVisible });
 }));
 
