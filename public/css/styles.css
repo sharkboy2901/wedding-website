@@ -797,6 +797,33 @@ p:last-child { margin-bottom: 0; }
 .gallery-grid--mosaic .gallery-item { margin-bottom: 0; }
 .gallery-grid--mosaic .gallery-item--wide { grid-column: span 2; }
 
+/* ── Gallery: auto-scrolling wall ───────────────────────────────────────────
+   gallery.js wraps the mosaic in this viewport and stacks a second identical
+   copy beneath it, then slowly scrolls the pair upward and loops seamlessly —
+   the same varied-size photos, gently moving on their own. Pauses on hover;
+   soft fade at the top/bottom edges. */
+.gallery-scroller {
+  position: relative;
+  height: min(80vh, 860px);
+  overflow: hidden;
+  margin-top: 1rem;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 5%, #000 95%, transparent 100%);
+          mask-image: linear-gradient(to bottom, transparent 0, #000 5%, #000 95%, transparent 100%);
+}
+.gallery-scroll-track {
+  display: flex;
+  flex-direction: column;
+  animation: gallery-scroll-wall var(--scroll-dur, 60s) linear infinite;
+  will-change: transform;
+}
+.gallery-scroll-track > .gallery-grid:first-child { margin-bottom: 18px; }
+.gallery-scroller:hover .gallery-scroll-track { animation-play-state: paused; }
+
+@keyframes gallery-scroll-wall {
+  from { transform: translateY(0); }
+  to   { transform: translateY(calc(-1 * var(--scroll-distance, 1000px))); }
+}
+
 .gallery-thumb-btn {
   display: block;
   width: 100%;
@@ -2275,5 +2302,12 @@ p:last-child { margin-bottom: 0; }
   /* Keep focus rings instant — critical for keyboard users */
   :focus-visible {
     transition: none;
+  }
+
+  /* Exception: keep the gallery wall gently scrolling on every device, even
+     when reduced motion is requested — a deliberate, slow decorative scroll
+     the couple has chosen. Higher specificity than the '*' reset lets it win. */
+  .gallery-scroll-track {
+    animation: gallery-scroll-wall var(--scroll-dur, 60s) linear infinite !important;
   }
 }

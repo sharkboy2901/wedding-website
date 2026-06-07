@@ -1,64 +1,36 @@
 'use strict';
 
-/* Gallery Lightbox — loaded from external file to comply with CSP */
-(function () {
-  var items    = Array.from(document.querySelectorAll('.gallery-thumb-btn'));
-  var lightbox = document.getElementById('lightbox');
-  if (!lightbox || items.length === 0) return;
+/* Gallery — elegant varied-size mosaic that gently auto-scrolls as a looping
+   wall, plus a click-to-zoom lightbox.
 
-  var lbImg    = document.getElementById('lightbox-img');
-  var lbCap    = document.getElementById('lightbox-caption');
-  var closeBtn = document.querySelector('.lightbox-close');
-  var prevBtn  = document.querySelector('.lightbox-prev');
-  var nextBtn  = document.querySelector('.lightbox-next');
-  var current  = 0;
-
-  function openAt(idx) {
-    current = idx;
-    var item = items[idx];
-    var img  = item.querySelector('img');
-    var cap  = item.closest('.gallery-item').querySelector('.gallery-caption');
-    lbImg.src    = img.src;
-    lbImg.alt    = img.alt;
-    lbCap.textContent = cap ? cap.textContent : '';
-    lightbox.hidden = false;
-    document.body.style.overflow = 'hidden';
-    if (closeBtn) closeBtn.focus();
-  }
-
-  function close() {
-    lightbox.hidden = true;
-    document.body.style.overflow = '';
-    items[current].focus();
-  }
-
-  items.forEach(function (btn, idx) {
-    btn.addEventListener('click', function () { openAt(idx); });
-  });
-  if (closeBtn) closeBtn.addEventListener('click', close);
-  if (prevBtn)  prevBtn.addEventListener('click',  function () { openAt((current - 1 + items.length) % items.length); });
-  if (nextBtn)  nextBtn.addEventListener('click',  function () { openAt((current + 1) % items.length); });
-
-  lightbox.addEventListener('click', function (e) { if (e.target === lightbox) close(); });
-  document.addEventListener('keydown', function (e) {
-    if (lightbox.hidden) return;
-    if (e.key === 'Escape')     close();
-    if (e.key === 'ArrowLeft')  openAt((current - 1 + items.length) % items.length);
-    if (e.key === 'ArrowRight') openAt((current + 1) % items.length);
-  });
-})();
-
-/* Gallery Mosaic — an elegant varied-size grid. Progressive enhancement: turns
-   the column layout into a CSS-grid masonry so portrait photos are taller and
-   landscape photos are wider (spanning two columns), giving a creative
-   bigger/smaller arrangement. Each image keeps its true aspect ratio (no
-   cropping) and its caption. Falls back to the plain layout if JS is off. */
+   - Mosaic: a CSS-grid masonry sized to each photo's real shape (portrait
+     taller, landscape wider), keeping true aspect ratios.
+   - Auto-scrolling wall: the mosaic is wrapped in a fixed-height viewport with
+     a second identical copy stacked beneath it; the pair scrolls upward and
+     loops seamlessly. Pauses on hover. Only enabled when there are enough
+     photos to fill more than the viewport.
+   - Lightbox: delegated clicks so both the original and the duplicated copy
+     open the right photo; navigation runs over the unique photo list.
+   Progressive enhancement: with JS off, the plain column gallery remains. */
 (function () {
   var grid = document.querySelector('.gallery-grid');
   if (!grid) return;
   var items = Array.prototype.slice.call(grid.querySelectorAll('.gallery-item'));
   if (items.length === 0) return;
 
+  /* ── Unique slide list for the lightbox (built before any cloning) ───────── */
+  var slides = items.map(function (item, i) {
+    item.setAttribute('data-gallery-index', i);
+    var img = item.querySelector('img');
+    var cap = item.querySelector('.gallery-caption');
+    return {
+      src:     img ? img.src : '',
+      alt:     img ? img.alt : '',
+      caption: cap ? cap.textContent.trim() : '',
+    };
+  });
+
+  /* ── Mosaic layout ──────────────────────────────────────────────────────── */
   var ROW = 10;  // must match grid-auto-rows in CSS
   var GAP = 18;  // must match grid gap in CSS
 
@@ -68,49 +40,119 @@
     if (w >= 768)  return 3;
     return 2;
   }
-
-  // Wide tiles for clearly landscape photos — only when there are enough
-  // columns that a 2-column tile still leaves room for variety.
   function sizeItem(item) {
     var img = item.querySelector('img');
     var wide = false;
     if (img && img.naturalWidth && img.naturalHeight) {
-      var ratio = img.naturalWidth / img.naturalHeight;
-      wide = ratio >= 1.5 && columnsCount() >= 3;
+      wide = (img.naturalWidth / img.naturalHeight) >= 1.5 && columnsCount() >= 3;
     }
     item.classList.toggle('gallery-item--wide', wide);
   }
-
-  // Row span = how many base rows this tile's real height occupies.
   function spanItem(item) {
     var h = item.offsetHeight;
     if (!h) return;
-    var span = Math.max(1, Math.ceil((h + GAP) / (ROW + GAP)));
-    item.style.gridRowEnd = 'span ' + span;
+    item.style.gridRowEnd = 'span ' + Math.max(1, Math.ceil((h + GAP) / (ROW + GAP)));
   }
-
-  function layout() {
+  function mosaic() {
     grid.classList.add('gallery-grid--mosaic');
     items.forEach(sizeItem);
-    requestAnimationFrame(function () { items.forEach(spanItem); });
+    items.forEach(spanItem);
   }
 
-  layout();
+  /* ── Auto-scrolling wall ────────────────────────────────────────────────── */
+  var scroller = null, track = null, clone = null;
 
-  // Re-measure each image once it has actually loaded (heights then accurate).
-  items.forEach(function (item) {
-    var img = item.querySelector('img');
-    if (img && !img.complete) {
-      img.addEventListener('load',  function () { sizeItem(item); spanItem(item); });
-      img.addEventListener('error', function () { spanItem(item); });
-    }
-  });
+  function teardown() {
+    if (!scroller) return;
+    scroller.parentNode.insertBefore(grid, scroller); // move the real grid back
+    scroller.parentNode.removeChild(scroller);
+    scroller = null; track = null; clone = null;
+  }
 
-  window.addEventListener('load', layout);
+  function apply() {
+    teardown();
+    mosaic();
+
+    var viewportH = Math.min(window.innerHeight * 0.8, 860);
+    // Not enough photos to fill the viewport → leave the mosaic static.
+    if (grid.offsetHeight <= viewportH + 40) return;
+
+    scroller = document.createElement('div');
+    scroller.className = 'gallery-scroller';
+    track = document.createElement('div');
+    track.className = 'gallery-scroll-track';
+
+    grid.parentNode.insertBefore(scroller, grid);
+    track.appendChild(grid);
+
+    var copyHeight = grid.offsetHeight;
+    clone = grid.cloneNode(true);                 // inherits the computed spans
+    clone.setAttribute('aria-hidden', 'true');
+    Array.prototype.forEach.call(clone.querySelectorAll('button'), function (b) { b.tabIndex = -1; });
+    track.appendChild(clone);
+    scroller.appendChild(track);
+
+    var distance = copyHeight + 18;               // one copy + the gap between copies
+    var dur = Math.max(25, Math.round(distance / 45)); // ~45px per second
+    track.style.setProperty('--scroll-distance', distance + 'px');
+    track.style.setProperty('--scroll-dur', dur + 's');
+  }
+
+  function init() { apply(); }
+  if (document.readyState === 'complete') { init(); }
+  else { window.addEventListener('load', init); }
 
   var resizeTimer;
   window.addEventListener('resize', function () {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(layout, 150);
+    resizeTimer = setTimeout(apply, 200);
+  });
+
+  /* ── Lightbox (delegated — works on the original and the cloned copy) ────── */
+  var lightbox = document.getElementById('lightbox');
+  if (!lightbox) return;
+
+  var lbImg    = document.getElementById('lightbox-img');
+  var lbCap    = document.getElementById('lightbox-caption');
+  var closeBtn = lightbox.querySelector('.lightbox-close');
+  var prevBtn  = lightbox.querySelector('.lightbox-prev');
+  var nextBtn  = lightbox.querySelector('.lightbox-next');
+  var current  = 0;
+
+  function openAt(idx) {
+    current = (idx + slides.length) % slides.length;
+    var s = slides[current];
+    lbImg.src = s.src;
+    lbImg.alt = s.alt;
+    lbCap.textContent = s.caption;
+    lightbox.hidden = false;
+    document.body.style.overflow = 'hidden';
+    if (closeBtn) closeBtn.focus();
+  }
+  function close() {
+    lightbox.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest && e.target.closest('.gallery-thumb-btn');
+    if (!btn) return;
+    var item = btn.closest('.gallery-item');
+    if (!item) return;
+    var idx = parseInt(item.getAttribute('data-gallery-index'), 10);
+    if (isNaN(idx)) return;
+    openAt(idx);
+  });
+
+  if (closeBtn) closeBtn.addEventListener('click', close);
+  if (prevBtn)  prevBtn.addEventListener('click', function () { openAt(current - 1); });
+  if (nextBtn)  nextBtn.addEventListener('click', function () { openAt(current + 1); });
+
+  lightbox.addEventListener('click', function (e) { if (e.target === lightbox) close(); });
+  document.addEventListener('keydown', function (e) {
+    if (lightbox.hidden) return;
+    if (e.key === 'Escape')     close();
+    if (e.key === 'ArrowLeft')  openAt(current - 1);
+    if (e.key === 'ArrowRight') openAt(current + 1);
   });
 })();
