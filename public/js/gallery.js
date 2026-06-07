@@ -1,8 +1,9 @@
 'use strict';
 
 /* Gallery — a "gliding slideshow wall": every photo is on screen at once in an
-   equal-size tile grid, and every few seconds the whole wall reshuffles so the
-   tiles smoothly glide to new spots. Plus a click-to-zoom lightbox.
+   equal-size tile grid, and every few seconds the whole wall shifts down by one
+   position on a loop, so the tiles smoothly glide to their new spots (the last
+   tile wraps back to the front). Plus a click-to-zoom lightbox.
 
    The glide uses the Web Animations API (element.animate) so it runs smoothly
    on every device, including phones that request reduced motion. Progressive
@@ -28,19 +29,18 @@
   /* ── Equal-size tile wall ───────────────────────────────────────────────── */
   grid.classList.add('gallery-grid--slideshow');
 
-  /* ── Gliding reshuffle (FLIP via the Web Animations API) ────────────────── */
-  var STEP_MS = 5000;   // time between reshuffles
+  /* ── Gliding loop (every tile moves down one position) ──────────────────── */
+  var STEP_MS = 4000;   // time between steps
   var GLIDE_MS = 1100;  // how long the glide takes
   var order = items.slice();
   var paused = false;
   var animating = false;
 
-  function shuffled(arr) {
+  // Shift every tile forward one position; the last tile wraps back to the
+  // front — so the whole wall cycles "down by one" on a loop.
+  function rotateDown(arr) {
     var a = arr.slice();
-    for (var i = a.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var t = a[i]; a[i] = a[j]; a[j] = t;
-    }
+    a.unshift(a.pop());
     return a;
   }
 
@@ -52,7 +52,7 @@
     var firstRects = order.map(function (it) { return it.getBoundingClientRect(); });
 
     // Re-order the tiles in the DOM (so the grid relays them out).
-    var newOrder = shuffled(order);
+    var newOrder = rotateDown(order);
     newOrder.forEach(function (it) { grid.appendChild(it); });
 
     // LAST + INVERT + PLAY: glide each tile from its old spot to the new one.
