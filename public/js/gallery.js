@@ -29,10 +29,45 @@
   /* ── Equal-size tile wall ───────────────────────────────────────────────── */
   grid.classList.add('gallery-grid--slideshow');
 
+  /* ── Note tiles ─────────────────────────────────────────────────────────────
+     Each guest note becomes its own tile that spans two photo tiles and glides
+     along with the photos. The server already renders each unique note once
+     (via .gallery-msg), so we build one note tile per unique note. */
+  var noteTiles = [];
+  items.forEach(function (item) {
+    var msgEl = item.querySelector('.gallery-msg');
+    if (!msgEl || !msgEl.textContent.trim()) return;
+    var nameEl = item.querySelector('.gallery-name');
+    var tile = document.createElement('div');
+    tile.className = 'gallery-item gallery-item--note';
+    var quote = document.createElement('p');
+    quote.className = 'gallery-note-msg';
+    quote.textContent = msgEl.textContent.trim();
+    tile.appendChild(quote);
+    if (nameEl && nameEl.textContent.trim()) {
+      var name = document.createElement('span');
+      name.className = 'gallery-note-name';
+      name.textContent = nameEl.textContent.trim();
+      tile.appendChild(name);
+    }
+    noteTiles.push(tile);
+  });
+
   /* ── Continuous gliding loop (the whole wall flows down one position) ────── */
-  var GLIDE_MS = 2600;            // how long one cell-step takes
+  var GLIDE_MS = 4800;            // how long one cell-step takes (slow & gentle)
   var STEP_MS  = GLIDE_MS + 60;   // run steps back-to-back for a continuous flow
-  var order = items.slice();
+
+  // Photos + note tiles together, mixed into a random starting order.
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  var order = shuffle(items.concat(noteTiles));
+  order.forEach(function (el) { grid.appendChild(el); });
   var paused = false;
   var animating = false;
 

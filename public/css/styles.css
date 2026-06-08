@@ -789,6 +789,7 @@ p:last-child { margin-bottom: 0; }
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
+  grid-auto-flow: row dense;   /* let 2-wide note tiles fill gaps neatly */
 }
 @media (min-width: 600px)  { .gallery-grid--slideshow { grid-template-columns: repeat(3, 1fr); } }
 @media (min-width: 1000px) { .gallery-grid--slideshow { grid-template-columns: repeat(4, 1fr); } }
@@ -808,6 +809,42 @@ p:last-child { margin-bottom: 0; }
   object-fit: cover;
 }
 .gallery-grid--slideshow .gallery-caption { display: none; } /* shown in the lightbox */
+
+/* Note tiles — each guest note as a 2-wide card that glides along with the photos. */
+.gallery-grid--slideshow .gallery-item--note {
+  grid-column: span 2;
+  aspect-ratio: 2 / 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.45rem;
+  padding: 0.85rem 1.1rem;
+  background: linear-gradient(135deg, var(--cream), var(--warm-white));
+  border: 1px solid var(--gold-soft);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.gallery-note-msg {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(0.92rem, 1.5vw, 1.35rem);
+  line-height: 1.35;
+  color: var(--brown);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.gallery-note-name {
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--gold-dark);
+}
 
 .gallery-thumb-btn {
   display: block;
