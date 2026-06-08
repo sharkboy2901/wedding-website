@@ -122,13 +122,18 @@
       row.appendChild(track);
       rowsWrap.appendChild(row);
 
-      var state = { row: row, track: track, dir: DIRS[idx % DIRS.length], pausedUntil: 0, hover: false };
-      function bump() { state.pausedUntil = performance.now() + 1600; }   // pause this row briefly after a touch/scroll
-      row.addEventListener('pointerdown', bump);
-      row.addEventListener('touchstart', bump, { passive: true });
-      row.addEventListener('wheel', bump, { passive: true });
-      row.addEventListener('pointerenter', function () { state.hover = true; });
-      row.addEventListener('pointerleave', function () { state.hover = false; });
+      var state = { row: row, track: track, dir: DIRS[idx % DIRS.length], mode: 'auto', hover: false, lastSL: 0, stable: 0 };
+      function startTouch() { state.mode = 'touch'; }
+      function endTouch()   { state.mode = 'settling'; state.lastSL = row.scrollLeft; state.stable = 0; }
+      row.addEventListener('touchstart',  startTouch, { passive: true });
+      row.addEventListener('touchend',    endTouch,   { passive: true });
+      row.addEventListener('touchcancel', endTouch,   { passive: true });
+      row.addEventListener('pointerdown', function (e) { if (e.pointerType !== 'mouse') startTouch(); });
+      row.addEventListener('pointerup',   function (e) { if (e.pointerType !== 'mouse') endTouch(); });
+      row.addEventListener('wheel', function () { state.mode = 'settling'; state.lastSL = row.scrollLeft; state.stable = 0; }, { passive: true });
+      // Only a real mouse hover pauses a row — never touch (so phones don't get stuck paused).
+      row.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') state.hover = true; });
+      row.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') state.hover = false; });
       rows.push(state);
     });
 
@@ -141,12 +146,19 @@
       rows.forEach(function (r) {
         var halfW = r.track.scrollWidth / 2;
         if (halfW <= 0) return;
-        var paused = r.hover || now < r.pausedUntil; // hovered or being dragged → don't auto-move
-        if (!paused) {
-          var sl = r.row.scrollLeft + r.dir * SPEED * dt;
-          sl = ((sl % halfW) + halfW) % halfW;       // wrap within one half → seamless loop
-          r.row.scrollLeft = sl;
+        if (r.hover || r.mode === 'touch') return;   // hovered (mouse) or finger down → hold still
+        if (r.mode === 'settling') {
+          // Let the native momentum/fling finish on its own; only resume the
+          // auto-advance once the row has actually come to rest, so we never
+          // fight the native scroll (that was the "wonky" feeling).
+          var cur = r.row.scrollLeft;
+          if (Math.abs(cur - r.lastSL) < 0.4) { r.stable++; } else { r.stable = 0; r.lastSL = cur; }
+          if (r.stable >= 5) r.mode = 'auto';
+          return;
         }
+        var sl = r.row.scrollLeft + r.dir * SPEED * dt;
+        sl = ((sl % halfW) + halfW) % halfW;          // wrap within one half → seamless loop
+        r.row.scrollLeft = sl;
       });
       rafId = requestAnimationFrame(frame);
     }
