@@ -1,20 +1,22 @@
 'use strict';
 
-/* Gallery — a "gliding slideshow wall": every photo is on screen at once in an
-   equal-size tile grid, and every few seconds the whole wall shifts down by one
-   position on a loop, so the tiles smoothly glide to their new spots (the last
-   tile wraps back to the front). Plus a click-to-zoom lightbox.
+/* Gallery — "Custom Wall Design 2": two horizontal rows of photos and note
+   tiles sliding continuously in opposite directions (top row → right, bottom
+   row → left), looping seamlessly, plus a click-to-zoom lightbox.
 
-   The glide uses the Web Animations API (element.animate) so it runs smoothly
-   on every device, including phones that request reduced motion. Progressive
-   enhancement: with JS off, the plain column gallery remains. */
+   Photos keep their natural width at a fixed row height; each guest note is a
+   wider card. Photos and notes are mixed at random across the two rows. The
+   rows pause on hover and while the lightbox is open. Progressive enhancement:
+   with JS off, the plain column gallery remains. */
 (function () {
   var grid = document.querySelector('.gallery-grid');
   if (!grid) return;
   var items = Array.prototype.slice.call(grid.querySelectorAll('.gallery-item'));
   if (items.length === 0) return;
 
-  /* ── Slide list for the lightbox (index stays with each element) ─────────── */
+  var GAP = 12;  // must match the row-track gap in CSS
+
+  /* ── Slides for the lightbox (index travels with each photo + its clones) ── */
   var slides = items.map(function (item, i) {
     item.setAttribute('data-gallery-index', i);
     var img = item.querySelector('img');
@@ -26,13 +28,7 @@
     };
   });
 
-  /* ── Equal-size tile wall ───────────────────────────────────────────────── */
-  grid.classList.add('gallery-grid--slideshow');
-
-  /* ── Note tiles ─────────────────────────────────────────────────────────────
-     Each guest note becomes its own tile that spans two photo tiles and glides
-     along with the photos. The server already renders each unique note once
-     (via .gallery-msg), so we build one note tile per unique note. */
+  /* ── Note tiles — each unique guest note as a wider card ────────────────── */
   var noteTiles = [];
   items.forEach(function (item) {
     var msgEl = item.querySelector('.gallery-msg');
@@ -45,19 +41,14 @@
     quote.textContent = msgEl.textContent.trim();
     tile.appendChild(quote);
     if (nameEl && nameEl.textContent.trim()) {
-      var name = document.createElement('span');
-      name.className = 'gallery-note-name';
-      name.textContent = nameEl.textContent.trim();
-      tile.appendChild(name);
+      var nm = document.createElement('span');
+      nm.className = 'gallery-note-name';
+      nm.textContent = nameEl.textContent.trim();
+      tile.appendChild(nm);
     }
     noteTiles.push(tile);
   });
 
-  /* ── Continuous gliding loop (the whole wall flows down one position) ────── */
-  var GLIDE_MS = 4800;            // how long one cell-step takes (slow & gentle)
-  var STEP_MS  = GLIDE_MS + 60;   // run steps back-to-back for a continuous flow
-
-  // Photos + note tiles together, mixed into a random starting order.
   function shuffle(arr) {
     var a = arr.slice();
     for (var i = a.length - 1; i > 0; i--) {
@@ -66,66 +57,64 @@
     }
     return a;
   }
-  var order = shuffle(items.concat(noteTiles));
-  order.forEach(function (el) { grid.appendChild(el); });
-  var paused = false;
-  var animating = false;
 
-  // Shift every tile forward one position; the last tile wraps back to the
-  // front — so the whole wall cycles "down by one" on a loop.
-  function rotateDown(arr) {
-    var a = arr.slice();
-    a.unshift(a.pop());
-    return a;
+  /* ── Mix photos + notes, split across the two rows ──────────────────────── */
+  var all = shuffle(items.concat(noteTiles));
+  var rowATiles = [], rowBTiles = [];
+  all.forEach(function (el, i) { (i % 2 === 0 ? rowATiles : rowBTiles).push(el); });
+
+  grid.classList.add('gallery-grid--rows');
+  var rowsWrap = document.createElement('div');
+  rowsWrap.className = 'gallery-rows';
+
+  function buildRow(tiles, dirClass) {
+    var row = document.createElement('div');
+    row.className = 'gallery-row ' + dirClass;
+    var track = document.createElement('div');
+    track.className = 'gallery-row-track';
+    row.appendChild(track);
+    rowsWrap.appendChild(row);
+    return { track: track, tiles: tiles };
+  }
+  var rowA = buildRow(rowATiles, 'gallery-row--right'); // top row → right
+  var rowB = buildRow(rowBTiles, 'gallery-row--left');  // bottom row → left
+  grid.appendChild(rowsWrap);
+
+  // Lay out a row: originals once, then enough duplicates to fill + loop seamlessly.
+  function layoutRow(r) {
+    if (!r.tiles.length) return;
+    while (r.track.firstChild) r.track.removeChild(r.track.firstChild);
+    r.tiles.forEach(function (t) { r.track.appendChild(t); });
+
+    var copyW = r.track.scrollWidth;
+    if (!copyW) return;
+    var viewport = (r.track.parentNode && r.track.parentNode.clientWidth) || window.innerWidth;
+    var copies = Math.max(2, Math.ceil((viewport + copyW) / copyW));
+    for (var k = 1; k < copies; k++) {
+      r.tiles.forEach(function (t) {
+        var c = t.cloneNode(true);
+        c.setAttribute('aria-hidden', 'true');
+        Array.prototype.forEach.call(c.querySelectorAll('button'), function (b) { b.tabIndex = -1; });
+        r.track.appendChild(c);
+      });
+    }
+    var distance = copyW + GAP;                 // animate by exactly one copy
+    r.track.style.setProperty('--row-distance', distance + 'px');
+    r.track.style.setProperty('--row-dur', Math.max(18, Math.round(distance / 38)) + 's');
   }
 
-  function step() {
-    if (paused || animating || order.length < 2) return;
-    if (document.hidden) return;                 // don't animate on a hidden tab
+  function layoutAll() { layoutRow(rowA); layoutRow(rowB); }
 
-    // FIRST: where each tile is now.
-    var firstRects = order.map(function (it) { return it.getBoundingClientRect(); });
+  if (document.readyState === 'complete') layoutAll();
+  else window.addEventListener('load', layoutAll);
 
-    // Re-order the tiles in the DOM (so the grid relays them out).
-    var newOrder = rotateDown(order);
-    newOrder.forEach(function (it) { grid.appendChild(it); });
+  var resizeTimer;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(layoutAll, 200);
+  });
 
-    // The wrapped tile (old last → new first) would otherwise fly across the
-    // whole wall; instead let it gently fade in at the top while the rest glide.
-    var wrapTile = newOrder[0];
-
-    // LAST + INVERT + PLAY: glide each tile from its old spot to the new one at
-    // a constant (linear) speed so consecutive steps blend into a smooth flow.
-    animating = true;
-    newOrder.forEach(function (it) {
-      var oldIdx = order.indexOf(it);
-      var firstR = firstRects[oldIdx];
-      var lastR  = it.getBoundingClientRect();
-      var dx = firstR.left - lastR.left;
-      var dy = firstR.top  - lastR.top;
-      if (it === wrapTile) {
-        it.animate([{ opacity: 0 }, { opacity: 1 }], { duration: GLIDE_MS, easing: 'ease-in' });
-      } else if (dx || dy) {
-        it.animate(
-          [
-            { transform: 'translate(' + dx + 'px,' + dy + 'px)' },
-            { transform: 'translate(0,0)' }
-          ],
-          { duration: GLIDE_MS, easing: 'linear' }
-        );
-      }
-    });
-    order = newOrder;
-    setTimeout(function () { animating = false; }, GLIDE_MS);
-  }
-
-  var timer = setInterval(step, STEP_MS);
-
-  // Pause while hovering (so a tile is easy to click) and when the tab is hidden.
-  grid.addEventListener('mouseenter', function () { paused = true; });
-  grid.addEventListener('mouseleave', function () { paused = false; });
-
-  /* ── Lightbox (delegated; index travels with each tile) ─────────────────── */
+  /* ── Lightbox (delegated; works for originals and clones) ───────────────── */
   var lightbox = document.getElementById('lightbox');
   if (!lightbox) return;
 
@@ -144,13 +133,13 @@
     lbCap.textContent = s.caption;
     lightbox.hidden = false;
     document.body.style.overflow = 'hidden';
-    paused = true;                 // hold the reshuffle while viewing
+    rowsWrap.classList.add('is-paused');
     if (closeBtn) closeBtn.focus();
   }
   function close() {
     lightbox.hidden = true;
     document.body.style.overflow = '';
-    paused = false;
+    rowsWrap.classList.remove('is-paused');
   }
 
   document.addEventListener('click', function (e) {

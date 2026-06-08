@@ -846,6 +846,62 @@ p:last-child { margin-bottom: 0; }
   color: var(--gold-dark);
 }
 
+/* ══ Custom Wall Design 2: two rows sliding in opposite directions ══════════
+   gallery.js lays photos + note tiles into two horizontal rows; the top row
+   slides right, the bottom row slides left, each looping seamlessly. Photos
+   keep their natural width at a fixed row height; notes are wider cards. */
+.gallery-grid--rows {
+  --row-h: clamp(140px, 22vh, 240px);
+  columns: auto;          /* neutralise the fallback column layout */
+}
+.gallery-rows { display: flex; flex-direction: column; gap: 12px; }
+.gallery-row { overflow: hidden; width: 100%; }
+.gallery-row-track {
+  display: flex;
+  gap: 12px;
+  width: max-content;
+  will-change: transform;
+}
+.gallery-row--left  .gallery-row-track { animation: gallery-marquee-left  var(--row-dur, 60s) linear infinite; }
+.gallery-row--right .gallery-row-track { animation: gallery-marquee-right var(--row-dur, 60s) linear infinite; }
+.gallery-row:hover .gallery-row-track,
+.gallery-rows.is-paused .gallery-row-track { animation-play-state: paused; }
+
+.gallery-grid--rows .gallery-item {
+  height: var(--row-h);
+  width: auto;
+  margin: 0;
+  flex: 0 0 auto;
+  aspect-ratio: auto;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.gallery-grid--rows .gallery-thumb-btn { height: 100%; width: auto; border-radius: var(--radius); }
+.gallery-grid--rows .gallery-thumb { height: 100%; width: auto; object-fit: cover; }
+.gallery-grid--rows .gallery-caption { display: none; } /* shown in the lightbox */
+
+.gallery-grid--rows .gallery-item--note {
+  width: min(360px, 78vw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.45rem;
+  padding: 0.85rem 1.2rem;
+  background: linear-gradient(135deg, var(--cream), var(--warm-white));
+  border: 1px solid var(--gold-soft);
+}
+
+@keyframes gallery-marquee-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(-1 * var(--row-distance, 1000px))); }
+}
+@keyframes gallery-marquee-right {
+  from { transform: translateX(calc(-1 * var(--row-distance, 1000px))); }
+  to   { transform: translateX(0); }
+}
+
 .gallery-thumb-btn {
   display: block;
   width: 100%;
@@ -2326,4 +2382,9 @@ p:last-child { margin-bottom: 0; }
     transition: none;
   }
 
+  /* Exception: keep the two sliding rows moving on every device, even when
+     reduced motion is requested — a deliberate, slow decorative scroll the
+     couple has chosen. Higher specificity than the '*' reset lets it win. */
+  .gallery-row--left  .gallery-row-track { animation: gallery-marquee-left  var(--row-dur, 60s) linear infinite !important; }
+  .gallery-row--right .gallery-row-track { animation: gallery-marquee-right var(--row-dur, 60s) linear infinite !important; }
 }
