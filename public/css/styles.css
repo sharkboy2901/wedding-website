@@ -866,7 +866,6 @@ p:last-child { margin-bottom: 0; }
   display: flex;
   flex-wrap: nowrap;
   align-items: stretch;
-  gap: 12px;
   height: 100%;
   width: max-content;
   will-change: transform;
@@ -879,7 +878,7 @@ p:last-child { margin-bottom: 0; }
 .gallery-grid--rows .gallery-item {
   height: 100%;
   width: auto;
-  margin: 0;
+  margin: 0 12px 0 0;     /* per-tile gap so the two halves are identical width */
   flex: 0 0 auto;
   aspect-ratio: auto;
   border-radius: var(--radius);
@@ -902,12 +901,13 @@ p:last-child { margin-bottom: 0; }
   border: 1px solid var(--gold-soft);
 }
 
+/* -50% = exactly one of the two identical halves → a seamless loop at any size. */
 @keyframes gallery-marquee-left {
   from { transform: translateX(0); }
-  to   { transform: translateX(calc(-1 * var(--row-distance, 1000px))); }
+  to   { transform: translateX(-50%); }
 }
 @keyframes gallery-marquee-right {
-  from { transform: translateX(calc(-1 * var(--row-distance, 1000px))); }
+  from { transform: translateX(-50%); }
   to   { transform: translateX(0); }
 }
 

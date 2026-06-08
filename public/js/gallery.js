@@ -94,66 +94,44 @@
   });
   grid.appendChild(rowsWrap);
 
-  // Lay out a row: the base tiles once, then enough duplicates to fill the
-  // width and loop seamlessly. Base tiles stay clickable/focusable; the loop
-  // duplicates are hidden from keyboard/AT to avoid repeated tab stops.
-  function layoutRow(r) {
+  // Fill a row with TWO identical halves and let the CSS animate it by exactly
+  // -50%. Because that's a percentage of the track's own width, the loop stays
+  // perfectly seamless no matter how wide the tiles end up — so it needs no
+  // pixel measuring and can't race with image loading (the cause of the broken
+  // mobile layout). Short rows repeat their tiles enough times to fill the width.
+  function fillRow(r) {
     if (!r.base.length) return;
     while (r.track.firstChild) r.track.removeChild(r.track.firstChild);
-    r.base.forEach(function (t) { r.track.appendChild(t); });
 
-    var copyW = r.track.scrollWidth;
-    if (!copyW) return;
-    var viewport = (r.track.parentNode && r.track.parentNode.clientWidth) || window.innerWidth;
-    var copies = Math.max(2, Math.ceil((viewport + copyW) / copyW));
-    for (var k = 1; k < copies; k++) {
-      r.base.forEach(function (t) {
-        var c = t.cloneNode(true);
-        c.setAttribute('aria-hidden', 'true');
-        Array.prototype.forEach.call(c.querySelectorAll('button'), function (b) { b.tabIndex = -1; });
-        r.track.appendChild(c);
-      });
+    var n = r.base.length;
+    var reps = Math.max(1, Math.ceil(12 / n));   // ~12 tiles per half so it fills wide screens
+
+    for (var copy = 0; copy < 2; copy++) {
+      for (var rep = 0; rep < reps; rep++) {
+        var primary = (copy === 0 && rep === 0);  // one clean, focusable instance of each tile
+        r.base.forEach(function (t) {
+          var c = t.cloneNode(true);
+          var im = c.querySelector('img');
+          if (im) im.loading = 'eager';           // eager: off-screen tiles must still show
+          if (!primary) {
+            c.setAttribute('aria-hidden', 'true');
+            Array.prototype.forEach.call(c.querySelectorAll('button'), function (b) { b.tabIndex = -1; });
+          }
+          r.track.appendChild(c);
+        });
+      }
     }
-    var distance = copyW + GAP;                 // animate by exactly one copy
-    r.track.style.setProperty('--row-distance', distance + 'px');
-    r.track.style.setProperty('--row-dur', Math.max(18, Math.round(distance / 38)) + 's');
+
+    var halfCount = reps * n;
+    r.track.style.setProperty('--row-dur', Math.max(20, Math.round(halfCount * 3)) + 's');
   }
 
-  function layoutAll() { rows.forEach(layoutRow); }
+  function layoutAll() { rows.forEach(fillRow); }
 
-  // The rows measure each tile's width to build a seamless loop, but the gallery
-  // images are lazy-loaded — off-screen ones (most of a row) would never load,
-  // so widths would be 0 and the rows would collapse (especially on mobile).
-  // Force the row images to load eagerly and re-measure as each one arrives.
-  var baseImgs = [];
-  rows.forEach(function (r) {
-    r.base.forEach(function (t) {
-      var im = t.querySelector('img');
-      if (im) { im.loading = 'eager'; baseImgs.push(im); }
-    });
-  });
-
-  var layoutQueued = false;
-  function scheduleLayout() {
-    if (layoutQueued) return;
-    layoutQueued = true;
-    requestAnimationFrame(function () { layoutQueued = false; layoutAll(); });
-  }
+  // The original (un-cloned) photo tiles aren't used in the rows; drop them.
+  items.forEach(function (it) { if (it.parentNode) it.parentNode.removeChild(it); });
 
   layoutAll();
-  baseImgs.forEach(function (im) {
-    if (!im.complete) {
-      im.addEventListener('load', scheduleLayout);
-      im.addEventListener('error', scheduleLayout);
-    }
-  });
-  window.addEventListener('load', scheduleLayout);
-
-  var resizeTimer;
-  window.addEventListener('resize', function () {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(layoutAll, 200);
-  });
 
   /* ── Lightbox (delegated; works for originals and clones) ───────────────── */
   var lightbox = document.getElementById('lightbox');
