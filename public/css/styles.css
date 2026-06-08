@@ -852,7 +852,11 @@ p:last-child { margin-bottom: 0; }
    keep their natural width at a fixed row height; notes are wider cards. */
 .gallery-grid--rows {
   --row-h: clamp(190px, 30vh, 340px);
-  columns: auto;          /* neutralise the fallback column layout */
+  /* A flex container ignores the `columns` property, so the fallback
+     multi-column rules (incl. the mobile ones later in this file) can't break
+     the rows into columns. This is what was breaking the mobile layout. */
+  display: flex;
+  flex-direction: column;
 }
 /* Shorter rows on phones so all three rows are clearly visible and stacked. */
 @media (max-width: 600px) {
