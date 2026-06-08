@@ -121,8 +121,33 @@
 
   function layoutAll() { rows.forEach(layoutRow); }
 
-  if (document.readyState === 'complete') layoutAll();
-  else window.addEventListener('load', layoutAll);
+  // The rows measure each tile's width to build a seamless loop, but the gallery
+  // images are lazy-loaded — off-screen ones (most of a row) would never load,
+  // so widths would be 0 and the rows would collapse (especially on mobile).
+  // Force the row images to load eagerly and re-measure as each one arrives.
+  var baseImgs = [];
+  rows.forEach(function (r) {
+    r.base.forEach(function (t) {
+      var im = t.querySelector('img');
+      if (im) { im.loading = 'eager'; baseImgs.push(im); }
+    });
+  });
+
+  var layoutQueued = false;
+  function scheduleLayout() {
+    if (layoutQueued) return;
+    layoutQueued = true;
+    requestAnimationFrame(function () { layoutQueued = false; layoutAll(); });
+  }
+
+  layoutAll();
+  baseImgs.forEach(function (im) {
+    if (!im.complete) {
+      im.addEventListener('load', scheduleLayout);
+      im.addEventListener('error', scheduleLayout);
+    }
+  });
+  window.addEventListener('load', scheduleLayout);
 
   var resizeTimer;
   window.addEventListener('resize', function () {

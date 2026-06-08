@@ -854,12 +854,20 @@ p:last-child { margin-bottom: 0; }
   --row-h: clamp(190px, 30vh, 340px);
   columns: auto;          /* neutralise the fallback column layout */
 }
-/* Rows are always stacked vertically, on every device. */
-.gallery-rows { display: flex; flex-direction: column; gap: 12px; }
-.gallery-row { overflow: hidden; width: 100%; }
+/* Rows are always stacked vertically, on every device. Each row has an explicit
+   height so the rows never collapse or overlap, even before images have loaded. */
+.gallery-rows { display: flex; flex-direction: column; gap: 14px; }
+.gallery-row {
+  overflow: hidden;
+  width: 100%;
+  height: var(--row-h);
+}
 .gallery-row-track {
   display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
   gap: 12px;
+  height: 100%;
   width: max-content;
   will-change: transform;
 }
@@ -869,7 +877,7 @@ p:last-child { margin-bottom: 0; }
 .gallery-rows.is-paused .gallery-row-track { animation-play-state: paused; }
 
 .gallery-grid--rows .gallery-item {
-  height: var(--row-h);
+  height: 100%;
   width: auto;
   margin: 0;
   flex: 0 0 auto;
