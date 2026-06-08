@@ -862,26 +862,27 @@ p:last-child { margin-bottom: 0; }
 @media (max-width: 600px) {
   .gallery-grid--rows { --row-h: clamp(150px, 24vh, 210px); }
 }
-/* Rows are always stacked vertically, on every device. Each row has an explicit
-   height so the rows never collapse or overlap, even before images have loaded. */
+/* Rows are always stacked vertically, on every device. Each row is a horizontal
+   scroller (auto-advanced by JS) that the visitor can also drag with a finger. */
 .gallery-rows { display: flex; flex-direction: column; gap: 14px; }
 .gallery-row {
-  overflow: hidden;
   width: 100%;
   height: var(--row-h);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;            /* Firefox */
+  -ms-overflow-style: none;         /* old Edge */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
+.gallery-row::-webkit-scrollbar { display: none; }   /* Chrome/Safari */
 .gallery-row-track {
   display: flex;
   flex-wrap: nowrap;
   align-items: stretch;
   height: 100%;
   width: max-content;
-  will-change: transform;
 }
-.gallery-row--left  .gallery-row-track { animation: gallery-marquee-left  var(--row-dur, 60s) linear infinite; }
-.gallery-row--right .gallery-row-track { animation: gallery-marquee-right var(--row-dur, 60s) linear infinite; }
-.gallery-row:hover .gallery-row-track,
-.gallery-rows.is-paused .gallery-row-track { animation-play-state: paused; }
 
 .gallery-grid--rows .gallery-item {
   height: 100%;
@@ -911,14 +912,61 @@ p:last-child { margin-bottom: 0; }
   box-shadow: var(--shadow);
 }
 
-/* -50% = exactly one of the two identical halves → a seamless loop at any size. */
-@keyframes gallery-marquee-left {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+/* ── Gallery view toggle (top-right) ──────────────────────────────────────── */
+.gallery-view-toggle {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 1.25rem;
 }
-@keyframes gallery-marquee-right {
-  from { transform: translateX(-50%); }
-  to   { transform: translateX(0); }
+.gallery-view-toggle button {
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--gold);
+  background: transparent;
+  color: var(--gold-dark);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  min-height: 38px;
+}
+.gallery-view-toggle button:first-child { border-radius: 50px 0 0 50px; }
+.gallery-view-toggle button:last-child  { border-radius: 0 50px 50px 0; border-left: none; }
+.gallery-view-toggle button.is-active { background: var(--gold); color: #fff; }
+
+/* ── VIEW 2: still wall (static grid of all photos + notes, random order) ──── */
+.gallery-grid--wall {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  grid-auto-flow: row dense;
+}
+@media (min-width: 600px)  { .gallery-grid--wall { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1000px) { .gallery-grid--wall { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 1300px) { .gallery-grid--wall { grid-template-columns: repeat(5, 1fr); } }
+.gallery-grid--wall .gallery-item {
+  margin: 0;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.gallery-grid--wall .gallery-thumb-btn { width: 100%; height: 100%; }
+.gallery-grid--wall .gallery-thumb { width: 100%; height: 100%; object-fit: cover; }
+.gallery-grid--wall .gallery-caption { display: none; }
+.gallery-grid--wall .gallery-item--note {
+  grid-column: span 2;
+  aspect-ratio: 2 / 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.4rem;
+  padding: 0.8rem 1rem;
+  background: linear-gradient(140deg, #efe0c2, #e6d1a8);
+  border: 1px solid var(--gold);
 }
 
 .gallery-thumb-btn {
@@ -2400,10 +2448,4 @@ p:last-child { margin-bottom: 0; }
   :focus-visible {
     transition: none;
   }
-
-  /* Exception: keep the two sliding rows moving on every device, even when
-     reduced motion is requested — a deliberate, slow decorative scroll the
-     couple has chosen. Higher specificity than the '*' reset lets it win. */
-  .gallery-row--left  .gallery-row-track { animation: gallery-marquee-left  var(--row-dur, 60s) linear infinite !important; }
-  .gallery-row--right .gallery-row-track { animation: gallery-marquee-right var(--row-dur, 60s) linear infinite !important; }
 }
