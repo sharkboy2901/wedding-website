@@ -851,9 +851,10 @@ p:last-child { margin-bottom: 0; }
    slides right, the bottom row slides left, each looping seamlessly. Photos
    keep their natural width at a fixed row height; notes are wider cards. */
 .gallery-grid--rows {
-  --row-h: clamp(140px, 22vh, 240px);
+  --row-h: clamp(190px, 30vh, 340px);
   columns: auto;          /* neutralise the fallback column layout */
 }
+/* Rows are always stacked vertically, on every device. */
 .gallery-rows { display: flex; flex-direction: column; gap: 12px; }
 .gallery-row { overflow: hidden; width: 100%; }
 .gallery-row-track {
