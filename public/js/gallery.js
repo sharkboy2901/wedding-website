@@ -29,9 +29,9 @@
   /* ── Equal-size tile wall ───────────────────────────────────────────────── */
   grid.classList.add('gallery-grid--slideshow');
 
-  /* ── Gliding loop (every tile moves down one position) ──────────────────── */
-  var STEP_MS = 4000;   // time between steps
-  var GLIDE_MS = 1100;  // how long the glide takes
+  /* ── Continuous gliding loop (the whole wall flows down one position) ────── */
+  var GLIDE_MS = 2600;            // how long one cell-step takes
+  var STEP_MS  = GLIDE_MS + 60;   // run steps back-to-back for a continuous flow
   var order = items.slice();
   var paused = false;
   var animating = false;
@@ -55,28 +55,33 @@
     var newOrder = rotateDown(order);
     newOrder.forEach(function (it) { grid.appendChild(it); });
 
-    // LAST + INVERT + PLAY: glide each tile from its old spot to the new one.
+    // The wrapped tile (old last → new first) would otherwise fly across the
+    // whole wall; instead let it gently fade in at the top while the rest glide.
+    var wrapTile = newOrder[0];
+
+    // LAST + INVERT + PLAY: glide each tile from its old spot to the new one at
+    // a constant (linear) speed so consecutive steps blend into a smooth flow.
     animating = true;
-    var maxEnd = 0;
-    newOrder.forEach(function (it, newIdx) {
+    newOrder.forEach(function (it) {
       var oldIdx = order.indexOf(it);
       var firstR = firstRects[oldIdx];
       var lastR  = it.getBoundingClientRect();
       var dx = firstR.left - lastR.left;
       var dy = firstR.top  - lastR.top;
-      if (dx || dy) {
+      if (it === wrapTile) {
+        it.animate([{ opacity: 0 }, { opacity: 1 }], { duration: GLIDE_MS, easing: 'ease-in' });
+      } else if (dx || dy) {
         it.animate(
           [
             { transform: 'translate(' + dx + 'px,' + dy + 'px)' },
             { transform: 'translate(0,0)' }
           ],
-          { duration: GLIDE_MS, easing: 'cubic-bezier(0.45, 0, 0.2, 1)' }
+          { duration: GLIDE_MS, easing: 'linear' }
         );
-        maxEnd = GLIDE_MS;
       }
     });
     order = newOrder;
-    setTimeout(function () { animating = false; }, maxEnd + 30);
+    setTimeout(function () { animating = false; }, GLIDE_MS);
   }
 
   var timer = setInterval(step, STEP_MS);
