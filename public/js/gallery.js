@@ -123,7 +123,7 @@
     }
 
     var halfCount = reps * n;
-    r.track.style.setProperty('--row-dur', Math.max(20, Math.round(halfCount * 3)) + 's');
+    r.track.style.setProperty('--row-dur', Math.max(45, Math.round(halfCount * 6)) + 's');
   }
 
   function layoutAll() { rows.forEach(fillRow); }

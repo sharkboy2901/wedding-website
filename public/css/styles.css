@@ -854,6 +854,10 @@ p:last-child { margin-bottom: 0; }
   --row-h: clamp(190px, 30vh, 340px);
   columns: auto;          /* neutralise the fallback column layout */
 }
+/* Shorter rows on phones so all three rows are clearly visible and stacked. */
+@media (max-width: 600px) {
+  .gallery-grid--rows { --row-h: clamp(150px, 24vh, 210px); }
+}
 /* Rows are always stacked vertically, on every device. Each row has an explicit
    height so the rows never collapse or overlap, even before images have loaded. */
 .gallery-rows { display: flex; flex-direction: column; gap: 14px; }
@@ -889,7 +893,7 @@ p:last-child { margin-bottom: 0; }
 .gallery-grid--rows .gallery-caption { display: none; } /* shown in the lightbox */
 
 .gallery-grid--rows .gallery-item--note {
-  width: min(360px, 78vw);
+  width: min(320px, 72vw);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -897,8 +901,10 @@ p:last-child { margin-bottom: 0; }
   text-align: center;
   gap: 0.45rem;
   padding: 0.85rem 1.2rem;
-  background: linear-gradient(135deg, var(--cream), var(--warm-white));
-  border: 1px solid var(--gold-soft);
+  /* Distinct gold-tinted card so notes stand out from the page background. */
+  background: linear-gradient(140deg, #efe0c2, #e6d1a8);
+  border: 1px solid var(--gold);
+  box-shadow: var(--shadow);
 }
 
 /* -50% = exactly one of the two identical halves → a seamless loop at any size. */
