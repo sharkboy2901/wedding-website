@@ -75,6 +75,7 @@
   originals.forEach(function (it) { if (it.parentNode) it.parentNode.removeChild(it); });
 
   var rafId = null;
+  var dragSuppressUntil = 0;   // briefly ignore the click that ends a mouse drag (so it doesn't open the lightbox)
   function stopRAF() { if (rafId) { cancelAnimationFrame(rafId); rafId = null; } }
   function clearGrid() {
     stopRAF();
@@ -122,18 +123,39 @@
       row.appendChild(track);
       rowsWrap.appendChild(row);
 
-      var state = { row: row, track: track, dir: DIRS[idx % DIRS.length], mode: 'auto', hover: false, lastSL: 0, stable: 0 };
-      function startTouch() { state.mode = 'touch'; }
-      function endTouch()   { state.mode = 'settling'; state.lastSL = row.scrollLeft; state.stable = 0; }
-      row.addEventListener('touchstart',  startTouch, { passive: true });
-      row.addEventListener('touchend',    endTouch,   { passive: true });
-      row.addEventListener('touchcancel', endTouch,   { passive: true });
-      row.addEventListener('pointerdown', function (e) { if (e.pointerType !== 'mouse') startTouch(); });
-      row.addEventListener('pointerup',   function (e) { if (e.pointerType !== 'mouse') endTouch(); });
-      row.addEventListener('wheel', function () { state.mode = 'settling'; state.lastSL = row.scrollLeft; state.stable = 0; }, { passive: true });
-      // Only a real mouse hover pauses a row — never touch (so phones don't get stuck paused).
-      row.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') state.hover = true; });
-      row.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') state.hover = false; });
+      var state = { row: row, track: track, dir: DIRS[idx % DIRS.length], mode: 'auto', lastSL: 0, stable: 0 };
+      function settle() { state.mode = 'settling'; state.lastSL = row.scrollLeft; state.stable = 0; }
+
+      // Touch: let the browser scroll natively; just track when to resume.
+      row.addEventListener('touchstart',  function () { state.mode = 'touch'; }, { passive: true });
+      row.addEventListener('touchend',    settle, { passive: true });
+      row.addEventListener('touchcancel', settle, { passive: true });
+      row.addEventListener('wheel',       settle, { passive: true });
+
+      // Mouse: click-and-drag to scroll (native scrollers don't drag with a mouse).
+      var drag = false, startX = 0, startSL = 0;
+      row.addEventListener('pointerdown', function (e) {
+        if (e.pointerType !== 'mouse') { state.mode = 'touch'; return; }
+        drag = true; startX = e.clientX; startSL = row.scrollLeft; state.mode = 'touch';
+        row.classList.add('is-grabbing');
+        try { row.setPointerCapture(e.pointerId); } catch (_) {}
+      });
+      row.addEventListener('pointermove', function (e) {
+        if (!drag) return;
+        var dx = e.clientX - startX;
+        if (Math.abs(dx) > 3) dragSuppressUntil = performance.now() + 300;   // it's a drag, not a click
+        row.scrollLeft = startSL - dx;
+      });
+      function endMouse(e) {
+        if (e.pointerType !== 'mouse') { settle(); return; }
+        if (!drag) return;
+        drag = false; row.classList.remove('is-grabbing');
+        try { row.releasePointerCapture(e.pointerId); } catch (_) {}
+        settle();
+      }
+      row.addEventListener('pointerup', endMouse);
+      row.addEventListener('pointercancel', endMouse);
+
       rows.push(state);
     });
 
@@ -146,7 +168,7 @@
       rows.forEach(function (r) {
         var halfW = r.track.scrollWidth / 2;
         if (halfW <= 0) return;
-        if (r.hover || r.mode === 'touch') return;   // hovered (mouse) or finger down → hold still
+        if (r.mode === 'touch') return;              // being dragged → hold still
         if (r.mode === 'settling') {
           // Let the native momentum/fling finish on its own; only resume the
           // auto-advance once the row has actually come to rest, so we never
@@ -231,6 +253,7 @@
   }
 
   document.addEventListener('click', function (e) {
+    if (performance.now() < dragSuppressUntil) return;   // ignore the click that ends a drag
     var btn = e.target.closest && e.target.closest('.gallery-thumb-btn');
     if (!btn) return;
     var item = btn.closest('.gallery-item');

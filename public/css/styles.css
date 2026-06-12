@@ -874,8 +874,11 @@ p:last-child { margin-bottom: 0; }
   -ms-overflow-style: none;         /* old Edge */
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
+  cursor: grab;                     /* drag-to-scroll affordance (desktop) */
 }
+.gallery-row.is-grabbing { cursor: grabbing; }
 .gallery-row::-webkit-scrollbar { display: none; }   /* Chrome/Safari */
+.gallery-row-track img { -webkit-user-drag: none; user-select: none; }
 .gallery-row-track {
   display: flex;
   flex-wrap: nowrap;
