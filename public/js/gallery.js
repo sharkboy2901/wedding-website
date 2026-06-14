@@ -207,6 +207,39 @@
     '<button type="button" data-view="wall">&#9638; Still</button>';
   grid.parentNode.insertBefore(toggle, grid);
 
+  /* ── Elegant "you can scroll" hint (shown once per device) ──────────────── */
+  var HINT_KEY = 'mk_gallery_hint_seen';
+  var hint = document.createElement('div');
+  hint.className = 'gallery-hint';
+  hint.setAttribute('role', 'status');
+  hint.innerHTML =
+    '<span class="gallery-hint-arrow" aria-hidden="true">&#8249;</span>' +
+    '<span class="gallery-hint-text">Drag or swipe to explore</span>' +
+    '<span class="gallery-hint-arrow" aria-hidden="true">&#8250;</span>';
+  grid.parentNode.insertBefore(hint, grid);
+
+  var hintTimer = null, hintGone = false;
+  function dismissHint() {
+    if (hintGone) return;
+    hintGone = true;
+    clearTimeout(hintTimer);
+    hint.classList.remove('is-visible');
+    setTimeout(function () { if (hint.parentNode) hint.parentNode.removeChild(hint); }, 700);
+  }
+  function maybeShowHint() {
+    if (hintGone) return;
+    var seen = false;
+    try { seen = localStorage.getItem(HINT_KEY) === '1'; } catch (_) {}
+    if (seen) { dismissHint(); return; }
+    try { localStorage.setItem(HINT_KEY, '1'); } catch (_) {}
+    requestAnimationFrame(function () { hint.classList.add('is-visible'); });
+    hintTimer = setTimeout(dismissHint, 6000);
+  }
+  // Any interaction with the rows dismisses it immediately.
+  ['touchstart', 'pointerdown', 'wheel'].forEach(function (ev) {
+    grid.addEventListener(ev, dismissHint, { passive: true });
+  });
+
   function updateToggle(v) {
     Array.prototype.forEach.call(toggle.querySelectorAll('button'), function (b) {
       var on = b.getAttribute('data-view') === v;
@@ -216,7 +249,8 @@
   }
   function setView(v) {
     current = v;
-    if (v === 'wall') renderWall(); else renderRows();
+    if (v === 'wall') { renderWall(); dismissHint(); }
+    else { renderRows(); maybeShowHint(); }
     updateToggle(v);
   }
   toggle.addEventListener('click', function (e) {
