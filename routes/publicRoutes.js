@@ -41,27 +41,13 @@ function asyncHandler(fn) {
 // -- Home --
 
 router.get('/', asyncHandler(async function(req, res) {
-  var flash = req.session.flash || null;
-  delete req.session.flash;
-
-  var [navConfig, featuredPhotos, channelSetting, homepageSetting] = await Promise.all([
-    getNavConfig(),
-    db.getFeaturedPhotos(),
-    db.getSetting('livestream_channel'),
-    db.getSetting('livestream_homepage'),
-  ]);
-
-  var livestreamChannel  = channelSetting || process.env.TWITCH_CHANNEL || null;
-  var livestreamHomepage = (homepageSetting === '1');
-
-  res.render('index', {
-    config: siteConfig(),
-    flash: flash,
-    livestreamVisible: navConfig.livestreamVisible,
-    featuredPhotos:    featuredPhotos,
-    livestreamChannel: livestreamChannel,
-    livestreamHomepage: livestreamHomepage,
-  });
+  // The admin chooses which home page guests see: the pre-wedding page
+  // (public/index.html, default) or the post-wedding celebration page
+  // (public/post.html). Switching is instant — no caching of this response.
+  var mode = await db.getSetting('home_mode');
+  var file = (mode === 'post') ? 'post.html' : 'index.html';
+  res.setHeader('Cache-Control', 'no-store');
+  res.sendFile(path.join(__dirname, '..', 'public', file));
 }));
 
 // -- Gallery --
@@ -257,6 +243,19 @@ router.get('/api/featured-photos', asyncHandler(async function(req, res) {
       id:           p._id,
       filename:     p.filename,
       uploaderName: p.uploader_name || null,
+    };
+  }));
+}));
+
+// -- API: approved guest photos (consumed by the post-wedding home page gallery) --
+router.get('/api/approved-photos', asyncHandler(async function(req, res) {
+  var photos = await db.getApprovedPhotos();
+  res.setHeader('Cache-Control', 'no-store');
+  res.json(photos.map(function(p) {
+    return {
+      filename:        p.filename,
+      uploaderName:    p.uploader_name || null,
+      uploaderMessage: p.uploader_message || null,
     };
   }));
 }));

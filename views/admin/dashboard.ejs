@@ -47,6 +47,34 @@
       </div>
     </div>
 
+    <!-- ── Front Page mode (pre / post wedding) ────────────────────────────── -->
+    <section class="admin-section" aria-labelledby="homemode-heading">
+      <h2 class="admin-section-title" id="homemode-heading">&#127968; Front Page</h2>
+      <div class="admin-settings-card">
+        <p class="admin-settings-hint" style="margin-bottom:0.9rem;">
+          Choose which home page guests see at <code>/</code>. Currently showing:
+          <strong style="color:#e8e4f4;"><%= homeMode === 'post' ? 'POST-wedding celebration page' : 'PRE-wedding page' %></strong>.
+        </p>
+        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;">
+          <form action="/admin/home-mode" method="post" style="margin:0;">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <input type="hidden" name="mode" value="pre">
+            <button type="submit" class="admin-btn <%= homeMode !== 'post' ? 'admin-btn--primary' : 'admin-btn--secondary' %>"<%= homeMode !== 'post' ? ' disabled' : '' %>>
+              <%= homeMode !== 'post' ? '✓ ' : '' %>Pre-wedding
+            </button>
+          </form>
+          <form action="/admin/home-mode" method="post" style="margin:0;">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <input type="hidden" name="mode" value="post">
+            <button type="submit" class="admin-btn <%= homeMode === 'post' ? 'admin-btn--primary' : 'admin-btn--secondary' %>"<%= homeMode === 'post' ? ' disabled' : '' %>>
+              <%= homeMode === 'post' ? '✓ ' : '' %>Post-wedding
+            </button>
+          </form>
+          <a href="/" target="_blank" rel="noopener noreferrer" class="admin-btn admin-btn--secondary">Preview Front Page ↗</a>
+        </div>
+      </div>
+    </section>
+
     <!-- ── Livestream Settings ─────────────────────────────────────────────── -->
     <section class="admin-section" aria-labelledby="livestream-heading">
       <h2 class="admin-section-title" id="livestream-heading">&#128250; Livestream Settings</h2>

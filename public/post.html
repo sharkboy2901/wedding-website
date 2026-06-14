@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Just Married — Matthew &amp; Kristine · 06.06.2026</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream:       #f5ede0;
+      --cream-dark:  #ecdece;
+      --brown:       #3d2b1f;
+      --brown-light: #7a5c47;
+      --gold:        #b8945a;
+      --gold-dark:   #a07a42;
+      --olive:       #5c6e3e;
+      --warm-white:  #faf6f0;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Montserrat', sans-serif; background: var(--cream); color: var(--brown); overflow-x: hidden; }
+    img, video { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ── NAV ─────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 40px;
+      background: rgba(245,237,224,0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(184,148,90,0.18);
+    }
+    .nav-brand { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.3rem; color: var(--gold); letter-spacing: 0.02em; }
+    .nav-links { display: flex; gap: 26px; list-style: none; align-items: center; flex-wrap: wrap; }
+    .nav-links a { font-size: 0.66rem; letter-spacing: 0.15em; font-weight: 600; color: var(--brown); text-transform: uppercase; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--gold); }
+
+    /* ── HERO ────────────────────────────────── */
+    #hero { position: relative; min-height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; text-align: center; padding: 110px 20px 70px; }
+    #hero video, #hero .hero-fallback {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0;
+    }
+    .hero-overlay { position: absolute; inset: 0; z-index: 1;
+      background:
+        radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.45) 100%),
+        linear-gradient(to bottom, rgba(0,0,0,0.34) 0%, rgba(0,0,0,0.40) 50%, rgba(0,0,0,0.66) 100%);
+    }
+    .hero-content { position: relative; z-index: 2; color: #fff; }
+    .hero-eyebrow { font-size: 0.8rem; letter-spacing: 0.4em; font-weight: 500; text-transform: uppercase; margin-bottom: 22px; opacity: 0.92; }
+    .hero-just { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400;
+      font-size: clamp(3.2rem, 11vw, 7.5rem); line-height: 0.95; color: #fff; text-shadow: 0 4px 34px rgba(0,0,0,0.4); }
+    .hero-names { font-family: 'Cormorant Garamond', serif; font-weight: 400;
+      font-size: clamp(1.8rem, 5.5vw, 3.4rem); margin-top: 10px; letter-spacing: 0.01em; }
+    .hero-amp { color: var(--gold); font-style: italic; }
+    .hero-divider { display: flex; align-items: center; gap: 18px; justify-content: center; margin: 22px 0 14px; color: var(--gold); }
+    .hero-divider::before, .hero-divider::after { content: ''; flex: 0 0 64px; height: 1px; background: linear-gradient(to right, transparent, rgba(255,255,255,0.7)); }
+    .hero-divider::after { background: linear-gradient(to left, transparent, rgba(255,255,255,0.7)); }
+    .hero-date { font-size: 0.95rem; letter-spacing: 0.26em; text-transform: uppercase; opacity: 0.92; }
+    .hero-scroll { position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%); z-index: 2; color: rgba(255,255,255,0.8); font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; animation: bob 2.2s ease-in-out infinite; }
+    @keyframes bob { 0%,100%{ transform: translate(-50%,0);} 50%{ transform: translate(-50%,7px);} }
+
+    /* ── SECTION BASE ────────────────────────── */
+    section { padding: 92px 40px; }
+    .section-title { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 300; font-size: clamp(2.4rem, 6vw, 4rem); color: var(--brown); text-align: center; }
+    .section-rule { width: 54px; height: 1px; background: var(--gold); margin: 16px auto 14px; }
+    .section-sub { text-align: center; font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brown-light); margin-bottom: 46px; }
+
+    /* ── INTRO ──────────────────────────────── */
+    #intro { background: var(--warm-white); text-align: center; padding: 84px 40px; }
+    .intro-quote { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 300; font-size: clamp(1.4rem, 3.4vw, 2.1rem); line-height: 1.7; color: var(--brown-light); max-width: 760px; margin: 0 auto; }
+    .intro-loc { margin-top: 26px; font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold-dark); }
+
+    /* ── FILMS ──────────────────────────────── */
+    #films { background: var(--brown); }
+    #films .section-title { color: var(--cream); }
+    #films .section-sub { color: rgba(245,237,224,0.6); }
+    .films-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .film { position: relative; border-radius: 4px; overflow: hidden; background: #000; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+    .film--feature { grid-column: 1 / -1; }
+    .film video { width: 100%; height: 100%; aspect-ratio: 16/9; object-fit: cover; }
+    .film--feature video { aspect-ratio: 16/9; }
+    @media (max-width: 680px){ .films-grid { grid-template-columns: 1fr; } }
+
+    /* ── PROFESSIONAL GALLERY ───────────────── */
+    #pro { background: var(--cream); position: relative; }
+    .pro-grid { max-width: 1100px; margin: 0 auto; columns: 3; column-gap: 16px; }
+    @media (max-width: 900px){ .pro-grid { columns: 2; } }
+    @media (max-width: 540px){ .pro-grid { columns: 1; } }
+    .pro-item { break-inside: avoid; margin-bottom: 16px; position: relative; border-radius: 3px; overflow: hidden; cursor: pointer; }
+    .pro-item img { width: 100%; transition: transform 0.5s ease; }
+    .pro-item:hover img { transform: scale(1.04); }
+    .pro-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 16px 14px;
+      background: linear-gradient(to top, rgba(0,0,0,0.5), transparent); color: #fff;
+      font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.4rem; opacity: 0; transition: opacity 0.4s ease; }
+    .pro-item:hover .pro-cap { opacity: 1; }
+
+    /* ── GUEST MOMENTS (moving rows) ────────── */
+    #guests { background: var(--warm-white); }
+    .guest-rows { max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+    .guest-row { --row-h: clamp(150px, 24vh, 230px); height: var(--row-h); width: 100%; overflow-x: auto; overflow-y: hidden; cursor: grab; scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch; }
+    .guest-row.is-grabbing { cursor: grabbing; }
+    .guest-row::-webkit-scrollbar { display: none; }
+    .guest-track { display: flex; flex-wrap: nowrap; align-items: stretch; height: 100%; width: max-content; }
+    .guest-tile { height: 100%; flex: 0 0 auto; margin-right: 12px; border-radius: 4px; overflow: hidden; }
+    .guest-tile img { height: 100%; width: auto; object-fit: cover; -webkit-user-drag: none; user-select: none; }
+    .guest-note { height: 100%; width: min(320px, 74vw); flex: 0 0 auto; margin-right: 12px; border-radius: 4px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 0.5rem; padding: 0.9rem 1.2rem;
+      background: linear-gradient(140deg, #efe0c2, #e6d1a8); border: 1px solid var(--gold); }
+    .guest-note-msg { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: clamp(0.95rem, 1.6vw, 1.35rem); line-height: 1.35; color: var(--brown);
+      display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+    .guest-note-name { font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; color: var(--gold-dark); }
+    .guest-hint { width: max-content; max-width: 90%; margin: 0 auto 18px; padding: 0.55rem 1.25rem; background: rgba(61,43,31,0.86); color: var(--cream);
+      border-radius: 50px; font-size: 0.66rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; display: flex; gap: 0.6rem; align-items: center; }
+    .guest-empty { text-align: center; color: var(--brown-light); font-style: italic; font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; }
+    .guest-cta { max-width: 680px; margin: 48px auto 0; text-align: center; background: var(--cream); border: 1px solid rgba(184,148,90,0.3); border-radius: 4px; padding: 34px 30px; }
+    .guest-cta p { font-size: 0.84rem; color: var(--brown-light); line-height: 1.75; margin-bottom: 22px; }
+    .btn-gold { display: inline-block; padding: 14px 36px; background: var(--gold); color: #fff; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; border-radius: 2px; transition: background 0.2s, transform 0.2s; }
+    .btn-gold:hover { background: var(--gold-dark); transform: translateY(-2px); }
+    .guest-link { display: inline-block; margin-top: 26px; font-size: 0.7rem; letter-spacing: 0.14em; font-weight: 600; color: var(--gold-dark); text-transform: uppercase; }
+    .guest-link:hover { text-decoration: underline; }
+
+    /* ── LIGHTBOX ───────────────────────────── */
+    .lightbox { display: none; position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.93); align-items: center; justify-content: center; }
+    .lightbox.open { display: flex; }
+    .lightbox img { max-height: 90vh; max-width: 92vw; border-radius: 2px; }
+    .lightbox-close { position: absolute; top: 18px; right: 26px; color: #fff; font-size: 2rem; background: none; border: none; cursor: pointer; opacity: 0.8; }
+    .lightbox-close:hover { opacity: 1; }
+
+    /* ── FOOTER ─────────────────────────────── */
+    footer { background: var(--brown); color: rgba(245,237,224,0.7); text-align: center; padding: 54px 40px; }
+    .footer-names { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 2rem; color: var(--cream); margin-bottom: 8px; }
+    .footer-date { font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(245,237,224,0.55); margin-bottom: 22px; }
+    .footer-links { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+    .footer-links a { font-size: 0.65rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(245,237,224,0.6); }
+    .footer-links a:hover { color: var(--gold); }
+
+    @media (max-width: 600px){ nav { padding: 12px 18px; } .nav-links { gap: 12px; } .nav-links a { font-size: 0.56rem; letter-spacing: 0.1em; } section { padding: 70px 20px; } }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="/">Matthew &amp; Kristine</a>
+  <ul class="nav-links">
+    <li><a href="#films">Films</a></li>
+    <li><a href="#pro">Photos</a></li>
+    <li><a href="#guests">Guest Moments</a></li>
+    <li><a href="/gallery">Gallery</a></li>
+    <li><a href="/upload">Share Photos</a></li>
+  </ul>
+</nav>
+
+<!-- ── HERO ─────────────────────────────────────── -->
+<section id="hero">
+  <video autoplay muted loop playsinline preload="auto" poster="/images/site-couple-hero.jpg" aria-hidden="true">
+    <source src="/media/wed-film-3.mp4" type="video/mp4" />
+  </video>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">Mr &amp; Mrs · 06 · 06 · 2026</p>
+    <div class="hero-just">Just&nbsp;Married</div>
+    <div class="hero-names">Matthew <span class="hero-amp">&amp;</span> Kristine</div>
+    <div class="hero-divider"><span>&#10084;</span></div>
+    <p class="hero-date">Mdina, Malta</p>
+  </div>
+  <div class="hero-scroll">Scroll</div>
+</section>
+
+<!-- ── INTRO ────────────────────────────────────── -->
+<section id="intro">
+  <p class="intro-quote">
+    &ldquo;On the 6th of June, surrounded by golden Maltese stone and the people we love,
+    we said <em>I do</em> &mdash; and became husband and wife. Here&rsquo;s our day, told in films,
+    photographs, and the moments you shared with us.&rdquo;
+  </p>
+  <p class="intro-loc">Two hearts &middot; one journey</p>
+</section>
+
+<!-- ── FILMS ────────────────────────────────────── -->
+<section id="films">
+  <h2 class="section-title">Our Films</h2>
+  <div class="section-rule"></div>
+  <p class="section-sub">Moments in motion</p>
+  <div class="films-grid">
+    <div class="film film--feature">
+      <video controls muted playsinline preload="metadata" poster="/images/site-couple-1.jpg">
+        <source src="/media/wed-film-1.mp4" type="video/mp4" />
+      </video>
+    </div>
+    <div class="film">
+      <video controls muted playsinline preload="metadata" poster="/images/site-couple-5.jpg">
+        <source src="/media/wed-film-2.mp4" type="video/mp4" />
+      </video>
+    </div>
+    <div class="film">
+      <video controls muted playsinline preload="metadata" poster="/images/site-couple-9.jpg">
+        <source src="/media/wed-film-3.mp4" type="video/mp4" />
+      </video>
+    </div>
+  </div>
+</section>
+
+<!-- ── PROFESSIONAL GALLERY ─────────────────────── -->
+<section id="pro">
+  <h2 class="section-title">The Day</h2>
+  <div class="section-rule"></div>
+  <p class="section-sub">Captured by our photographer</p>
+  <div class="pro-grid" id="proGrid"></div>
+</section>
+
+<!-- ── GUEST MOMENTS ────────────────────────────── -->
+<section id="guests">
+  <h2 class="section-title">Guest Moments</h2>
+  <div class="section-rule"></div>
+  <p class="section-sub">The day through your eyes</p>
+  <div class="guest-hint" id="guestHint" style="display:none;"><span>&#8249;</span> Drag or swipe to explore <span>&#8250;</span></div>
+  <div class="guest-rows" id="guestRows"></div>
+  <p class="guest-empty" id="guestEmpty" style="display:none;">Photos shared by guests will appear here once approved.</p>
+  <div class="guest-cta">
+    <p>Were you there with us? Share your photos from the day &mdash; they may be featured here for everyone to enjoy.</p>
+    <a href="/upload" class="btn-gold">Share Your Photo</a>
+    <br><a href="/gallery" class="guest-link">View the full gallery &rarr;</a>
+  </div>
+</section>
+
+<!-- ── LIGHTBOX ─────────────────────────────────── -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lbClose" aria-label="Close">&times;</button>
+  <img id="lbImg" src="" alt="" />
+</div>
+
+<footer>
+  <div class="footer-names">Matthew &amp; Kristine</div>
+  <div class="footer-date">Married 6th June 2026 · Mdina, Malta</div>
+  <div class="footer-links">
+    <a href="/gallery">Gallery</a>
+    <a href="/upload">Share a Photo</a>
+  </div>
+</footer>
+
+<script>
+  /* ── Lightbox ─────────────────────────────── */
+  var lb = document.getElementById('lightbox');
+  var lbImg = document.getElementById('lbImg');
+  document.getElementById('lbClose').addEventListener('click', function(){ lb.classList.remove('open'); });
+  lb.addEventListener('click', function(e){ if (e.target === lb) lb.classList.remove('open'); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') lb.classList.remove('open'); });
+  function openLightbox(src, alt){ lbImg.src = src; lbImg.alt = alt || ''; lb.classList.add('open'); }
+
+  /* ── Professional gallery ─────────────────── */
+  // (Existing professional shots of the couple. Swap/extend with the Mdina set
+  //  once those photo files are added to /images.)
+  var PRO = [
+    { src: '/images/site-couple-hero.jpg', cap: 'Spin me!' },
+    { src: '/images/site-couple-1.jpg',    cap: 'Husband &amp; Wife' },
+    { src: '/images/site-couple-7.jpg',    cap: 'you &amp; me' },
+    { src: '/images/site-story-1.jpg',     cap: 'Two hearts, one journey' },
+    { src: '/images/site-couple-3.jpg',    cap: 'Mdina' },
+    { src: '/images/site-couple-9.jpg',    cap: 'Forever' },
+    { src: '/images/site-couple-5.jpg',    cap: 'Our hearts dance' },
+    { src: '/images/site-couple-11.jpg',   cap: 'Love' },
+    { src: '/images/site-story-2.jpg',     cap: '' },
+    { src: '/images/site-couple-12.jpg',   cap: '' },
+    { src: '/images/site-couple-4.jpg',    cap: '' },
+    { src: '/images/site-story-3.jpg',     cap: '' }
+  ];
+  (function(){
+    var grid = document.getElementById('proGrid');
+    PRO.forEach(function(p){
+      var item = document.createElement('div'); item.className = 'pro-item';
+      var img = document.createElement('img'); img.src = p.src; img.loading = 'lazy'; img.alt = 'Matthew and Kristine';
+      item.appendChild(img);
+      if (p.cap) { var c = document.createElement('div'); c.className = 'pro-cap'; c.innerHTML = p.cap; item.appendChild(c); }
+      item.addEventListener('click', function(){ openLightbox(p.src, 'Matthew and Kristine'); });
+      grid.appendChild(item);
+    });
+  })();
+
+  /* ── Guest moments — moving rows (from approved uploads) ─────────────── */
+  fetch('/api/approved-photos').then(function(r){ return r.ok ? r.json() : []; }).then(function(photos){
+    var host = document.getElementById('guestRows');
+    var empty = document.getElementById('guestEmpty');
+    if (!photos || photos.length === 0) { empty.style.display = 'block'; return; }
+    document.getElementById('guestHint').style.display = 'flex';
+
+    function shuffle(a){ a = a.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+
+    // Build tile descriptors: every photo, plus one note tile per unique note.
+    var tiles = photos.map(function(p){ return { type:'photo', src:'/uploads/approved/'+p.filename, name:p.uploaderName }; });
+    var seen = {};
+    photos.forEach(function(p){
+      if (!p.uploaderMessage) return;
+      var key = (p.uploaderName||'').toLowerCase()+'||'+p.uploaderMessage;
+      if (seen[key]) return; seen[key] = true;
+      tiles.push({ type:'note', msg:p.uploaderMessage, name:p.uploaderName });
+    });
+
+    function makeTile(t){
+      if (t.type === 'note') {
+        var n = document.createElement('div'); n.className = 'guest-note';
+        var m = document.createElement('p'); m.className = 'guest-note-msg'; m.textContent = t.msg; n.appendChild(m);
+        if (t.name) { var nm = document.createElement('span'); nm.className = 'guest-note-name'; nm.textContent = t.name; n.appendChild(nm); }
+        return n;
+      }
+      var d = document.createElement('div'); d.className = 'guest-tile';
+      var img = document.createElement('img'); img.src = t.src; img.loading = 'eager'; img.alt = t.name ? ('Photo by '+t.name) : 'Guest photo';
+      d.appendChild(img);
+      d.addEventListener('click', function(){ openLightbox(t.src, img.alt); });
+      return d;
+    }
+
+    var ROWS = 3, DIRS = [-1, 1, -1], SPEED = 32;
+    var pool = shuffle(tiles);
+    var rowsBase = [[],[],[]];
+    if (pool.length >= ROWS*2) pool.forEach(function(t,i){ rowsBase[i%ROWS].push(t); });
+    else for (var r=0;r<ROWS;r++) rowsBase[r] = shuffle(pool);
+
+    var rows = rowsBase.map(function(base, idx){
+      var row = document.createElement('div'); row.className = 'guest-row';
+      var track = document.createElement('div'); track.className = 'guest-track';
+      var n = base.length, reps = Math.max(1, Math.ceil(12/n));
+      for (var c=0;c<2;c++) for (var rep=0;rep<reps;rep++) base.forEach(function(t){ track.appendChild(makeTile(t)); });
+      row.appendChild(track); host.appendChild(row);
+      var st = { row:row, track:track, dir:DIRS[idx%DIRS.length], mode:'auto', pos:0, lastSL:0, stable:0 };
+      function settle(){ st.mode='settling'; st.lastSL=row.scrollLeft; st.stable=0; }
+      row.addEventListener('touchstart', function(){ st.mode='touch'; }, {passive:true});
+      row.addEventListener('touchend', settle, {passive:true});
+      row.addEventListener('touchcancel', settle, {passive:true});
+      row.addEventListener('wheel', settle, {passive:true});
+      var drag=false, sx=0, ssl=0;
+      row.addEventListener('pointerdown', function(e){ if (e.pointerType!=='mouse'){ st.mode='touch'; return; } drag=true; sx=e.clientX; ssl=row.scrollLeft; st.mode='touch'; row.classList.add('is-grabbing'); try{row.setPointerCapture(e.pointerId);}catch(_){} });
+      row.addEventListener('pointermove', function(e){ if(!drag)return; row.scrollLeft = ssl-(e.clientX-sx); });
+      function up(e){ if(e.pointerType!=='mouse'){ settle(); return; } if(!drag)return; drag=false; row.classList.remove('is-grabbing'); try{row.releasePointerCapture(e.pointerId);}catch(_){} settle(); }
+      row.addEventListener('pointerup', up);
+      row.addEventListener('pointercancel', up);
+      return st;
+    });
+
+    var last = performance.now();
+    function frame(now){
+      var dt=(now-last)/1000; last=now; if(dt>0.1)dt=0.1;
+      rows.forEach(function(r){
+        var halfW = r.track.scrollWidth/2; if(halfW<=0) return;
+        if (r.mode==='touch') return;
+        if (r.mode==='settling'){ var cur=r.row.scrollLeft; if(Math.abs(cur-r.lastSL)<0.4){r.stable++;}else{r.stable=0;r.lastSL=cur;} if(r.stable>=5){r.mode='auto';r.pos=r.row.scrollLeft;} return; }
+        r.pos += r.dir*SPEED*dt; r.pos = ((r.pos%halfW)+halfW)%halfW; r.row.scrollLeft = r.pos;
+      });
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }).catch(function(){ document.getElementById('guestEmpty').style.display = 'block'; });
+</script>
+</body>
+</html>

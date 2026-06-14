@@ -53,8 +53,10 @@ app.use('/uploads/approved', express.static(path.join(DATA_DIR, 'uploads', 'appr
   etag:     true,
 }));
 
-// Site assets (CSS, JS, images)
+// Site assets (CSS, JS, images). index:false so "/" is handled by the router
+// (which decides between the pre-wedding and post-wedding home page).
 app.use(express.static(path.join(__dirname, 'public'), {
+  index:  false,
   maxAge: '1h',
   etag:   true,
 }));

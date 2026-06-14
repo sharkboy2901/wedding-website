@@ -235,6 +235,9 @@ router.get('/dashboard', requireAdmin, asyncHandler(async (req, res) => {
     livestream_homepage: allSettings.livestream_homepage || '0',
   };
 
+  // Which home page guests currently see: 'pre' (default) or 'post'.
+  const homeMode = (allSettings.home_mode === 'post') ? 'post' : 'pre';
+
   const flash = req.session.flash || null;
   delete req.session.flash;
   res.render('admin/dashboard', {
@@ -247,9 +250,24 @@ router.get('/dashboard', requireAdmin, asyncHandler(async (req, res) => {
     rsvpStats,
     siteSettings,
     siteImages,
+    homeMode,
     flash,
     adminUsername: req.session.adminUsername,
   });
+}));
+
+// -- HOME MODE: switch between pre-wedding and post-wedding front page --
+
+router.post('/home-mode', requireAdmin, asyncHandler(async (req, res) => {
+  const mode = req.body.mode === 'post' ? 'post' : 'pre';
+  await db.setSetting('home_mode', mode);
+  req.session.flash = {
+    type: 'success',
+    message: mode === 'post'
+      ? 'Front page switched to the POST-wedding celebration page.'
+      : 'Front page switched to the PRE-wedding page.',
+  };
+  res.redirect('/admin/dashboard');
 }));
 
 // -- PHOTO: SERVE PENDING (admin only) --
