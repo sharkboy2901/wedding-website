@@ -40,10 +40,10 @@
     .nav-links a:hover { color: var(--gold); }
 
     /* ── HERO (split: whole film + elegant text) ───── */
-    #hero { display: flex; min-height: 94vh; }
-    /* contain + padding so the ENTIRE video is visible, sitting a touch smaller */
-    .hero-media { position: relative; flex: 1.05; min-height: 60vh; background: #000; overflow: hidden;
-      display: flex; align-items: center; justify-content: center; padding: 70px 18px 24px; }
+    #hero { display: flex; min-height: 82vh; }
+    /* contain + cream backdrop so the ENTIRE video shows, smaller, with no black border */
+    .hero-media { position: relative; flex: 1; min-height: 54vh; background: var(--cream); overflow: hidden;
+      display: flex; align-items: center; justify-content: center; padding: 64px clamp(26px, 5vw, 78px) 44px; }
     .hero-media video, .hero-media img { width: 100%; height: 100%; object-fit: contain; }
     .hero-panel { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
       text-align: center; padding: 110px 38px 70px; background: var(--cream); }
@@ -57,14 +57,16 @@
     .hero-date { font-size: 0.95rem; letter-spacing: 0.26em; text-transform: uppercase; color: var(--brown-light); }
     @media (max-width: 820px) {
       #hero { flex-direction: column; min-height: auto; }
-      .hero-media { flex: none; width: 100%; height: 62vh; padding: 86px 14px 18px; }
+      .hero-media { flex: none; width: 100%; height: 52vh; padding: 80px 16px 18px; }
       .hero-panel { padding: 52px 24px 56px; }
     }
 
     /* ── FEATURE ROWS (alternating film + text) ────── */
-    .feature { display: flex; align-items: stretch; min-height: 78vh; padding: 0; }
+    .feature { display: flex; align-items: stretch; min-height: 62vh; padding: 0; }
     .feature.reverse { flex-direction: row-reverse; }
-    .feature-media { flex: 1.1; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    /* contain + matching backdrop = whole video, smaller, no black border */
+    .feature-media { flex: 1.05; background: var(--warm-white); display: flex; align-items: center; justify-content: center; overflow: hidden; padding: clamp(24px, 4vw, 58px); }
+    .feature.reverse .feature-media { background: var(--cream); }
     .feature-media video { width: 100%; height: 100%; object-fit: contain; }
     .feature-text { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 70px clamp(28px, 6vw, 88px); background: var(--warm-white); }
     .feature.reverse .feature-text { background: var(--cream); }
@@ -73,7 +75,7 @@
     .feature-body { font-size: clamp(0.98rem, 1.4vw, 1.1rem); line-height: 1.95; color: var(--brown-light); max-width: 48ch; }
     @media (max-width: 820px) {
       .feature, .feature.reverse { flex-direction: column; min-height: auto; }
-      .feature-media { width: 100%; height: 58vh; }
+      .feature-media { width: 100%; height: 50vh; padding: 26px 18px; }
       .feature-text { padding: 48px 24px; }
     }
 
@@ -263,8 +265,9 @@
   function openLightbox(src, alt){ lbImg.src = src; lbImg.alt = alt || ''; lb.classList.add('open'); }
 
   /* ── Mdina Stroll gallery ─────────────────────────────────────────────────
-     Shows the full Mdina photoshoot. Any extra photos dropped into
-     /public/images/wedding are appended automatically. */
+     Real Mdina photos live in /public/images/wedding — drop them there and they
+     show here (alphabetical; name them 01.jpg, 02.jpg … to order). Until any are
+     added we show the current shots as a placeholder. */
   var grid = document.getElementById('proGrid');
   function addPro(src){
     var item = document.createElement('div'); item.className = 'pro-item';
@@ -274,7 +277,7 @@
     grid.appendChild(item);
   }
 
-  var MDINA = [
+  var PLACEHOLDER = [
     '/images/site-couple-hero.jpg', '/images/site-couple-1.jpg', '/images/site-couple-2.jpg',
     '/images/site-couple-3.jpg', '/images/site-couple-4.jpg', '/images/site-couple-5.jpg',
     '/images/site-couple-6.jpg', '/images/site-couple-7.jpg', '/images/site-couple-8.jpg',
@@ -282,11 +285,14 @@
     '/images/site-couple-12.jpg', '/images/site-couple-13.jpg',
     '/images/site-story-1.jpg', '/images/site-story-2.jpg', '/images/site-story-3.jpg'
   ];
-  MDINA.forEach(addPro);
 
   fetch('/api/wedding-media').then(function(r){ return r.ok ? r.json() : {}; }).then(function(m){
-    if (m && m.photos) m.photos.forEach(function(f){ addPro('/images/wedding/' + f); });
-  }).catch(function(){});
+    if (m && m.photos && m.photos.length) {
+      m.photos.forEach(function(f){ addPro('/images/wedding/' + f); });   // real Mdina pics
+    } else {
+      PLACEHOLDER.forEach(addPro);                                        // until you upload them
+    }
+  }).catch(function(){ PLACEHOLDER.forEach(addPro); });
 
   /* ── Guest moments — moving rows (from approved uploads) ─────────────── */
   fetch('/api/approved-photos').then(function(r){ return r.ok ? r.json() : []; }).then(function(photos){
