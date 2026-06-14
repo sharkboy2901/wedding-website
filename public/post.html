@@ -312,7 +312,9 @@
 
   fetch('/api/wedding-media').then(function(r){ return r.ok ? r.json() : {}; }).then(function(m){
     if (m && m.photos && m.photos.length) {
-      render(m.photos.map(function(f){ return '/images/wedding/' + f; }));   // real Mdina pics
+      // Panorama hidden for now — drop the filter below to bring it back.
+      var photos = m.photos.filter(function(f){ return !/pano/i.test(f); });
+      render(photos.map(function(f){ return '/images/wedding/' + f; }));     // real Mdina pics
     } else {
       render(PLACEHOLDER);                                                   // until you upload them
     }
