@@ -207,8 +207,7 @@
     '<button type="button" data-view="wall">&#9638; Still</button>';
   grid.parentNode.insertBefore(toggle, grid);
 
-  /* ── Elegant "you can scroll" hint (shown once per device) ──────────────── */
-  var HINT_KEY = 'mk_gallery_hint_seen';
+  /* ── Elegant "you can scroll" hint (shown on every visit) ───────────────── */
   var hint = document.createElement('div');
   hint.className = 'gallery-hint';
   hint.setAttribute('role', 'status');
@@ -228,10 +227,6 @@
   }
   function maybeShowHint() {
     if (hintGone) return;
-    var seen = false;
-    try { seen = localStorage.getItem(HINT_KEY) === '1'; } catch (_) {}
-    if (seen) { dismissHint(); return; }
-    try { localStorage.setItem(HINT_KEY, '1'); } catch (_) {}
     requestAnimationFrame(function () { hint.classList.add('is-visible'); });
     hintTimer = setTimeout(dismissHint, 6000);
   }
