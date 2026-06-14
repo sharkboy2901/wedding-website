@@ -74,16 +74,15 @@
     .intro-quote { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 300; font-size: clamp(1.4rem, 3.4vw, 2.1rem); line-height: 1.7; color: var(--brown-light); max-width: 760px; margin: 0 auto; }
     .intro-loc { margin-top: 26px; font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold-dark); }
 
-    /* ── FILMS ──────────────────────────────── */
-    #films { background: var(--brown); }
-    #films .section-title { color: var(--cream); }
-    #films .section-sub { color: rgba(245,237,224,0.6); }
-    .films-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-    .film { position: relative; border-radius: 4px; overflow: hidden; background: #000; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
-    .film--feature { grid-column: 1 / -1; }
-    .film video { width: 100%; height: 100%; aspect-ratio: 16/9; object-fit: cover; }
-    .film--feature video { aspect-ratio: 16/9; }
-    @media (max-width: 680px){ .films-grid { grid-template-columns: 1fr; } }
+    /* ── BLENDED FILM BANDS (full-bleed, woven into the page) ── */
+    .film-band { position: relative; width: 100%; line-height: 0; background: #000; }
+    .film-band video { width: 100%; height: clamp(60vh, 80vh, 90vh); object-fit: cover; display: block; }
+    /* soft top/bottom fades so the film blends into the cream sections around it */
+    .film-band::before, .film-band::after { content: ''; position: absolute; left: 0; right: 0; height: 110px; z-index: 1; pointer-events: none; }
+    .film-band::before { top: 0;    background: linear-gradient(to bottom, var(--warm-white), transparent); }
+    .film-band::after  { bottom: 0; background: linear-gradient(to top,    var(--cream), transparent); }
+    .film-band-cap { position: absolute; z-index: 2; left: 0; right: 0; bottom: 12%; text-align: center; color: #fff;
+      font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: clamp(1.6rem, 4vw, 3rem); text-shadow: 0 3px 22px rgba(0,0,0,0.5); }
 
     /* ── PROFESSIONAL GALLERY ───────────────── */
     #pro { background: var(--cream); position: relative; }
@@ -156,9 +155,7 @@
 
 <!-- ── HERO ─────────────────────────────────────── -->
 <section id="hero">
-  <video autoplay muted loop playsinline preload="auto" poster="/images/site-couple-hero.jpg" aria-hidden="true">
-    <source src="/media/wed-film-3.mp4" type="video/mp4" />
-  </video>
+  <img class="hero-fallback" id="heroMedia" src="/images/site-couple-hero.jpg" alt="" aria-hidden="true" />
   <div class="hero-overlay"></div>
   <div class="hero-content">
     <p class="hero-eyebrow">Mr &amp; Mrs · 06 · 06 · 2026</p>
@@ -180,29 +177,8 @@
   <p class="intro-loc">Two hearts &middot; one journey</p>
 </section>
 
-<!-- ── FILMS ────────────────────────────────────── -->
-<section id="films">
-  <h2 class="section-title">Our Films</h2>
-  <div class="section-rule"></div>
-  <p class="section-sub">Moments in motion</p>
-  <div class="films-grid">
-    <div class="film film--feature">
-      <video controls muted playsinline preload="metadata" poster="/images/site-couple-1.jpg">
-        <source src="/media/wed-film-1.mp4" type="video/mp4" />
-      </video>
-    </div>
-    <div class="film">
-      <video controls muted playsinline preload="metadata" poster="/images/site-couple-5.jpg">
-        <source src="/media/wed-film-2.mp4" type="video/mp4" />
-      </video>
-    </div>
-    <div class="film">
-      <video controls muted playsinline preload="metadata" poster="/images/site-couple-9.jpg">
-        <source src="/media/wed-film-3.mp4" type="video/mp4" />
-      </video>
-    </div>
-  </div>
-</section>
+<!-- ── BLENDED FILM BANDS (auto-loaded from /media/wedding) ──────────────── -->
+<div id="filmBands"></div>
 
 <!-- ── PROFESSIONAL GALLERY ─────────────────────── -->
 <section id="pro">
@@ -251,34 +227,57 @@
   document.addEventListener('keydown', function(e){ if (e.key === 'Escape') lb.classList.remove('open'); });
   function openLightbox(src, alt){ lbImg.src = src; lbImg.alt = alt || ''; lb.classList.add('open'); }
 
-  /* ── Professional gallery ─────────────────── */
-  // (Existing professional shots of the couple. Swap/extend with the Mdina set
-  //  once those photo files are added to /images.)
-  var PRO = [
-    { src: '/images/site-couple-hero.jpg', cap: 'Spin me!' },
-    { src: '/images/site-couple-1.jpg',    cap: 'Husband &amp; Wife' },
-    { src: '/images/site-couple-7.jpg',    cap: 'you &amp; me' },
-    { src: '/images/site-story-1.jpg',     cap: 'Two hearts, one journey' },
-    { src: '/images/site-couple-3.jpg',    cap: 'Mdina' },
-    { src: '/images/site-couple-9.jpg',    cap: 'Forever' },
-    { src: '/images/site-couple-5.jpg',    cap: 'Our hearts dance' },
-    { src: '/images/site-couple-11.jpg',   cap: 'Love' },
-    { src: '/images/site-story-2.jpg',     cap: '' },
-    { src: '/images/site-couple-12.jpg',   cap: '' },
-    { src: '/images/site-couple-4.jpg',    cap: '' },
-    { src: '/images/site-story-3.jpg',     cap: '' }
+  /* ── Professional gallery + hero + film bands (auto-loaded) ───────────────
+     Drop wedding-day photos in /public/images/wedding and films in
+     /public/media/wedding — they appear here automatically. Until then we
+     gracefully show the couple's existing shoot. */
+  var PRO_FALLBACK = [
+    '/images/site-couple-hero.jpg', '/images/site-couple-1.jpg', '/images/site-couple-7.jpg',
+    '/images/site-story-1.jpg', '/images/site-couple-3.jpg', '/images/site-couple-9.jpg',
+    '/images/site-couple-5.jpg', '/images/site-couple-11.jpg', '/images/site-story-2.jpg',
+    '/images/site-couple-12.jpg', '/images/site-couple-4.jpg', '/images/site-story-3.jpg'
   ];
-  (function(){
+
+  function buildPro(srcs){
     var grid = document.getElementById('proGrid');
-    PRO.forEach(function(p){
+    grid.innerHTML = '';
+    srcs.forEach(function(src){
       var item = document.createElement('div'); item.className = 'pro-item';
-      var img = document.createElement('img'); img.src = p.src; img.loading = 'lazy'; img.alt = 'Matthew and Kristine';
+      var img = document.createElement('img'); img.src = src; img.loading = 'lazy'; img.alt = 'Matthew and Kristine';
       item.appendChild(img);
-      if (p.cap) { var c = document.createElement('div'); c.className = 'pro-cap'; c.innerHTML = p.cap; item.appendChild(c); }
-      item.addEventListener('click', function(){ openLightbox(p.src, 'Matthew and Kristine'); });
+      item.addEventListener('click', function(){ openLightbox(src, 'Matthew and Kristine'); });
       grid.appendChild(item);
     });
-  })();
+  }
+
+  fetch('/api/wedding-media').then(function(r){ return r.ok ? r.json() : {}; }).then(function(m){
+    m = m || {};
+    // Hero: a wedding hero video blends best; else a wedding hero photo; else fallback.
+    if (m.heroVideo) {
+      var v = document.createElement('video');
+      v.className = 'hero-fallback'; v.autoplay = true; v.muted = true; v.loop = true;
+      v.playsInline = true; v.setAttribute('playsinline',''); v.preload = 'auto';
+      v.poster = '/images/site-couple-hero.jpg';
+      v.src = '/media/wedding/' + m.heroVideo;
+      var old = document.getElementById('heroMedia');
+      old.parentNode.replaceChild(v, old);
+    } else if (m.heroPhoto) {
+      document.getElementById('heroMedia').src = '/images/wedding/' + m.heroPhoto;
+    }
+    // The Day: wedding photos if present, else the existing shoot.
+    buildPro((m.photos && m.photos.length) ? m.photos.map(function(f){ return '/images/wedding/' + f; }) : PRO_FALLBACK);
+    // Blended full-bleed film bands.
+    var bands = document.getElementById('filmBands');
+    (m.videos || []).forEach(function(f){
+      var band = document.createElement('div'); band.className = 'film-band';
+      var vid = document.createElement('video');
+      vid.autoplay = true; vid.muted = true; vid.loop = true; vid.playsInline = true;
+      vid.setAttribute('playsinline',''); vid.preload = 'metadata';
+      vid.src = '/media/wedding/' + f;
+      band.appendChild(vid);
+      bands.appendChild(band);
+    });
+  }).catch(function(){ buildPro(PRO_FALLBACK); });
 
   /* ── Guest moments — moving rows (from approved uploads) ─────────────── */
   fetch('/api/approved-photos').then(function(r){ return r.ok ? r.json() : []; }).then(function(photos){

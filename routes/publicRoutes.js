@@ -2,6 +2,7 @@
 
 const express = require('express');
 const path    = require('path');
+const fs      = require('fs');
 const router  = express.Router();
 const db      = require('../db/database');
 const { uploadMiddleware, validateFile, saveToDisk, MAX_SIZE_MB, MAX_FILES } = require('../middleware/upload');
@@ -259,5 +260,26 @@ router.get('/api/approved-photos', asyncHandler(async function(req, res) {
     };
   }));
 }));
+
+// -- API: post-wedding media (auto-loaded from public/images|media/wedding) --
+// Drop files into those folders and they appear on the post-wedding home page —
+// no code changes needed. A file whose name starts with "hero" is the hero.
+router.get('/api/wedding-media', function(req, res) {
+  function list(dir, re) {
+    var full = path.join(__dirname, '..', 'public', dir);
+    try { return fs.readdirSync(full).filter(function(f){ return re.test(f); }).sort(); }
+    catch (e) { return []; }
+  }
+  var photos = list('images/wedding', /\.(jpe?g|png|webp)$/i);
+  var videos = list('media/wedding',  /\.mp4$/i);
+  function splitHero(arr) {
+    var hero = null, rest = [];
+    arr.forEach(function(f){ if (hero === null && /^hero\./i.test(f)) hero = f; else rest.push(f); });
+    return { hero: hero, rest: rest };
+  }
+  var p = splitHero(photos), v = splitHero(videos);
+  res.setHeader('Cache-Control', 'no-store');
+  res.json({ heroPhoto: p.hero, photos: p.rest, heroVideo: v.hero, videos: v.rest });
+});
 
 module.exports = router;
