@@ -123,7 +123,7 @@
       row.appendChild(track);
       rowsWrap.appendChild(row);
 
-      var state = { row: row, track: track, dir: DIRS[idx % DIRS.length], mode: 'auto', lastSL: 0, stable: 0 };
+      var state = { row: row, track: track, dir: DIRS[idx % DIRS.length], mode: 'auto', pos: 0, lastSL: 0, stable: 0 };
       function settle() { state.mode = 'settling'; state.lastSL = row.scrollLeft; state.stable = 0; }
 
       // Touch: let the browser scroll natively; just track when to resume.
@@ -175,12 +175,14 @@
           // fight the native scroll (that was the "wonky" feeling).
           var cur = r.row.scrollLeft;
           if (Math.abs(cur - r.lastSL) < 0.4) { r.stable++; } else { r.stable = 0; r.lastSL = cur; }
-          if (r.stable >= 5) r.mode = 'auto';
+          if (r.stable >= 5) { r.mode = 'auto'; r.pos = r.row.scrollLeft; }   // sync float position
           return;
         }
-        var sl = r.row.scrollLeft + r.dir * SPEED * dt;
-        sl = ((sl % halfW) + halfW) % halfW;          // wrap within one half → seamless loop
-        r.row.scrollLeft = sl;
+        // Track the position as a float and write it out, so sub-pixel steps
+        // accumulate even on 1× DPI desktops (where scrollLeft is whole-pixel).
+        r.pos += r.dir * SPEED * dt;
+        r.pos = ((r.pos % halfW) + halfW) % halfW;   // wrap within one half → seamless loop
+        r.row.scrollLeft = r.pos;
       });
       rafId = requestAnimationFrame(frame);
     }
