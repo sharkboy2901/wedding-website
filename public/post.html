@@ -102,6 +102,10 @@
       border-radius: 4px; overflow: hidden; box-shadow: 0 8px 26px rgba(61,43,31,0.10); align-self: start; }
     .pano-cell img { width: 100%; height: auto; display: block; }
     @media (max-width: 760px){ .pano-cell { grid-column: 1 / -1; } }
+    /* full-width landscape image (filename contains "wide") */
+    .pro-wide { grid-column: 1 / -1; border-radius: 4px; overflow: hidden; cursor: pointer; box-shadow: 0 8px 26px rgba(61,43,31,0.10); }
+    .pro-wide img { width: 100%; height: auto; display: block; transition: transform 0.6s ease; }
+    .pro-wide:hover img { transform: scale(1.03); }
 
     /* ── GUEST MOMENTS (moving rows) ────────── */
     #guests { background: var(--warm-white); }
@@ -293,11 +297,24 @@
     grid.appendChild(cell);
   }
 
+  // Full-width landscape image (filename contains "wide").
+  function addWide(src){
+    var cell = document.createElement('div'); cell.className = 'pro-wide';
+    var img = document.createElement('img'); img.src = src; img.loading = 'lazy'; img.alt = 'Matthew and Kristine in Mdina';
+    cell.appendChild(img);
+    cell.addEventListener('click', function(){ openLightbox(src, 'Matthew and Kristine in Mdina'); });
+    grid.appendChild(cell);
+  }
+
   // Render in order into one even grid; pano runs collapse into a single wide cell.
   function render(srcs){
     var pano = [];
     function flush(){ if (pano.length){ addPano(pano); pano = []; } }
-    srcs.forEach(function(src){ if (/pano/i.test(src)) { pano.push(src); } else { flush(); addItem(src); } });
+    srcs.forEach(function(src){
+      if (/pano/i.test(src)) { pano.push(src); }
+      else if (/wide/i.test(src)) { flush(); addWide(src); }
+      else { flush(); addItem(src); }
+    });
     flush();
   }
 
