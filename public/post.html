@@ -92,9 +92,14 @@
 
     /* ── MDINA STROLL GALLERY ───────────────── */
     #pro { background: var(--cream); position: relative; }
-    .pro-grid { max-width: 1100px; margin: 0 auto; columns: 3; column-gap: 16px; }
+    #proBlocks { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+    .pro-grid { width: 100%; max-width: 1100px; margin: 0; columns: 3; column-gap: 16px; }
     @media (max-width: 900px){ .pro-grid { columns: 2; } }
     @media (max-width: 540px){ .pro-grid { columns: 1; } }
+    /* continuous panorama: equal flush tiles that read as one image */
+    .pano-strip { width: 100%; max-width: 1100px; margin: 0; display: grid;
+      grid-template-columns: repeat(var(--n, 4), 1fr); gap: 0; line-height: 0; border-radius: 3px; overflow: hidden; }
+    .pano-strip img { width: 100%; height: auto; display: block; }
     .pro-item { break-inside: avoid; margin-bottom: 16px; position: relative; border-radius: 3px; overflow: hidden; cursor: pointer; }
     .pro-item img { width: 100%; transition: transform 0.5s ease; }
     .pro-item:hover img { transform: scale(1.04); }
@@ -222,7 +227,7 @@
   <h2 class="section-title">Mdina Stroll</h2>
   <div class="section-rule"></div>
   <p class="section-sub">Wandering the golden streets, just the two of us</p>
-  <div class="pro-grid" id="proGrid"></div>
+  <div id="proBlocks"></div>
 </section>
 
 <!-- ── GUEST MOMENTS ────────────────────────────── -->
@@ -267,14 +272,46 @@
   /* ── Mdina Stroll gallery ─────────────────────────────────────────────────
      Real Mdina photos live in /public/images/wedding — drop them there and they
      show here (alphabetical; name them 01.jpg, 02.jpg … to order). Until any are
-     added we show the current shots as a placeholder. */
-  var grid = document.getElementById('proGrid');
-  function addPro(src){
-    var item = document.createElement('div'); item.className = 'pro-item';
-    var img = document.createElement('img'); img.src = src; img.loading = 'lazy'; img.alt = 'Matthew and Kristine in Mdina';
-    item.appendChild(img);
-    item.addEventListener('click', function(){ openLightbox(src, 'Matthew and Kristine in Mdina'); });
-    grid.appendChild(item);
+     added we show the current shots as a placeholder.
+
+     PANORAMA: photos whose filename contains "pano" are stitched together,
+     flush and side-by-side in order, into one continuous image. So name the
+     four swipe-panorama tiles e.g. 08-pano.jpg, 09-pano.jpg, 10-pano.jpg,
+     11-pano.jpg and they appear as a single seamless picture in sequence. */
+  var host = document.getElementById('proBlocks');
+
+  function gridBlock(srcs){
+    var g = document.createElement('div'); g.className = 'pro-grid';
+    srcs.forEach(function(src){
+      var item = document.createElement('div'); item.className = 'pro-item';
+      var img = document.createElement('img'); img.src = src; img.loading = 'lazy'; img.alt = 'Matthew and Kristine in Mdina';
+      item.appendChild(img);
+      item.addEventListener('click', function(){ openLightbox(src, 'Matthew and Kristine in Mdina'); });
+      g.appendChild(item);
+    });
+    host.appendChild(g);
+  }
+
+  function panoBlock(srcs){
+    var p = document.createElement('div'); p.className = 'pano-strip';
+    p.style.setProperty('--n', srcs.length);
+    srcs.forEach(function(src){
+      var img = document.createElement('img'); img.src = src; img.loading = 'lazy'; img.alt = 'Mdina panorama'; p.appendChild(img);
+    });
+    host.appendChild(p);
+  }
+
+  // Walk the ordered photos, emitting grid blocks for normal runs and a
+  // continuous strip for each consecutive run of "pano" tiles.
+  function render(srcs){
+    var norm = [], pano = [];
+    function flushNorm(){ if (norm.length){ gridBlock(norm); norm = []; } }
+    function flushPano(){ if (pano.length){ panoBlock(pano); pano = []; } }
+    srcs.forEach(function(src){
+      if (/pano/i.test(src)) { flushNorm(); pano.push(src); }
+      else { flushPano(); norm.push(src); }
+    });
+    flushNorm(); flushPano();
   }
 
   var PLACEHOLDER = [
@@ -288,11 +325,11 @@
 
   fetch('/api/wedding-media').then(function(r){ return r.ok ? r.json() : {}; }).then(function(m){
     if (m && m.photos && m.photos.length) {
-      m.photos.forEach(function(f){ addPro('/images/wedding/' + f); });   // real Mdina pics
+      render(m.photos.map(function(f){ return '/images/wedding/' + f; }));   // real Mdina pics
     } else {
-      PLACEHOLDER.forEach(addPro);                                        // until you upload them
+      gridBlock(PLACEHOLDER);                                                // until you upload them
     }
-  }).catch(function(){ PLACEHOLDER.forEach(addPro); });
+  }).catch(function(){ gridBlock(PLACEHOLDER); });
 
   /* ── Guest moments — moving rows (from approved uploads) ─────────────── */
   fetch('/api/approved-photos').then(function(r){ return r.ok ? r.json() : []; }).then(function(photos){
