@@ -699,6 +699,109 @@
       transition: border-color 0.22s, color 0.22s;
     }
     .moments-gallery-link:hover { border-color: var(--gold); }
+
+    /* ═══════════════════════════════════════════════════
+       v1.0.3 — Tiered Photo Section
+       ════════════════════════════════════════════════════
+       Desktop:  [portraits 04-07] → [pano tiles 08-11] → [wide 12]
+       Mobile:   existing scroll strip + seamless pano strip + wide
+       ═══════════════════════════════════════════════════ */
+
+    /* ── Portrait grid (04-07) — desktop only ───── */
+    .photo-portraits-desktop {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+      padding: 0;
+      margin-bottom: 5px;
+    }
+    .portrait-photo {
+      width: 100%;
+      aspect-ratio: 3/4;
+      object-fit: cover;
+      object-position: center 20%;
+      display: block;
+      cursor: pointer;
+      opacity: 0.93;
+      transition: transform 0.45s cubic-bezier(0.22,1,0.36,1), opacity 0.35s;
+    }
+    .portrait-photo:hover { transform: scale(1.022); opacity: 1; }
+
+    /* ── Pano tiles (08-11) desktop — edge-to-edge, stitched ── */
+    .photo-pano-desktop-tiles {
+      display: flex;
+      gap: 0;
+      margin-bottom: 5px;
+    }
+    .pano-tile {
+      flex: 1;
+      height: 210px;
+      object-fit: cover;
+      object-position: center center;
+      display: block;
+      cursor: pointer;
+      opacity: 0.88;
+      transition: opacity 0.3s, transform 0.35s;
+    }
+    .pano-tile:hover { opacity: 1; transform: scaleY(1.015); }
+
+    /* ── Wide solo (image 12) ─────────────────── */
+    .photo-wide-wrap { padding: 0; }
+    .photo-wide {
+      width: 100%;
+      height: 420px;
+      object-fit: cover;
+      object-position: center 40%;
+      display: block;
+      cursor: pointer;
+    }
+
+    /* ── Mobile: continuous stitched pano (08-11) ── */
+    .photo-pano-mobile-strip {
+      display: none;          /* shown only on mobile via media query */
+      overflow: hidden;
+      height: 200px;
+      margin-bottom: 5px;
+    }
+    .pano-mobile-inner {
+      display: flex;
+      gap: 0;
+      width: max-content;
+      animation: pano-scroll 22s linear infinite;
+    }
+    .pano-mobile-img {
+      height: 200px;
+      width: auto;
+      object-fit: cover;
+      flex-shrink: 0;
+      display: block;
+    }
+    @keyframes pano-scroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ── Layout swap: desktop hides mobile strip; mobile hides desktop grid ── */
+    @media (min-width: 861px) {
+      /* Hide the legacy scroll strip on desktop */
+      .photo-strip-mobile { display: none !important; }
+    }
+    @media (max-width: 860px) {
+      /* Hide desktop-only elements */
+      .photo-portraits-desktop   { display: none; }
+      .photo-pano-desktop-tiles  { display: none; }
+      /* Show mobile pano strip */
+      .photo-pano-mobile-strip   { display: block; }
+      /* Wide image: full bleed on mobile */
+      .photo-wide { height: 240px; }
+    }
+
+    /* ── Respect reduced-motion ─────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+      .pano-mobile-inner { animation: none; }
+      .portrait-photo    { transition: opacity 0.3s; }
+      .pano-tile         { transition: opacity 0.3s; }
+    }
   </style>
 </head>
 <body>
@@ -1192,12 +1295,67 @@
   </div>
 </section>
 
-<!-- ── PHOTO AUTO-SCROLL ──────────────────────── -->
+<!-- ── PHOTOS ────────────────────────────────── -->
 <section id="photos">
   <h2 class="section-title reveal">Our Photos</h2>
   <div class="section-rule reveal rd1" style="margin-bottom:56px;"></div>
-  <div class="strip-wrap">
+
+  <!-- Desktop: 4 large portraits side by side (04–07) -->
+  <div class="photo-portraits-desktop">
+    <img class="portrait-photo" src="/images/wedding/04.png"
+         alt="Matthew and Kristine" loading="lazy"
+         onclick="openLightbox('/images/wedding/04.png')">
+    <img class="portrait-photo" src="/images/wedding/05.png"
+         alt="Matthew and Kristine" loading="lazy"
+         onclick="openLightbox('/images/wedding/05.png')">
+    <img class="portrait-photo" src="/images/wedding/06.png"
+         alt="Matthew and Kristine" loading="lazy"
+         onclick="openLightbox('/images/wedding/06.png')">
+    <img class="portrait-photo" src="/images/wedding/07.png"
+         alt="Matthew and Kristine" loading="lazy"
+         onclick="openLightbox('/images/wedding/07.png')">
+  </div>
+
+  <!-- Mobile: existing scrolling strip (all PHOTOS array, shown only on mobile) -->
+  <div class="strip-wrap photo-strip-mobile">
     <div class="strip" id="photoStrip"></div>
+  </div>
+
+  <!-- Desktop: stitched pano tiles edge-to-edge (08-pano – 11-pano) -->
+  <div class="photo-pano-desktop-tiles">
+    <img class="pano-tile" src="/images/wedding/08-pano.png"
+         alt="Matthew and Kristine" loading="lazy"
+         onclick="openLightbox('/images/wedding/08-pano.png')">
+    <img class="pano-tile" src="/images/wedding/09-pano.png"
+         alt="Matthew and Kristine" loading="lazy"
+         onclick="openLightbox('/images/wedding/09-pano.png')">
+    <img class="pano-tile" src="/images/wedding/10-pano.png"
+         alt="Matthew and Kristine" loading="lazy"
+         onclick="openLightbox('/images/wedding/10-pano.png')">
+    <img class="pano-tile" src="/images/wedding/11-pano.png"
+         alt="Matthew and Kristine" loading="lazy"
+         onclick="openLightbox('/images/wedding/11-pano.png')">
+  </div>
+
+  <!-- Mobile: continuous stitched pano strip (08-pano – 11-pano, duplicated for loop) -->
+  <div class="photo-pano-mobile-strip" aria-hidden="true">
+    <div class="pano-mobile-inner">
+      <img class="pano-mobile-img" src="/images/wedding/08-pano.png" alt="">
+      <img class="pano-mobile-img" src="/images/wedding/09-pano.png" alt="">
+      <img class="pano-mobile-img" src="/images/wedding/10-pano.png" alt="">
+      <img class="pano-mobile-img" src="/images/wedding/11-pano.png" alt="">
+      <img class="pano-mobile-img" src="/images/wedding/08-pano.png" alt="">
+      <img class="pano-mobile-img" src="/images/wedding/09-pano.png" alt="">
+      <img class="pano-mobile-img" src="/images/wedding/10-pano.png" alt="">
+      <img class="pano-mobile-img" src="/images/wedding/11-pano.png" alt="">
+    </div>
+  </div>
+
+  <!-- Wide solo (12-wide) — desktop + mobile -->
+  <div class="photo-wide-wrap">
+    <img class="photo-wide" src="/images/wedding/12-wide.jpg"
+         alt="Matthew and Kristine" loading="lazy"
+         onclick="openLightbox('/images/wedding/12-wide.jpg')">
   </div>
 </section>
 
