@@ -169,7 +169,7 @@
 <!-- ── HERO ─────────────────────────────────────── -->
 <section id="hero">
   <div class="hero-media">
-    <video id="heroVid" autoplay muted playsinline preload="auto" poster="/images/site-couple-hero.jpg">
+    <video id="heroVid" autoplay muted playsinline preload="auto">
       <source src="/media/wedding/hero.mp4" type="video/mp4" />
     </video>
   </div>
@@ -263,6 +263,23 @@
 </footer>
 
 <script>
+  /* ── Autoplay nudge: make the muted hero/feature videos start on mobile,
+       without restarting any that have already finished (they pause at the end). */
+  (function(){
+    var vids = document.querySelectorAll('video[autoplay]');
+    function tryPlay(){
+      vids.forEach(function(v){
+        if (v.paused && !v.ended && v.currentTime === 0){
+          var p = v.play(); if (p && p.catch) p.catch(function(){});
+        }
+      });
+    }
+    tryPlay();
+    function onFirst(){ tryPlay(); document.removeEventListener('touchstart', onFirst); document.removeEventListener('click', onFirst); }
+    document.addEventListener('touchstart', onFirst, { passive: true });
+    document.addEventListener('click', onFirst);
+  })();
+
   /* ── Lightbox ─────────────────────────────── */
   var lb = document.getElementById('lightbox');
   var lbImg = document.getElementById('lbImg');
