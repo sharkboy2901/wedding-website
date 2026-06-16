@@ -90,18 +90,25 @@
     .intro-quote { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 300; font-size: clamp(1.4rem, 3.4vw, 2.1rem); line-height: 1.7; color: var(--brown-light); max-width: 760px; margin: 0 auto; }
     .intro-loc { margin-top: 26px; font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold-dark); }
 
-    /* ── MDINA STROLL GALLERY (uniform grid) ──── */
+    /* ── MDINA STROLL GALLERY (tiered) ──────────── */
     #pro { background: var(--cream); position: relative; }
-    .pro-grid { max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .pro-grid { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
     @media (max-width: 760px){ .pro-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
     .pro-item { position: relative; aspect-ratio: 4 / 5; border-radius: 4px; overflow: hidden; cursor: pointer; box-shadow: 0 8px 26px rgba(61,43,31,0.10); }
     .pro-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
     .pro-item:hover img { transform: scale(1.05); }
-    /* seamless panorama: a wide cell spanning two columns, tiles flush */
-    .pano-cell { grid-column: span 2; display: grid; grid-template-columns: repeat(var(--n, 2), 1fr); gap: 0;
-      border-radius: 4px; overflow: hidden; box-shadow: 0 8px 26px rgba(61,43,31,0.10); align-self: start; }
-    .pano-cell img { width: 100%; height: auto; display: block; }
-    @media (max-width: 760px){ .pano-cell { grid-column: 1 / -1; } }
+    /* seamless panorama: smaller stitched tiles across the full width */
+    .pano-cell { grid-column: 1 / -1; overflow: hidden; border-radius: 4px; box-shadow: 0 8px 26px rgba(61,43,31,0.10); }
+    .pano-track { display: flex; justify-content: center; height: clamp(160px, 18vw, 250px); }
+    .pano-track img { height: 100%; width: auto; display: block; }
+    .pano-track .pano-dup { display: none; }                  /* desktop: one centered, stitched set */
+    @media (max-width: 760px){
+      /* mobile: stitch a second set and scroll continuously for a "one image" feel */
+      .pano-track { justify-content: flex-start; width: max-content; height: clamp(150px, 42vw, 240px); animation: panoScroll 32s linear infinite; }
+      .pano-track .pano-dup { display: block; }
+    }
+    @keyframes panoScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    @media (prefers-reduced-motion: reduce){ .pano-track { animation: none; } }
     /* full-width landscape image (filename contains "wide") */
     .pro-wide { grid-column: 1 / -1; border-radius: 4px; overflow: hidden; cursor: pointer; box-shadow: 0 8px 26px rgba(61,43,31,0.10); }
     .pro-wide img { width: 100%; height: auto; display: block; transition: transform 0.6s ease; }
@@ -287,13 +294,20 @@
     grid.appendChild(item);
   }
 
-  // A consecutive run of "pano" tiles becomes one wide cell with flush halves.
+  // A consecutive run of "pano" tiles becomes one stitched strip: centered on
+  // desktop, and (with a duplicated second set) a seamless marquee on mobile.
   function addPano(srcs){
     var cell = document.createElement('div'); cell.className = 'pano-cell';
-    cell.style.setProperty('--n', srcs.length);
-    srcs.forEach(function(src){
-      var img = document.createElement('img'); img.src = src; img.loading = 'lazy'; img.alt = 'Mdina panorama'; cell.appendChild(img);
-    });
+    var track = document.createElement('div'); track.className = 'pano-track';
+    function fill(dup){
+      srcs.forEach(function(src){
+        var img = document.createElement('img'); img.src = src; img.loading = 'lazy'; img.alt = 'Mdina panorama';
+        if (dup) img.className = 'pano-dup';
+        track.appendChild(img);
+      });
+    }
+    fill(false); fill(true);
+    cell.appendChild(track);
     grid.appendChild(cell);
   }
 
@@ -329,9 +343,7 @@
 
   fetch('/api/wedding-media').then(function(r){ return r.ok ? r.json() : {}; }).then(function(m){
     if (m && m.photos && m.photos.length) {
-      // Panorama hidden for now — drop the filter below to bring it back.
-      var photos = m.photos.filter(function(f){ return !/pano/i.test(f); });
-      render(photos.map(function(f){ return '/images/wedding/' + f; }));     // real Mdina pics
+      render(m.photos.map(function(f){ return '/images/wedding/' + f; }));   // real Mdina pics
     } else {
       render(PLACEHOLDER);                                                   // until you upload them
     }
