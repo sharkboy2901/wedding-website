@@ -195,7 +195,7 @@
 <!-- ── FEATURE: the celebration (text left · film right) ─────────────────── -->
 <section class="feature reverse" id="celebration">
   <div class="feature-media">
-    <video autoplay muted playsinline preload="metadata" poster="/images/site-couple-1.jpg">
+    <video muted playsinline preload="metadata" poster="/images/site-couple-1.jpg">
       <source src="/media/wedding/2.mp4" type="video/mp4" />
     </video>
   </div>
@@ -211,7 +211,7 @@
 <!-- ── FEATURE: the kiss (film left · text right) ────────────────────────── -->
 <section class="feature" id="thekiss">
   <div class="feature-media">
-    <video autoplay muted playsinline preload="metadata" poster="/images/site-couple-5.jpg">
+    <video muted playsinline preload="metadata" poster="/images/site-couple-5.jpg">
       <source src="/media/wedding/3.mp4" type="video/mp4" />
     </video>
   </div>
@@ -278,6 +278,20 @@
     function onFirst(){ tryPlay(); document.removeEventListener('touchstart', onFirst); document.removeEventListener('click', onFirst); }
     document.addEventListener('touchstart', onFirst, { passive: true });
     document.addEventListener('click', onFirst);
+  })();
+
+  /* ── Feature films (2 & 3): start once when scrolled into view, then pause
+       on the last frame (no autoplay on load, no looping). */
+  (function(){
+    var fvids = document.querySelectorAll('.feature-media video');
+    function play(v){ if (v.paused && !v.ended && v.currentTime === 0){ var p = v.play(); if (p && p.catch) p.catch(function(){}); } }
+    if (!('IntersectionObserver' in window)) { fvids.forEach(play); return; }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){ play(e.target); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.4 });
+    fvids.forEach(function(v){ io.observe(v); });
   })();
 
   /* ── Lightbox ─────────────────────────────── */
