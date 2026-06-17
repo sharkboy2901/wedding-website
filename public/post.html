@@ -112,8 +112,10 @@
 
     /* ── GUEST MOMENTS (moving rows) ────────── */
     #guests { background: var(--warm-white); }
-    .guest-rows { max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+    .guest-rows { max-width: 1680px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
     .guest-row { --row-h: clamp(150px, 24vh, 230px); height: var(--row-h); width: 100%; overflow-x: auto; overflow-y: hidden; cursor: grab; scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch; }
+    /* bigger tiles on desktop (less wasted space on the sides) */
+    @media (min-width: 760px){ .guest-row { --row-h: clamp(260px, 36vh, 380px); } }
     .guest-row.is-grabbing { cursor: grabbing; }
     .guest-row::-webkit-scrollbar { display: none; }
     .guest-track { display: flex; flex-wrap: nowrap; align-items: stretch; height: 100%; width: max-content; }
